@@ -23,13 +23,13 @@
   - Vascular lesion
 
 ## Conclusions
-- The final model used Augmentor library to artificially generate enough samples to finally generate a model that can detect a correct cancer type with an accuracy around 84%. 
-
+- The final model used the Augmentor library to artificially generate enough samples to come up with a model that can detect a correct cancer type with a validation accuracy around 84%. 
+- The validation loss for the final model was 0.56
 
 ## Technologies Used
 - Keras - 2.11.0
 - Tensorflow - 2.11.0
-- Augmentor - 
+- Augmentor - 0.2.10
 
 ## Acknowledgements
 - This project was inspired by a case study from the Executive PG Programm in Machine Learning by IIIT Bengaluru
