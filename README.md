@@ -36,10 +36,5 @@ Download link: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj
 - pandas==1.2.0
 - numpy==1.19.4
 
-
-## Acknowledgements
-- This project was inspired by a case study from the Executive PG Programm in Machine Learning by IIIT Bengaluru
-
-
 ## Contact
-Created by [@rahulkpareek] - feel free to contact me!
+Created by [@shkimmie-umb] - feel free to contact me!
