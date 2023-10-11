@@ -37,3 +37,24 @@ class Visualizer:
             plt.title(class_names[i])
             plt.imshow(image)
         # Todo: Plot test data samples
+
+        # Show class distribution
+        fig = plt.figure(figsize=(12,8))
+        ax = fig.add_axes([0,0,1,1])
+        x=[]
+        y=[]
+        for i in range(len(class_names)):
+            x.append(class_names[i])
+            y.append(len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+
+        ax.bar(x,y)
+        ax.set_ylabel('Numbers of images')
+        ax.set_title('Class distribution of the different dermatology images ')
+        plt.xticks(rotation=45)
+        plt.show()
+
+        print("Number of samples for each class: ")
+        for i in range(len(class_names)):
+            print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+
+
