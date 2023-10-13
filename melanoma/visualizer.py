@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pathlib
+import glob
 
 class Visualizer:
     def show_performance(history):
@@ -45,16 +46,34 @@ class Visualizer:
         y=[]
         for i in range(len(class_names)):
             x.append(class_names[i])
-            y.append(len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+            if (len(glob.glob(path+'/Train' + '/*/*/*.*'))) == 0:
+
+                y.append(len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+            else:
+                y.append(len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))) + len(list(trainDataPath.glob(class_names[i]+'/*/*.*'))))
 
         ax.bar(x,y)
         ax.set_ylabel('Numbers of images')
-        ax.set_title('Class distribution of the different dermatology images ')
+        ax.set_title('Class distribution of the different dermatology images (without augmentation) ')
+
         plt.xticks(rotation=45)
         plt.show()
 
-        print("Number of samples for each class: ")
-        for i in range(len(class_names)):
-            print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+        
+        if (len(glob.glob(path+'/Train' + '/*/*/*.*'))) == 0:
+            print("Number of samples for each class (without augmentation):")
+            for i in range(len(class_names)):
+                print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+        else:
+            print("Number of samples for each class (without augmentation):")
+            for i in range(len(class_names)):
+                print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg'))))
+
+            print("\nNumber of samples for each class (with augmentation):")
+            for i in range(len(class_names)):
+                print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg')))+len(list(trainDataPath.glob(class_names[i]+'/*/*.*'))))
+
+
+        
 
 

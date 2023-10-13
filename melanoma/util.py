@@ -1,6 +1,7 @@
 import pathlib
 import tensorflow as tf
 
+
 class Util:
 	# trainDataPath = ''
 	# testDataPath = ''
