@@ -1,5 +1,25 @@
+from glob import glob
+import os
 import pathlib
+import numpy as np
+import pandas as pd
 import tensorflow as tf
+from enum import Enum
+
+import PIL
+from PIL import Image
+
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+
+import matplotlib.pyplot as plt
+
+
+from IPython.core.debugger import Pdb
+
+class DatasetType(Enum):
+    HAM10000 = 1
 
 
 class Util:
@@ -9,6 +29,7 @@ class Util:
 	# val_ds = ''
 	# class_names = []
 	def __init__(self, path, image_size=(None, None), seed_val=1, split_portion=0.2, batch_size=32, color_mode='rgb'):
+		self.base_dir = pathlib.Path(path)
 		self.trainDataPath = pathlib.Path(path+'/Train')
 		self.testDataPath = pathlib.Path(path+'/Test')
 		self.seed_val = seed_val
@@ -21,6 +42,20 @@ class Util:
 		# self.class_names = class_names
 		self.train_ds = ''
 		self.val_ds = ''
+
+				#Lesion Dictionary created for ease
+		self.lesion_type_dict = {
+			'bkl'  : 'Pigmented Benign keratosis',
+			'nv'   : 'Melanocytic nevi', # nevus
+			'df'   : 'Dermatofibroma',
+			'mel'  : 'Melanoma',
+			'vasc' : 'Vascular lesions',
+			'bcc'  : 'Basal cell carcinoma',
+			'akiec': 'Actinic keratoses',
+		}
+
+
+
 
 
 	def loadTrainData(self):
@@ -62,6 +97,123 @@ class Util:
 		print(class_names)
 
 		return train_ds, val_ds
+
+	
+
+
+	
+	def prepareimages(self, images):
+		# images is a list of images
+		images = np.asarray(images).astype(np.float64)
+		images = images[:, :, :, ::-1]
+		m0 = np.mean(images[:, :, :, 0])
+		m1 = np.mean(images[:, :, :, 1])
+		m2 = np.mean(images[:, :, :, 2])
+		images[:, :, :, 0] -= m0
+		images[:, :, :, 1] -= m1
+		images[:, :, :, 2] -= m2
+		return images
+	
+	def loadMelanomaDataset(self, mode):
+
+
+		if mode == DatasetType.HAM10000:
+			print("path: ", self.base_dir)
+			print("seed value: ", self.seed_val)
+			print("color_mode: ", self.color_mode)
+			num_train_img = len(list(self.base_dir.glob('./*.jpg'))) # counts all images
+			print("Images available in train dataset:", num_train_img)
+
+			#Dictionary for Image Names
+			base_skin_dir = './HAM10000_images_combined'
+			# Pdb().set_trace()
+			imageid_path_dict = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(base_skin_dir, '*.jpg'))}
+
+			df = pd.read_csv('./HAM10000_metadata.csv')
+			# df = pd.read_pickle(f"../input/skin-cancer-mnist-ham10000-pickle/HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl")
+			print("df.head() --------------")
+			print(df.head())
+
+			# Given lesion types
+			classes = df.dx.unique()
+			num_classes = len(classes)
+			self.CFG_num_classes = num_classes
+			classes, num_classes
+
+
+
+			# Not required for pickled data
+			# Creating New Columns for better readability
+
+			df['num_images'] = df.groupby('lesion_id')["image_id"].transform("count")
+			df['path'] = df.image_id.map(imageid_path_dict.get)
+			df['cell_type'] = df.dx.map(self.lesion_type_dict.get)
+			df['cell_type_idx'] = pd.Categorical(df.dx).codes
+			print("df.sample(5) --------------")
+			print(df.sample(5))
+
+			print("df.shape")
+			df.shape
+
+			# Check null data in metadata
+			print("df.isnull().sum() ------------------")
+			print(df.isnull().sum())
+
+			# We found there are some null data in age category
+			# Filling in with average data
+			print("df.age.fillna((df.age.mean()), inplace=True) --------------------")
+			df.age.fillna((df.age.mean()), inplace=True)
+
+
+			# Now, we do not have null data
+			print("print(df.isnull().sum()) -------------------------")
+			print(df.isnull().sum())
+
+			# Not required for pickled data
+			# resize(width, height 순서)
+			img_height = self.image_size[0]
+			img_width = self.image_size[1]
+			df['image'] = df.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df.to_pickle(f"HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl", compression='infer', protocol=4)
+
+			print("df.head() -------------------------")
+			df.head()
+
+			# Dividing into train/val/test set
+			df_single = df[df.num_images == 1]
+			trainset1, testset = train_test_split(df_single, test_size=0.2,random_state = 80)
+			trainset2, validationset = train_test_split(trainset1, test_size=0.2,random_state = 600)
+			trainset3 = df[df.num_images != 1]
+			trainset = pd.concat([trainset2, trainset3])
+
+			# Pdb().set_trace()
+			trainimages = self.prepareimages(list(trainset.image))
+			testimages = self.prepareimages(list(testset.image))
+			validationimages = self.prepareimages(list(validationset.image))
+			trainlabels = np.asarray(trainset.cell_type_idx)
+			testlabels = np.asarray(testset.cell_type_idx)
+			validationlabels = np.asarray(validationset.cell_type_idx)
+
+			# height, width 순서
+			image_shape = (img_height, img_width, 3)
+
+			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
+			trainimages = trainimages.reshape(trainimages.shape[0], *image_shape)
+
+			data_gen = ImageDataGenerator(
+				rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
+				zoom_range = 0.1,            # Randomly zoom image 
+				width_shift_range = 0.1,   # randomly shift images horizontally
+				height_shift_range = 0.1,  # randomly shift images vertically
+				horizontal_flip= False,              # randomly flip images
+				vertical_flip= False                 # randomly flip images
+			)
+			data_gen.fit(trainimages)
+
+			return data_gen, trainimages, testimages, validationimages, trainlabels, testlabels, validationlabels, num_classes
+
+	
+
 
 	def loadTestData(self):
 		# test_data_dir = pathlib.Path(path)

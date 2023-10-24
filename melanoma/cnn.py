@@ -2,19 +2,42 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, models
 # import Model
-from .model import Model
+from .model import Model as Base_Model
 from .augmentationStrategy import *
 
-class CNN(Model):
+from tensorflow.keras import layers, regularizers
+from tensorflow.keras.models import Model, Sequential, load_model
+from tensorflow.keras.optimizers import Adam, SGD, RMSprop
+from tensorflow.keras.layers import (
+    Input, Dense, Conv2D, Flatten, Activation, Dropout, BatchNormalization,
+    MaxPooling2D, AveragePooling2D, ZeroPadding2D, GlobalAveragePooling2D, GlobalMaxPooling2D, add
+)
+from keras.layers.merge import concatenate
 
-    def __init__(self, img_height, img_width, class_names):
-         self.img_height = img_height
-         self.img_width = img_width
-         self.class_names = class_names
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.applications.vgg19 import VGG19
+from tensorflow.keras.applications.vgg19 import preprocess_input
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.inception_v3 import preprocess_input
+
+
+class CNN(Base_Model):
+
+    def __init__(self, img_height, img_width, class_names, num_classes):
+        super().__init__(None, None, num_classes, None)
+        self.img_height = img_height
+        self.img_width = img_width
+        self.class_names = class_names
+
          
 
     def augmentation(self, img_height, img_width, rotation, zoom):
          return self._augmentation_strategy.augmentation(img_height, img_width, rotation, zoom)
+    
+
 
     def CNN_3conv(self, img_height, img_width, class_names, augmentation_type):
             # ### Create the first model
@@ -58,6 +81,23 @@ class CNN(Model):
 
             return model
     
+    def resnet50(self, ResNet50_name):
+        
+        resnet50_out = ResNet50(
+            include_top=False,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling = 'avg',
+            weights='imagenet'
+        )
+
+        Resnet50_model = super().build_model(
+            base_model = resnet50_out,
+            base_model_name = ResNet50_name,
+            model_optimizer = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
+        )
+
+        return Resnet50_model
+    
     def trainData(self, train_ds, val_ds, img_height, img_width, class_names, augmentation_type, epochs=20):
         super().__init__(train_ds, val_ds, epochs)
         # augmentation_type = simple_augmentation()
@@ -78,3 +118,4 @@ class CNN(Model):
 		)
 
         return history
+    
