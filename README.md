@@ -35,6 +35,8 @@ Download link: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj
 - matplotlib==3.2.1
 - pandas==1.2.0
 - numpy==1.19.4
+- pip install pydot
+- conda install -c anaconda graphviz
 
 ## Contact
 Created by [@shkimmie-umb] - feel free to contact me!
