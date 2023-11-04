@@ -17,6 +17,9 @@ import matplotlib.pyplot as plt
 
 
 from IPython.core.debugger import Pdb
+from IPython.display import display
+
+import logging
 
 class DatasetType(Enum):
     HAM10000 = 1
@@ -115,14 +118,31 @@ class Util:
 		return images
 	
 	def loadMelanomaDataset(self, mode):
+		# create logger
+		logger = logging.getLogger('HAM10000 classification example')
+		logger.setLevel(logging.DEBUG)
+
+		# # create console handler and set level to debug
+		# ch = logging.StreamHandler()
+		# ch.setLevel(logging.DEBUG)
+
+		# # add ch to logger
+		# logger.addHandler(ch)
+
+
 
 
 		if mode == DatasetType.HAM10000:
-			print("path: ", self.base_dir)
-			print("seed value: ", self.seed_val)
-			print("color_mode: ", self.color_mode)
+			# Set default image size for HAM10000
+			self.image_size = (112, 150) # height, width
+			logger.debug('%s %s', "path: ", self.base_dir)
+			logger.debug('%s %s', "seed value: ", self.seed_val)
+			logger.debug('%s %s', "color_mode: ", self.color_mode)
+			# print("path: ", self.base_dir)
+			# print("seed value: ", self.seed_val)
+			# print("color_mode: ", self.color_mode)
 			num_train_img = len(list(self.base_dir.glob('./*.jpg'))) # counts all images
-			print("Images available in train dataset:", num_train_img)
+			logger.debug('%s %s', "Images available in train dataset:", num_train_img)
 
 			#Dictionary for Image Names
 			base_skin_dir = './HAM10000_images_combined'
@@ -131,8 +151,13 @@ class Util:
 
 			df = pd.read_csv('./HAM10000_metadata.csv')
 			# df = pd.read_pickle(f"../input/skin-cancer-mnist-ham10000-pickle/HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl")
-			print("df.head() --------------")
-			print(df.head())
+			pd.set_option('display.max_columns', 500)
+
+			logger.debug("Let's check metadata briefly -> df.head()")
+			# logger.debug("Let's check metadata briefly -> df.head()".format(df.head()))
+			# print("Let's check metadata briefly -> df.head()")
+			display(df.head())
+			
 
 			# Given lesion types
 			classes = df.dx.unique()
@@ -149,25 +174,29 @@ class Util:
 			df['path'] = df.image_id.map(imageid_path_dict.get)
 			df['cell_type'] = df.dx.map(self.lesion_type_dict.get)
 			df['cell_type_idx'] = pd.Categorical(df.dx).codes
-			print("df.sample(5) --------------")
-			print(df.sample(5))
+			logger.debug("Let's add some more columns on top of the original metadata for better readability")
+			logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
+			logger.debug("Now, let's show some of records -> df.sample(5)")
+			display(df.sample(5))
 
-			print("df.shape")
-			df.shape
+			# print("df.shape")
+			# display(df.shape)
 
 			# Check null data in metadata
-			print("df.isnull().sum() ------------------")
-			print(df.isnull().sum())
+			logger.debug("Check null data in metadata -> df.isnull().sum()")
+			display(df.isnull().sum())
 
 			# We found there are some null data in age category
 			# Filling in with average data
-			print("df.age.fillna((df.age.mean()), inplace=True) --------------------")
+			logger.debug("We found there are some null data in age category. Let's fill them with average data\n")
+			logger.debug("df.age.fillna((df.age.mean()), inplace=True) --------------------")
 			df.age.fillna((df.age.mean()), inplace=True)
 
 
 			# Now, we do not have null data
-			print("print(df.isnull().sum()) -------------------------")
-			print(df.isnull().sum())
+			logger.debug("Let's check null data now -> print(df.isnull().sum())\n")
+			logger.debug("There are no null data as below:")
+			display(df.isnull().sum())
 
 			# Not required for pickled data
 			# resize(width, height 순서)
@@ -176,8 +205,18 @@ class Util:
 			df['image'] = df.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
 			# df.to_pickle(f"HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl", compression='infer', protocol=4)
 
-			print("df.head() -------------------------")
-			df.head()
+			# print("df.head() -------------------------")
+			# pd.options.display.max_columns=300
+			
+			# pd.options.display.max_columns = None
+			# halfdf = df[df.columns[0:len(df.columns)/2]]
+			# resthalfdf = df[df.columns[(len(df.columns)/2)+1:len(df.columns)]]
+			# halfdf = df.iloc[:, [1,len(df.columns)/2]]
+			# halfdf = df.filter(['lesion_id', 'image_id', ])
+			# display(halfdf)
+			# display(resthalfdf)
+
+			# display(df)
 
 			# Dividing into train/val/test set
 			df_single = df[df.num_images == 1]
