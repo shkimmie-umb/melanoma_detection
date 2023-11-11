@@ -4,6 +4,7 @@ from tensorflow.keras import layers, models
 # import Model
 from .model import Model as Base_Model
 from .augmentationStrategy import *
+from .callback import Callback as silent_training_callback
 
 from tensorflow.keras import layers, regularizers
 from tensorflow.keras.models import Model, Sequential, load_model
@@ -23,6 +24,8 @@ from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 
+from tensorflow.keras.callbacks import ReduceLROnPlateau
+
 
 class CNN(Base_Model):
 
@@ -37,6 +40,46 @@ class CNN(Base_Model):
     def augmentation(self, img_height, img_width, rotation, zoom):
          return self._augmentation_strategy.augmentation(img_height, img_width, rotation, zoom)
     
+    def CNN_3conv2(self):
+        # Our input feature map is 64x64x3: 64x64 for the image pixels, and 3 for
+        # the three color channels: R, G, and B
+        img_input = layers.Input(shape=(self.img_height, self.img_width, 3))
+
+        # First convolution extracts 16 filters that are 3x3
+        # Convolution is followed by max-pooling layer with a 2x2 window
+        x = layers.Conv2D(16, 3, activation='relu', padding='same')(img_input)
+        x = layers.MaxPooling2D(2)(x)
+
+        # Second convolution extracts 32 filters that are 3x3
+        # Convolution is followed by max-pooling layer with a 2x2 window
+        x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
+        x = layers.MaxPooling2D(2)(x)
+
+        # Third convolution extracts 64 filters that are 3x3
+        # Convolution is followed by max-pooling layer with a 2x2 window
+        x = layers.Convolution2D(64, 3, activation='relu', padding='same')(x)
+        x = layers.MaxPooling2D(2)(x)
+
+        # Flatten feature map to a 1-dim tensor
+        x = layers.Flatten()(x)
+
+        # Create a fully connected layer with ReLU activation and 512 hidden units
+        x = layers.Dense(512, activation='relu')(x)
+
+        # Add a dropout rate of 0.5
+        x = layers.Dropout(0.5)(x)
+
+        # Create output layer with a single node and sigmoid activation
+        output = layers.Dense(self.num_classes, activation='softmax')(x)
+
+        # Configure and compile the model
+        model = Model(img_input, output)
+
+        optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+
+        model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+
+        return model
 
 
     def CNN_3conv(self, img_height, img_width, class_names, augmentation_type):
@@ -85,7 +128,9 @@ class CNN(Base_Model):
         
         resnet50_out = ResNet50(
             include_top=False,
+            # include_top=True,
             input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            # input_shape=(64, 64, 3),
             pooling = 'avg',
             weights='imagenet'
         )
@@ -118,4 +163,15 @@ class CNN(Base_Model):
 		)
 
         return history
+    
+    def train(self, data_gen_X_train, data_gen_X_val, X_train, y_train, X_val, y_val):
+        learning_rate_reduction = ReduceLROnPlateau(monitor='val_accuracy', patience=3, verbose=1, factor=0.5, min_lr=0.00001)
+        batch_size = 64
+        epochs = 30
+        model = self.CNN_3conv2()
+        history = model.fit(data_gen_X_train.flow(X_train,y_train, batch_size=batch_size),
+                                    epochs = epochs, validation_data = data_gen_X_val.flow(X_val, y_val),
+                                    verbose = 0, steps_per_epoch=(X_train.shape[0] // batch_size),
+                                    callbacks=[silent_training_callback(), learning_rate_reduction])
+        return model, history
     
