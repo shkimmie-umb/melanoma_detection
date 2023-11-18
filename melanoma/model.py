@@ -36,6 +36,8 @@ from warnings import filterwarnings
 
 import numpy as np
 
+from .callback import Callback as silent_training_callback
+
 
 class Model:
     # img_height, img_width, class_names
@@ -158,7 +160,7 @@ class Model:
             validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
             verbose = self.CFG['verbose'],
             steps_per_epoch=trainimages.shape[0] // batch_size,
-            callbacks=[cb_checkpointer, cb_early_stopper] # We can add GCCollectCallback() to save memory
+            callbacks=[cb_checkpointer, cb_early_stopper, silent_training_callback()] # We can add GCCollectCallback() to save memory
         )
 
         return history
