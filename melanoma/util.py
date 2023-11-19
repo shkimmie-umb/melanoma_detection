@@ -471,10 +471,25 @@ class Util:
 
 		return data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass
 	
-	def combine(self, **kwargs):
-		for key, value in kwargs.items():
+	def combine_images(self, **kwargs):
+		# combined = np.array(0, )
+		for idx, (key, value) in enumerate(kwargs.items()):
 			print("Combining: " + key)
-			combined = np.concatenate(value, axis=0)
+			if idx==0:
+				combined = value
+			elif idx>0:
+				combined = np.vstack((combined, value))
+			# combined = np.concatenate(value)
+		return combined
+	
+	def combine_labels(self, **kwargs):
+		for idx, (key, value) in enumerate(kwargs.items()):
+			print("Combining: " + key)
+			if idx==0:
+				combined = value
+			elif idx>0:
+				combined = np.hstack((combined, value))
+			# combined = np.concatenate(value)
 		return combined
 
 	def loadCSV(self, mode):
