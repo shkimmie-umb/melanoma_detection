@@ -42,41 +42,29 @@ from .callback import Callback as silent_training_callback
 class Model:
     # img_height, img_width, class_names
     
-    def __init__(self, train_ds, val_ds, num_classes, epochs):
+    def __init__(self, train_images, train_labels, val_images, val_labels, test_images, test_labels,
+                 CFG):
         
-        self.train_ds = train_ds
-        self.val_ds = val_ds
-        self.num_classes = num_classes
-        self.epochs = epochs
+        # self.train_ds = train_ds
+        # self.val_ds = val_ds
+        self.train_images = train_images
+        self.train_labels = train_labels
+        self.val_images = val_images
+        self.val_labels = val_labels
+        self.test_images = test_images
+        self.test_labels = test_labels
+        self.CFG = CFG
+        self.img_size = (CFG['img_height'], CFG['img_width'])
+        self.image_shape = (CFG['img_height'], CFG['img_width'], 3)
+        self.num_classes = CFG['num_classes']
+        
+        
+        
 
-        self.CFG = dict(
-			batch_size            =  20,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  30,   # 5; 10; 20;
-			last_trainable_layers =   0,
-			verbose               =   1,   # 0; 1
-			fontsize              =  14,
-
-			# Images sizes
-			img_width             = 150,   # 600 Original
-			img_height            = 112,   # 450 Original
-
-			# Images augs
-			ROTATION_RANGE        =  90.0,
-			ZOOM_RANGE            =   0.1,
-			HSHIFT_RANGE          =   0.1,
-			WSHIFT_RANGE          =   0.1,
-			HFLIP                 = False,
-			VFLIP                 = False,
-
-			# Postprocessing
-			stopper_patience      =  10,   # 0.01; 0.05; 0.1; 0.2;
-			run_functions_eagerly = False
-		)
-
-        self.CFG_last_trainable_layers = self.CFG['last_trainable_layers']
-        self.CFG_early_stopper_patience = self.CFG['stopper_patience']
-        self.CFG_epochs = self.CFG['epochs']
-        self.CFG_batch_size = self.CFG['batch_size']
+        # self.CFG_last_trainable_layers = self.CFG['last_trainable_layers']
+        # self.CFG_early_stopper_patience = self.CFG['stopper_patience']
+        # self.CFG_epochs = self.CFG['epochs']
+        # self.CFG_batch_size = self.CFG['batch_size']
 
     def build_model(self,
         base_model,
@@ -86,7 +74,7 @@ class Model:
         last_trainable_layers = None,
         model_loss = 'sparse_categorical_crossentropy'):
             if last_trainable_layers is None:
-                last_trainable_layers = self.CFG_last_trainable_layers
+                last_trainable_layers = self.CFG['last_trainable_layers']
             print(f'Building {base_model_name} model...')
 
             # We reduce significantly number of trainable parameters by freezing certain layers,
@@ -120,24 +108,12 @@ class Model:
             
             return model
     
-    def fit_model(self,
-    model,
-    model_name,
-    trainimages,
-    trainlabels,
-    validationimages,
-    validationlabels,
-    data_gen,
-    early_stopper_patience = None,
-    epochs = None,
-    batch_size = None
-    ):
-        if early_stopper_patience is None:
-            early_stopper_patience = self.CFG_early_stopper_patience
-        if epochs is None:
-            epochs = self.CFG_epochs
-        if batch_size is None:
-            batch_size = self.CFG_batch_size
+    def fit_model(self, model, model_name, trainimages, trainlabels, validationimages, \
+    validationlabels, data_gen):
+        snapshot_path = self.CFG['snapshot_path']
+        early_stopper_patience = self.CFG['stopper_patience']
+        epochs = self.CFG['epochs']
+        batch_size = self.CFG['batch_size']
         # tf.function - decorated function tried to create variables on non-first call'. 
         tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
 
@@ -145,14 +121,16 @@ class Model:
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
         cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = early_stopper_patience)
         cb_checkpointer  = ModelCheckpoint(
-            filepath=f'model/{model_name}.hdf5',
-        # filepath = CFG['path_model']+'ResNet50-{epoch:02d}-{val_loss:.2f}.hdf5',
+            filepath=f'{snapshot_path}/{model_name}.hdf5',
+            # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
+            # filepath = 'snapshot/{model_name}_{epochs:-2d}-{val_loss:.2f}.hdf5',
+            # filepath = CFG['path_model']+'ResNet50-{epoch:02d}-{val_loss:.2f}.hdf5',
             monitor  = 'val_loss',
             save_best_only=True, 
             mode='min'
         )
 
-        callbacks_list = [cb_checkpointer, cb_early_stopper]
+        callbacks_list = [cb_checkpointer, cb_early_stopper, silent_training_callback()]
 
         history = model.fit(
             data_gen.flow(trainimages, trainlabels, batch_size = batch_size),
@@ -160,7 +138,7 @@ class Model:
             validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
             verbose = self.CFG['verbose'],
             steps_per_epoch=trainimages.shape[0] // batch_size,
-            callbacks=[cb_checkpointer, cb_early_stopper, silent_training_callback()] # We can add GCCollectCallback() to save memory
+            callbacks=[cb_checkpointer, cb_early_stopper] # We can add GCCollectCallback() to save memory
         )
 
         return history

@@ -25,15 +25,15 @@ from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class CNN(Base_Model):
 
-    def __init__(self, img_height, img_width, class_names, num_classes):
-        super().__init__(None, None, num_classes, None)
-        self.img_height = img_height
-        self.img_width = img_width
-        self.class_names = class_names
+    def __init__(self, train_images, train_labels, val_images, val_labels, test_images, test_labels, CFG):
+        super().__init__(train_images, train_labels, val_images, val_labels, test_images, test_labels, CFG)
+
+        # self.class_names = class_names
 
          
 
@@ -125,6 +125,10 @@ class CNN(Base_Model):
             return model
     
     def resnet50(self, ResNet50_name):
+        data_gen = ImageDataGenerator(rotation_range = self.CFG['ROTATION_RANGE'], zoom_range = self.CFG['ZOOM_RANGE'],
+                                      width_shift_range = self.CFG['WSHIFT_RANGE'], height_shift_range = self.CFG['HSHIFT_RANGE'],
+                                      horizontal_flip = self.CFG['HFLIP'], vertical_flip = self.CFG['VFLIP'])
+        data_gen.fit(self.train_images)
         
         resnet50_out = ResNet50(
             include_top=False,
@@ -141,7 +145,7 @@ class CNN(Base_Model):
             model_optimizer = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
         )
 
-        return Resnet50_model
+        return data_gen, Resnet50_model
     
     def trainData(self, train_ds, val_ds, img_height, img_width, class_names, augmentation_type, epochs=20):
         super().__init__(train_ds, val_ds, epochs)

@@ -1,5 +1,5 @@
 # __init__.py
-from .util import Util
+from .util import *
 from .model import Model
 from .visualizer import Visualizer
 from .cnn import CNN

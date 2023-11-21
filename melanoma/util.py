@@ -6,6 +6,7 @@ import pandas as pd
 import tensorflow as tf
 from enum import Enum
 import seaborn as sns
+import pickle
 
 import PIL
 from PIL import Image
@@ -262,7 +263,7 @@ class Util:
 				out_df.to_csv(out_path, index=False)
 				print(f'Saved {out_df.shape} -> {out_path}: {os.stat(out_path).st_size/1024:2.1f}kb')
 	
-	def load(self, mode):
+	def saveDatasetsToFile(self, mode):
 		# create logger
 		logger = logging.getLogger('Melanoma classification')
 		logger.setLevel(logging.DEBUG)
@@ -279,9 +280,9 @@ class Util:
 		print("color_mode: ", self.color_mode)
 		
 		# Dataset path define
-		HAM10000_path = pathlib.Path.joinpath(pathlib.Path.cwd(), './HAM10000_images_combined')
-		ISIC2016_training_path = pathlib.Path.joinpath(pathlib.Path.cwd(), './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
-		ISIC2016_test_path = pathlib.Path.joinpath(pathlib.Path.cwd(), './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
+		HAM10000_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_images_combined')
+		ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
+		ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
 		num_train_img_HAM10000 = len(list(HAM10000_path.glob('./*.jpg'))) # counts all HAM10000 images
 		num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
 		num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
@@ -295,9 +296,9 @@ class Util:
 		imageid_path_training_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_training_path, '*.jpg'))}
 		imageid_path_test_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_test_path, '*.jpg'))}
 
-		df_HAM10000 = pd.read_csv(str(pathlib.Path.joinpath(pathlib.Path.cwd(), './HAM10000_metadata.csv')))
-		df_training_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(pathlib.Path.cwd(), './ISIC2016', './ISBI2016_ISIC_Part3_Training_GroundTruth.csv')))
-		df_test_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(pathlib.Path.cwd(), './ISIC2016', './ISBI2016_ISIC_Part3_Test_GroundTruth.csv')))
+		df_HAM10000 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_metadata.csv')))
+		df_training_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_GroundTruth.csv')))
+		df_test_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_GroundTruth.csv')))
 		# df = pd.read_pickle(f"../input/skin-cancer-mnist-ham10000-pickle/HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl")
 		pd.set_option('display.max_columns', 500)
 
@@ -315,14 +316,14 @@ class Util:
 		display(df_test_ISIC2016.head())
 
 		# Given lesion types
-		classes_HAM10000 = df_HAM10000.dx.unique() # dx column has labels
-		num_classes_HAM10000 = len(classes_HAM10000)
+		classes_multi_HAM10000 = df_HAM10000.dx.unique() # dx column has labels
+		num_classes_multi_HAM10000 = len(classes_multi_HAM10000)
 		# self.CFG_num_classes = num_classes
-		classes_HAM10000, num_classes_HAM10000
+		classes_multi_HAM10000, num_classes_multi_HAM10000
 
-		classes_ISIC2016 = df_training_ISIC2016.label.unique() # second column is label
-		num_classes_ISIC2016 = len(classes_ISIC2016)
-		classes_ISIC2016, num_classes_ISIC2016
+		classes_binary_ISIC2016 = df_training_ISIC2016.label.unique() # second column is label
+		num_classes_binary_ISIC2016 = len(classes_binary_ISIC2016)
+		classes_binary_ISIC2016, num_classes_binary_ISIC2016
 
 		# Not required for pickled data
 		# HAM10000: Creating New Columns for better readability
@@ -418,58 +419,107 @@ class Util:
 		trainset_ISIC2016, validationset_ISIC2016 = train_test_split(df_training_ISIC2016, test_size=0.2,random_state = 80)
 		testset_ISIC2016 = df_test_ISIC2016
 
-
-		# HAM10000 multi-class images/labels
-		trainimages_HAM10000 = prepareimages(list(trainset_HAM10000.image))
-		testimages_HAM10000 = prepareimages(list(testset_HAM10000.image))
-		validationimages_HAM10000 = prepareimages(list(validationset_HAM10000.image))
-		trainlabels_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx)
-		testlabels_HAM10000 = np.asarray(testset_HAM10000.cell_type_idx)
-		validationlabels_HAM10000 = np.asarray(validationset_HAM10000.cell_type_idx)
-		# HAM10000 binary labels
-		trainlabels_binary_HAM10000 = np.asarray(trainset_HAM10000.cell_type_binary_idx)
-		testlabels_binary_HAM10000 = np.asarray(testset_HAM10000.cell_type_binary_idx)
-		validationlabels_binary_HAM10000 = np.asarray(validationset_HAM10000.cell_type_binary_idx)
-		
-		# ISIC2016 binary images/labels
-		trainimages_ISIC2016 = prepareimages(list(trainset_ISIC2016.image))
-		testimages_ISIC2016 = prepareimages(list(testset_ISIC2016.image))
-		validationimages_ISIC2016 = prepareimages(list(validationset_ISIC2016.image))
-		trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx)
-		testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx)
-		validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx)
-
 		# height, width 순서
 		image_shape = (img_height, img_width, 3)
 
-		# Unpack all image pixels using asterisk(*) with dimension (shape[0])
-		trainimages_HAM10000 = trainimages_HAM10000.reshape(trainimages_HAM10000.shape[0], *image_shape)
-		trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
+		# HAM10000 multi-class images/labels
+		if mode.value == DatasetType.HAM10000.value:
+			trainimages_HAM10000 = prepareimages(list(trainset_HAM10000.image))
+			testimages_HAM10000 = prepareimages(list(testset_HAM10000.image))
+			validationimages_HAM10000 = prepareimages(list(validationset_HAM10000.image))
+			trainlabels_multi_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx)
+			testlabels_multi_HAM10000 = np.asarray(testset_HAM10000.cell_type_idx)
+			validationlabels_multi_HAM10000 = np.asarray(validationset_HAM10000.cell_type_idx)
+			# HAM10000 binary labels (Don't need to generate images since they are identical regardless of multi/binary labels)
+			trainlabels_binary_HAM10000 = np.asarray(trainset_HAM10000.cell_type_binary_idx)
+			testlabels_binary_HAM10000 = np.asarray(testset_HAM10000.cell_type_binary_idx)
+			validationlabels_binary_HAM10000 = np.asarray(validationset_HAM10000.cell_type_binary_idx)
 
-		data_gen_HAM10000 = ImageDataGenerator(
-			rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
-			zoom_range = 0.1,            # Randomly zoom image 
-			width_shift_range = 0.1,   # randomly shift images horizontally
-			height_shift_range = 0.1,  # randomly shift images vertically
-			horizontal_flip= False,              # randomly flip images
-			vertical_flip= False                 # randomly flip images
-		)
-		data_gen_ISIC2016 = ImageDataGenerator(
-			rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
-			zoom_range = 0.1,            # Randomly zoom image 
-			width_shift_range = 0.1,   # randomly shift images horizontally
-			height_shift_range = 0.1,  # randomly shift images vertically
-			horizontal_flip= False,              # randomly flip images
-			vertical_flip= False                 # randomly flip images
-		)
-		data_gen_HAM10000.fit(trainimages_HAM10000)
-		data_gen_ISIC2016.fit(trainimages_ISIC2016)
+			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
+			trainimages_HAM10000 = trainimages_HAM10000.reshape(trainimages_HAM10000.shape[0], *image_shape)
 
-		HAM10000_multiclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_HAM10000, testlabels_HAM10000, validationlabels_HAM10000, num_classes_HAM10000)
-		HAM10000_binaryclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2)
-		ISIC2016_binaryclass = (trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016, trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016, validationlabels_binary_ISIC2016, num_classes_ISIC2016)
+			# data_gen_HAM10000 = ImageDataGenerator(
+			# rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
+			# zoom_range = 0.1,            # Randomly zoom image 
+			# width_shift_range = 0.1,   # randomly shift images horizontally
+			# height_shift_range = 0.1,  # randomly shift images vertically
+			# horizontal_flip= False,              # randomly flip images
+			# vertical_flip= False                 # randomly flip images
+			# )
 
-		return data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass
+			# data_gen_HAM10000.fit(trainimages_HAM10000)
+		
+		if mode.value == DatasetType.ISIC2016.value:
+			# ISIC2016 binary images/labels
+			trainimages_ISIC2016 = prepareimages(list(trainset_ISIC2016.image))
+			testimages_ISIC2016 = prepareimages(list(testset_ISIC2016.image))
+			validationimages_ISIC2016 = prepareimages(list(validationset_ISIC2016.image))
+			trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx)
+			testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx)
+			validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx)
+
+			trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
+
+			# data_gen_ISIC2016 = ImageDataGenerator(
+			# rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
+			# zoom_range = 0.1,            # Randomly zoom image 
+			# width_shift_range = 0.1,   # randomly shift images horizontally
+			# height_shift_range = 0.1,  # randomly shift images vertically
+			# horizontal_flip= False,              # randomly flip images
+			# vertical_flip= False                 # randomly flip images
+			# )
+
+			# data_gen_ISIC2016.fit(trainimages_ISIC2016)
+
+		
+
+		path = str(self.base_dir) + '/melanomaDB' + '/customDB'
+		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
+		isExist = os.path.exists(path)
+		if not isExist :
+			os.makedirs(path)
+		else:
+			pass
+		if mode.value == DatasetType.HAM10000.value:
+
+			filename_bin = path+'/'+f'HAM10000_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			filename_multi = path+'/'+f'HAM10000_{self.image_size[0]}h_{self.image_size[1]}w_multiclass.pkl' # height x width
+			with open(filename_bin, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
+				trainlabels_binary_HAM10000, testlabels_binary_HAM10000,validationlabels_binary_HAM10000,
+				2), file_bin)
+			file_bin.close()
+
+			with open(filename_multi, 'wb') as file_multi:
+				
+				pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
+				trainlabels_multi_HAM10000, testlabels_multi_HAM10000,validationlabels_multi_HAM10000,
+				num_classes_multi_HAM10000), file_multi)
+			file_multi.close()
+
+		elif mode.value == DatasetType.ISIC2016.value:
+
+			filename = path+'/'+f'ISIC2016_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016,
+				trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
+				2), file_bin)
+			file_bin.close()
+		
+		
+		
+
+		# HAM10000_multiclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_multi_HAM10000, testlabels_multi_HAM10000, validationlabels_multi_HAM10000, num_classes_HAM10000)
+		# HAM10000_binaryclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2)
+		# ISIC2016_binaryclass = (trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016, trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016, validationlabels_binary_ISIC2016, 2)
+
+	def loadDatasetFromFile(self, filePath):
+		trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(filePath, 'rb'))
+		return trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes
 	
 	def combine_images(self, **kwargs):
 		# combined = np.array(0, )
@@ -549,6 +599,12 @@ class Util:
 			data_gen_X_val.fit(X_val)
 
 			return data_gen_X_train, data_gen_X_val, X_train, X_test, X_val, y_train, y_test, y_val, y_train.shape[1]
+	
+	def getImgSize(self):
+		img_height = self.image_size[0]
+		img_width = self.image_size[1]
+		return img_height, img_width
+		
 
 
 	def loadTestData(self):
