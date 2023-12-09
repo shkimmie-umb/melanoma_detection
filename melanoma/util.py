@@ -27,7 +27,9 @@ import logging
 class DatasetType(Enum):
 	HAM10000 = 1
 	ISIC2016= 2
+	ISIC2017=3
 	HAM10000_ISIC2016 = 100
+	ALL = 9999
 
 class ClassType(Enum):
 	multi = 1
@@ -76,6 +78,7 @@ class Util:
 			'akiec': 'Non-Melanoma',
 		}
 
+		# ISIC2016
 		self.lesion_type_binary_dict_training_ISIC2016 = {
 			'benign' : 'Non-Melanoma',
 			'malignant' : 'Melanoma',
@@ -83,6 +86,20 @@ class Util:
 		self.lesion_type_binary_dict_test_ISIC2016 = {
 			0.0 : 'Non-Melanoma',
 			1.0 : 'Melanoma',
+		}
+
+		# ISIC2017
+		self.lesion_type_dict_ISIC2017_task3_1 = { # Official ISIC2017 task 3 - 1
+			0.0: 'nevus or seborrheic keratosis',
+			1.0: 'melanoma'
+		}
+		self.lesion_type_dict_ISIC2017_task3_2 = { # Official ISIC2017 task 3 - 2
+			0.0: 'melanoma or nevus',
+			1.0: 'seborrheic keratosis',
+		}
+		self.lesion_type_binary_dict_ISIC2017 = { # Binary melanoma detection
+			0.0: 'Non-Melanoma',
+			1.0: 'Melanoma',
 		}
 
 
@@ -269,118 +286,32 @@ class Util:
 		logger.setLevel(logging.DEBUG)
 
 
-		# if mode == DatasetType.HAM10000:
-		# Set default image size for HAM10000
-		# self.image_size = (112, 150) # height, width
-		# logger.debug('%s %s', "path: ", self.base_dir)
-		# logger.debug('%s %s', "seed value: ", self.seed_val)
-		# logger.debug('%s %s', "color_mode: ", self.color_mode)
+		path = str(self.base_dir) + '/melanomaDB' + '/customDB'
+		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
+		isExist = os.path.exists(path)
+		if not isExist :
+			os.makedirs(path)
+		else:
+			pass
+
 		print("path: ", self.base_dir)
 		print("seed value: ", self.seed_val)
 		print("color_mode: ", self.color_mode)
 		
 		# Dataset path define
-		HAM10000_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_images_combined')
-		ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
-		ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
-		num_train_img_HAM10000 = len(list(HAM10000_path.glob('./*.jpg'))) # counts all HAM10000 images
-		num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
-		num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
-		logger.debug('%s %s', "Images available in HAM10000 train dataset:", num_train_img_HAM10000)
-		logger.debug('%s %s', "Images available in ISIC2016 train dataset:", num_train_img_ISIC2016)
-		logger.debug('%s %s', "Images available in ISIC2016 test dataset:", num_test_img_ISIC2016)
 
-		# HAM10000: Dictionary for Image Names
-		imageid_path_dict_HAM10000 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(HAM10000_path, '*.jpg'))}
-		# ISIC2016: Dictionary for Image Names
-		imageid_path_training_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_training_path, '*.jpg'))}
-		imageid_path_test_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_test_path, '*.jpg'))}
+		
 
-		df_HAM10000 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_metadata.csv')))
-		df_training_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_GroundTruth.csv')))
-		df_test_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_GroundTruth.csv')))
 		# df = pd.read_pickle(f"../input/skin-cancer-mnist-ham10000-pickle/HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl")
 		pd.set_option('display.max_columns', 500)
 
-		logger.debug("Let's check HAM10000 metadata briefly -> df.head()")
-		# logger.debug("Let's check metadata briefly -> df.head()".format(df.head()))
-		# print("Let's check metadata briefly -> df.head()")
-		display(df_HAM10000.head())
-
-		logger.debug("Let's check ISIC2016 metadata briefly")
-		logger.debug("This is ISIC2016 training data")
-		df_training_ISIC2016.columns = ['image_id', 'label']
-		display(df_training_ISIC2016.head())
-		df_test_ISIC2016.columns = ['image_id', 'label']
-		logger.debug("This is ISIC2016 test data")
-		display(df_test_ISIC2016.head())
-
 		# Given lesion types
-		classes_multi_HAM10000 = df_HAM10000.dx.unique() # dx column has labels
-		num_classes_multi_HAM10000 = len(classes_multi_HAM10000)
-		# self.CFG_num_classes = num_classes
-		classes_multi_HAM10000, num_classes_multi_HAM10000
-
-		classes_binary_ISIC2016 = df_training_ISIC2016.label.unique() # second column is label
-		num_classes_binary_ISIC2016 = len(classes_binary_ISIC2016)
-		classes_binary_ISIC2016, num_classes_binary_ISIC2016
-
-		# Not required for pickled data
-		# HAM10000: Creating New Columns for better readability
-		df_HAM10000['num_images'] = df_HAM10000.groupby('lesion_id')["image_id"].transform("count")
-		df_HAM10000['path'] = df_HAM10000.image_id.map(imageid_path_dict_HAM10000.get)
-		df_HAM10000['cell_type'] = df_HAM10000.dx.map(self.lesion_type_dict_HAM10000.get)
-		df_HAM10000['cell_type_binary'] = df_HAM10000.dx.map(self.lesion_type_binary_dict_HAM10000.get)
-		df_HAM10000['cell_type_idx'] = pd.Categorical(df_HAM10000.dx).codes
-		df_HAM10000['cell_type_binary_idx'] = pd.Categorical(df_HAM10000.cell_type_binary).codes
-		logger.debug("Let's add some more columns on top of the original metadata for better readability")
-		logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
-		logger.debug("Now, let's show some of records -> df.sample(5)")
-		display(df_HAM10000.sample(5))
-
-		df_training_ISIC2016['path'] = df_training_ISIC2016.image_id.map(imageid_path_training_dict_ISIC2016.get)
-		df_training_ISIC2016['cell_type_binary'] = df_training_ISIC2016.label.map(self.lesion_type_binary_dict_training_ISIC2016.get)
-		df_training_ISIC2016['cell_type_binary_idx'] = pd.Categorical(df_training_ISIC2016.label).codes
-		df_test_ISIC2016['path'] = df_test_ISIC2016.image_id.map(imageid_path_test_dict_ISIC2016.get)
-		df_test_ISIC2016['cell_type_binary'] = df_test_ISIC2016.label.map(self.lesion_type_binary_dict_test_ISIC2016.get)
-		df_test_ISIC2016['cell_type_binary_idx'] = pd.Categorical(df_test_ISIC2016.label).codes
-		logger.debug("Let's add some more columns on top of the original metadata for better readability")
-		# logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
-		# logger.debug("Now, let's show some of records -> df.sample(5)")
-		display(df_training_ISIC2016.sample(5))
-		display(df_test_ISIC2016.sample(5))
-
-		# print("df.shape")
-		# display(df.shape)
-
-		# Check null data in metadata
-		logger.debug("Check null data in HAM10000 metadata -> df_HAM10000.isnull().sum()")
-		display(df_HAM10000.isnull().sum())
-		logger.debug("Check null data in ISIC2016 training metadata -> df_training_ISIC2016.isnull().sum()")
-		display(df_training_ISIC2016.isnull().sum())
-		logger.debug("Check null data in ISIC2016 test metadata -> df_test_ISIC2016.isnull().sum()")
-		display(df_test_ISIC2016.isnull().sum())
-
-
-		# We found there are some null data in age category
-		# Filling in with average data
-		logger.debug("HAM10000: We found there are some null data in age category. Let's fill them with average data\n")
-		logger.debug("df.age.fillna((df_HAM10000.age.mean()), inplace=True) --------------------")
-		df_HAM10000.age.fillna((df_HAM10000.age.mean()), inplace=True)
-
-
-		# Now, we do not have null data
-		logger.debug("HAM10000: Let's check null data now -> print(df.isnull().sum())\n")
-		logger.debug("HAM10000: There are no null data as below:")
-		display(df_HAM10000.isnull().sum())
+		classes_melanoma_binary = ['Non-Melanoma', 'Melanoma']
 
 		# Not required for pickled data
 		# resize() order: (width, height)
 		img_height = self.image_size[0]
 		img_width = self.image_size[1]
-		df_HAM10000['image'] = df_HAM10000.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-		df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-		df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
 
 		def prepareimages(images):
 			# images is a list of images
@@ -395,35 +326,80 @@ class Util:
 			return images
 		# df.to_pickle(f"HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl", compression='infer', protocol=4)
 
-		# print("df.head() -------------------------")
-		# pd.options.display.max_columns=300
-		
-		# pd.options.display.max_columns = None
-		# halfdf = df[df.columns[0:len(df.columns)/2]]
-		# resthalfdf = df[df.columns[(len(df.columns)/2)+1:len(df.columns)]]
-		# halfdf = df.iloc[:, [1,len(df.columns)/2]]
-		# halfdf = df.filter(['lesion_id', 'image_id', ])
-		# display(halfdf)
-		# display(resthalfdf)
-
-		# display(df)
-
-		# Dividing HAM10000 into train/val/test set
-		df_single_HAM10000 = df_HAM10000[df_HAM10000.num_images == 1]
-		trainset1_HAM10000, testset_HAM10000 = train_test_split(df_single_HAM10000, test_size=0.2,random_state = 80)
-		trainset2_HAM10000, validationset_HAM10000 = train_test_split(trainset1_HAM10000, test_size=0.2,random_state = 600)
-		trainset3_HAM10000 = df_HAM10000[df_HAM10000.num_images != 1]
-		trainset_HAM10000 = pd.concat([trainset2_HAM10000, trainset3_HAM10000])
-
-		# Dividing ISIC2016 into train/val set
-		trainset_ISIC2016, validationset_ISIC2016 = train_test_split(df_training_ISIC2016, test_size=0.2,random_state = 80)
-		testset_ISIC2016 = df_test_ISIC2016
 
 		# height, width 순서
 		image_shape = (img_height, img_width, 3)
 
 		# HAM10000 multi-class images/labels
-		if mode.value == DatasetType.HAM10000.value:
+		if mode.value == DatasetType.HAM10000.value or mode.value == DatasetType.ALL.value:
+			HAM10000_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_images_combined')
+			num_train_img_HAM10000 = len(list(HAM10000_path.glob('./*.jpg'))) # counts all HAM10000 images
+
+			logger.debug('%s %s', "Images available in HAM10000 train dataset:", num_train_img_HAM10000)
+
+			# HAM10000: Dictionary for Image Names
+			imageid_path_dict_HAM10000 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(HAM10000_path, '*.jpg'))}
+
+			df_HAM10000 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_metadata.csv')))
+
+			logger.debug("Let's check HAM10000 metadata briefly -> df.head()")
+			# logger.debug("Let's check metadata briefly -> df.head()".format(df.head()))
+			# print("Let's check metadata briefly -> df.head()")
+			display(df_HAM10000.head())
+
+			classes_multi_HAM10000 = df_HAM10000.dx.unique() # dx column has labels
+			num_classes_multi_HAM10000 = len(classes_multi_HAM10000)
+			# self.CFG_num_classes = num_classes
+			classes_multi_HAM10000, num_classes_multi_HAM10000
+
+			# Not required for pickled data
+			# HAM10000: Creating New Columns for better readability
+			df_HAM10000['num_images'] = df_HAM10000.groupby('lesion_id')["image_id"].transform("count")
+			df_HAM10000['path'] = df_HAM10000.image_id.map(imageid_path_dict_HAM10000.get)
+			df_HAM10000['cell_type'] = df_HAM10000.dx.map(self.lesion_type_dict_HAM10000.get)
+			df_HAM10000['cell_type_binary'] = df_HAM10000.dx.map(self.lesion_type_binary_dict_HAM10000.get)
+
+			# Define codes for compatibility among datasets
+			# df_HAM10000['cell_type_idx'] = pd.Categorical(df_HAM10000.dx).codes
+			df_HAM10000['cell_type_idx'] = pd.CategoricalIndex(df_HAM10000.dx, categories=['bkl', 'nv', 'df', 'mel', 'vasc', 'bcc', 'akiec']).codes
+			# df_HAM10000['cell_type_binary_idx'] = pd.Categorical(df_HAM10000.cell_type_binary).codes
+			df_HAM10000['cell_type_binary_idx'] = pd.CategoricalIndex(df_HAM10000.cell_type_binary, categories=classes_melanoma_binary).codes
+			logger.debug("Let's add some more columns on top of the original metadata for better readability")
+			logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type', 'cell_type_binary', 'cell_type_idx', 'cell_type_binary_idx'")
+			logger.debug("Now, let's show some of records -> df.sample(5)")
+			display(df_HAM10000.sample(10))
+
+			# Check null data in metadata
+			logger.debug("Check null data in HAM10000 metadata -> df_HAM10000.isnull().sum()")
+			display(df_HAM10000.isnull().sum())
+
+
+
+			# We found there are some null data in age category
+			# Filling in with average data
+			logger.debug("HAM10000: We found there are some null data in age category. Let's fill them with average data\n")
+			logger.debug("df.age.fillna((df_HAM10000.age.mean()), inplace=True) --------------------")
+			df_HAM10000.age.fillna((df_HAM10000.age.mean()), inplace=True)
+
+
+			# Now, we do not have null data
+			logger.debug("HAM10000: Let's check null data now -> print(df.isnull().sum())\n")
+			logger.debug("HAM10000: There are no null data as below:")
+			display(df_HAM10000.isnull().sum())
+
+			df_HAM10000['image'] = df_HAM10000.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+
+
+			# Dividing HAM10000 into train/val/test set
+			df_single_HAM10000 = df_HAM10000[df_HAM10000.num_images == 1]
+			trainset1_HAM10000, testset_HAM10000 = train_test_split(df_single_HAM10000, test_size=0.2,random_state = 80)
+			trainset2_HAM10000, validationset_HAM10000 = train_test_split(trainset1_HAM10000, test_size=0.2,random_state = 600)
+			trainset3_HAM10000 = df_HAM10000[df_HAM10000.num_images != 1]
+			trainset_HAM10000 = pd.concat([trainset2_HAM10000, trainset3_HAM10000])
+
+
+
+
 			trainimages_HAM10000 = prepareimages(list(trainset_HAM10000.image))
 			testimages_HAM10000 = prepareimages(list(testset_HAM10000.image))
 			validationimages_HAM10000 = prepareimages(list(validationset_HAM10000.image))
@@ -437,50 +413,6 @@ class Util:
 
 			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
 			trainimages_HAM10000 = trainimages_HAM10000.reshape(trainimages_HAM10000.shape[0], *image_shape)
-
-			# data_gen_HAM10000 = ImageDataGenerator(
-			# rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
-			# zoom_range = 0.1,            # Randomly zoom image 
-			# width_shift_range = 0.1,   # randomly shift images horizontally
-			# height_shift_range = 0.1,  # randomly shift images vertically
-			# horizontal_flip= False,              # randomly flip images
-			# vertical_flip= False                 # randomly flip images
-			# )
-
-			# data_gen_HAM10000.fit(trainimages_HAM10000)
-		
-		if mode.value == DatasetType.ISIC2016.value:
-			# ISIC2016 binary images/labels
-			trainimages_ISIC2016 = prepareimages(list(trainset_ISIC2016.image))
-			testimages_ISIC2016 = prepareimages(list(testset_ISIC2016.image))
-			validationimages_ISIC2016 = prepareimages(list(validationset_ISIC2016.image))
-			trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx)
-			testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx)
-			validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx)
-
-			trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
-
-			# data_gen_ISIC2016 = ImageDataGenerator(
-			# rotation_range = 90,    # randomly rotate images in the range (degrees, 0 to 180)
-			# zoom_range = 0.1,            # Randomly zoom image 
-			# width_shift_range = 0.1,   # randomly shift images horizontally
-			# height_shift_range = 0.1,  # randomly shift images vertically
-			# horizontal_flip= False,              # randomly flip images
-			# vertical_flip= False                 # randomly flip images
-			# )
-
-			# data_gen_ISIC2016.fit(trainimages_ISIC2016)
-
-		
-
-		path = str(self.base_dir) + '/melanomaDB' + '/customDB'
-		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
-		isExist = os.path.exists(path)
-		if not isExist :
-			os.makedirs(path)
-		else:
-			pass
-		if mode.value == DatasetType.HAM10000.value:
 
 			filename_bin = path+'/'+f'HAM10000_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 			filename_multi = path+'/'+f'HAM10000_{self.image_size[0]}h_{self.image_size[1]}w_multiclass.pkl' # height x width
@@ -497,8 +429,83 @@ class Util:
 				trainlabels_multi_HAM10000, testlabels_multi_HAM10000,validationlabels_multi_HAM10000,
 				num_classes_multi_HAM10000), file_multi)
 			file_multi.close()
+		
+		if mode.value == DatasetType.ISIC2016.value or mode.value == DatasetType.ALL.value:
+			ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
+			ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
 
-		elif mode.value == DatasetType.ISIC2016.value:
+			num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
+			num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
+
+			logger.debug('%s %s', "Images available in ISIC2016 train dataset:", num_train_img_ISIC2016)
+			logger.debug('%s %s', "Images available in ISIC2016 test dataset:", num_test_img_ISIC2016)
+
+			# ISIC2016: Dictionary for Image Names
+			imageid_path_training_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_training_path, '*.jpg'))}
+			imageid_path_test_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_test_path, '*.jpg'))}
+
+			df_training_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_GroundTruth.csv')))
+			df_test_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_GroundTruth.csv')))
+
+			logger.debug("Let's check ISIC2016 metadata briefly")
+			logger.debug("This is ISIC2016 training data")
+			# Creating default column titles
+			df_training_ISIC2016.columns = ['image_id', 'label']
+			display(df_training_ISIC2016.head())
+			df_test_ISIC2016.columns = ['image_id', 'label']
+			logger.debug("This is ISIC2016 test data")
+			display(df_test_ISIC2016.head())
+
+
+			classes_binary_ISIC2016 = df_training_ISIC2016.label.unique() # second column is label
+			num_classes_binary_ISIC2016 = len(classes_binary_ISIC2016)
+			classes_binary_ISIC2016, num_classes_binary_ISIC2016
+
+			# ISIC2016: Creating New Columns for better readability
+			df_training_ISIC2016['path'] = df_training_ISIC2016.image_id.map(imageid_path_training_dict_ISIC2016.get)
+			df_training_ISIC2016['cell_type_binary'] = df_training_ISIC2016.label.map(self.lesion_type_binary_dict_training_ISIC2016.get)
+			# Define codes for compatibility among datasets
+			df_training_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2016.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_test_ISIC2016['path'] = df_test_ISIC2016.image_id.map(imageid_path_test_dict_ISIC2016.get)
+			df_test_ISIC2016['cell_type_binary'] = df_test_ISIC2016.label.map(self.lesion_type_binary_dict_test_ISIC2016.get)
+			# Define codes for compatibility among datasets
+			df_test_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2016.cell_type_binary, categories=classes_melanoma_binary).codes
+			# logger.debug("Let's add some more columns on top of the original metadata for better readability")
+			# logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
+			# logger.debug("Now, let's show some of records -> df.sample(5)")
+			logger.debug("ISIC2016 training df")
+			display(df_training_ISIC2016.sample(10))
+			logger.debug("ISIC2016 test df")
+			display(df_test_ISIC2016.sample(10))
+
+			logger.debug("Check null data in ISIC2016 training metadata -> df_training_ISIC2016.isnull().sum()")
+			display(df_training_ISIC2016.isnull().sum())
+			logger.debug("Check null data in ISIC2016 test metadata -> df_test_ISIC2016.isnull().sum()")
+			display(df_test_ISIC2016.isnull().sum())
+
+
+			df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+
+
+			# Dividing ISIC2016 into train/val set
+			trainset_ISIC2016, validationset_ISIC2016 = train_test_split(df_training_ISIC2016, test_size=0.2,random_state = 80)
+			# ISIC2016 test data is given, so there is no need to create test dataset separately
+			testset_ISIC2016 = df_test_ISIC2016
+
+
+
+
+
+			# ISIC2016 binary images/labels
+			trainimages_ISIC2016 = prepareimages(list(trainset_ISIC2016.image))
+			testimages_ISIC2016 = prepareimages(list(testset_ISIC2016.image))
+			validationimages_ISIC2016 = prepareimages(list(validationset_ISIC2016.image))
+			trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx)
+			testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx)
+			validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx)
+
+			trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
 
 			filename = path+'/'+f'ISIC2016_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 			with open(filename, 'wb') as file_bin:
@@ -507,13 +514,108 @@ class Util:
 				trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
 				2), file_bin)
 			file_bin.close()
-		
-		
+
+		if mode.value == DatasetType.ISIC2017.value or mode.value == DatasetType.ALL.value:
+			ISIC2017_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Training_Data')
+			ISIC2017_val_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Validation_Data')
+			ISIC2017_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Test_v2_Data')
+
+			num_train_img_ISIC2017 = len(list(ISIC2017_training_path.glob('./*.jpg'))) # counts all ISIC2017 training images
+			num_val_img_ISIC2017 = len(list(ISIC2017_val_path.glob('./*.jpg'))) # counts all ISIC2017 validation images
+			num_test_img_ISIC2017 = len(list(ISIC2017_test_path.glob('./*.jpg'))) # counts all ISIC2017 test images
+
+			logger.debug('%s %s', "Images available in ISIC2017 train dataset:", num_train_img_ISIC2017)
+			logger.debug('%s %s', "Images available in ISIC2017 validation dataset:", num_val_img_ISIC2017)
+			logger.debug('%s %s', "Images available in ISIC2017 test dataset:", num_test_img_ISIC2017)
+
+			# ISIC2017: Dictionary for Image Names
+			imageid_path_training_dict_ISIC2017 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2017_training_path, '*.jpg'))}
+			imageid_path_val_dict_ISIC2017 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2017_val_path, '*.jpg'))}
+			imageid_path_test_dict_ISIC2017 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2017_test_path, '*.jpg'))}
+
+			df_training_ISIC2017 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Training_Part3_GroundTruth.csv')))
+			df_val_ISIC2017 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Validation_Part3_GroundTruth.csv')))
+			df_test_ISIC2017 = pd.read_csv(str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Test_v2_Part3_GroundTruth.csv')))
+
+
+			logger.debug("Let's check ISIC2017 metadata briefly")
+			logger.debug("This is ISIC2017 training data samples")
+			# No need to create column titles (1st row) as ISIC2017 has default column titles
+			display(df_training_ISIC2017.head())
+			logger.debug("This is ISIC2017 test data samples")
+			display(df_test_ISIC2017.head())
+
+			classes_ISIC2017_task3_1 = ['nevus or seborrheic keratosis', 'melanoma']
+			classes_ISIC2017_task3_2 = ['melanoma or nevus', 'seborrheic keratosis']
+
+			# ISIC2017: Creating New Columns for better readability
+			df_training_ISIC2017['path'] = df_training_ISIC2017.image_id.map(imageid_path_training_dict_ISIC2017.get)
+			df_training_ISIC2017['cell_type_binary'] = df_training_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
+			df_training_ISIC2017['cell_type_task3_1'] = df_training_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
+			df_training_ISIC2017['cell_type_task3_2'] = df_training_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
+			df_training_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
+			df_training_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
+
+			df_val_ISIC2017['path'] = df_val_ISIC2017.image_id.map(imageid_path_val_dict_ISIC2017.get)
+			df_val_ISIC2017['cell_type_binary'] = df_val_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
+			df_val_ISIC2017['cell_type_task3_1'] = df_val_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
+			df_val_ISIC2017['cell_type_task3_2'] = df_val_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
+			df_val_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_val_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
+			df_val_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
+
+			df_test_ISIC2017['path'] = df_test_ISIC2017.image_id.map(imageid_path_test_dict_ISIC2017.get)
+			df_test_ISIC2017['cell_type_binary'] = df_test_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
+			df_test_ISIC2017['cell_type_task3_1'] = df_test_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
+			df_test_ISIC2017['cell_type_task3_2'] = df_test_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
+			df_test_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_test_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
+			df_test_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
+
+
+
+			logger.debug("Check null data in ISIC2017 training metadata")
+			display(df_training_ISIC2017.isnull().sum())
+			logger.debug("Check null data in ISIC2017 validation metadata")
+			display(df_val_ISIC2017.isnull().sum())
+			logger.debug("Check null data in ISIC2017 test metadata")
+			display(df_test_ISIC2017.isnull().sum())
+
+
+
+			df_training_ISIC2017['image'] = df_training_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+
+			# ISIC2017 datasets are divided into train/val/test already
+			trainset_ISIC2017 = df_training_ISIC2017
+			validationset_ISIC2017 = df_val_ISIC2017
+			testset_ISIC2017 = df_test_ISIC2017
+
+
+
+			# ISIC2017 binary images/labels
+			trainimages_ISIC2017 = prepareimages(list(trainset_ISIC2017.image))
+			testimages_ISIC2017 = prepareimages(list(testset_ISIC2017.image))
+			validationimages_ISIC2017 = prepareimages(list(validationset_ISIC2017.image))
+			trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx)
+			testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx)
+			validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx)
+
+			trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			filename = path+'/'+f'ISIC2017_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_ISIC2017, testimages_ISIC2017, validationimages_ISIC2017,
+				trainlabels_binary_ISIC2017, testlabels_binary_ISIC2017,validationlabels_binary_ISIC2017,
+				2), file_bin)
+			file_bin.close()
+
 		
 
-		# HAM10000_multiclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_multi_HAM10000, testlabels_multi_HAM10000, validationlabels_multi_HAM10000, num_classes_HAM10000)
-		# HAM10000_binaryclass = (trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000, trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2)
-		# ISIC2016_binaryclass = (trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016, trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016, validationlabels_binary_ISIC2016, 2)
+		
 
 	def loadDatasetFromFile(self, filePath):
 		trainimages, testimages, validationimages, \
@@ -522,24 +624,30 @@ class Util:
 			trainlabels, testlabels, validationlabels, num_classes
 	
 	def combine_images(self, **kwargs):
-		# combined = np.array(0, )
+		
 		for idx, (key, value) in enumerate(kwargs.items()):
-			print("Combining: " + key)
+			print("Input " + str(idx) + ": " + key)
 			if idx==0:
+				name = key + " AND "
 				combined = value
 			elif idx>0:
+				name = name + key + " AND "
 				combined = np.vstack((combined, value))
-			# combined = np.concatenate(value)
+			
+		print("Combined images: " + name)
 		return combined
 	
 	def combine_labels(self, **kwargs):
 		for idx, (key, value) in enumerate(kwargs.items()):
-			print("Combining: " + key)
+			print("Input: " + str(idx) + ": " + key)
 			if idx==0:
+				name = key + " AND "
 				combined = value
 			elif idx>0:
+				name = name + key + " AND "
 				combined = np.hstack((combined, value))
-			# combined = np.concatenate(value)
+			
+		print("Combined labels: " + name)
 		return combined
 
 	def loadCSV(self, mode):
