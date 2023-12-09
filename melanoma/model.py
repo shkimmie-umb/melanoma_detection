@@ -146,6 +146,7 @@ class Model:
 
     def evaluate_model(self,
     model_name,
+    model_path,
     trainimages,
     trainlabels,
     validationimages,
@@ -154,7 +155,8 @@ class Model:
     testlabels
     ):
         print(f'Evaluating {model_name} model...\n')
-        model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
+        # model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
+        model = load_model(model_path)
 
         print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
 
