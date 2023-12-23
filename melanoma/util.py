@@ -387,7 +387,76 @@ class Util:
 			logger.debug("HAM10000: There are no null data as below:")
 			display(df_HAM10000.isnull().sum())
 
-			df_HAM10000['image'] = df_HAM10000.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			from datetime import datetime
+			now = datetime.now() # current date and time
+
+			date_time = now.strftime("%m_%d_%Y_%H:%M:%S")
+
+			debug_rgb_folder = path + '/debug/HAM10000/RGB/'+f'{self.image_size[0]}h_{self.image_size[1]}w_{date_time}'
+			debug_bgr_folder = path + '/debug/HAM10000/BGR/'+f'{self.image_size[0]}h_{self.image_size[1]}w_{date_time}'
+			debugRgbFolderExist = os.path.exists(debug_rgb_folder)
+			debugBgrFolderExist = os.path.exists(debug_bgr_folder)
+			if not debugRgbFolderExist :
+				os.makedirs(debug_rgb_folder)
+			else:
+				pass
+			if not debugBgrFolderExist :
+				os.makedirs(debug_bgr_folder)
+			else:
+				pass
+			whole_rgb_folder = debug_rgb_folder + '/Whole'
+			train_rgb_folder = debug_rgb_folder + '/Train'
+			val_rgb_folder = debug_rgb_folder + '/Val'
+			test_rgb_folder = debug_rgb_folder + '/Test'
+
+			whole_bgr_folder = debug_bgr_folder + '/Whole'
+			train_bgr_folder = debug_bgr_folder + '/Train'
+			val_bgr_folder = debug_bgr_folder + '/Val'
+			test_bgr_folder = debug_bgr_folder + '/Test'
+
+			if os.path.isdir(whole_rgb_folder):
+				pass
+			else:
+				os.mkdir(whole_rgb_folder)
+			if os.path.isdir(train_rgb_folder):
+				pass
+			else:
+				os.mkdir(train_rgb_folder)
+			if os.path.isdir(val_rgb_folder):
+				pass
+			else:
+				os.mkdir(val_rgb_folder)
+			if os.path.isdir(test_rgb_folder):
+				pass
+			else:
+				os.mkdir(test_rgb_folder)
+
+			if os.path.isdir(whole_bgr_folder):
+				pass
+			else:
+				os.mkdir(whole_bgr_folder)
+			if os.path.isdir(train_bgr_folder):
+				pass
+			else:
+				os.mkdir(train_bgr_folder)
+			if os.path.isdir(val_bgr_folder):
+				pass
+			else:
+				os.mkdir(val_bgr_folder)
+			if os.path.isdir(test_bgr_folder):
+				pass
+			else:
+				os.mkdir(test_bgr_folder)
+
+			import re
+			df_HAM10000['image'] = df_HAM10000.path.map(
+				lambda x:(
+				img := Image.open(x).resize((img_width, img_height)), # [0]: PIL object
+				np.asarray(img), # [1]: pixel array
+				currentPath := pathlib.Path(x), # [2]: PosixPath
+				img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
 
 
 			# Dividing HAM10000 into train/val/test set
@@ -397,12 +466,30 @@ class Util:
 			trainset3_HAM10000 = df_HAM10000[df_HAM10000.num_images != 1]
 			trainset_HAM10000 = pd.concat([trainset2_HAM10000, trainset3_HAM10000])
 
+			trainset_HAM10000.index.map(lambda x: (
+				currentPath_train := pathlib.Path(trainset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
+				trainset_HAM10000.image[x][0].save(f"{train_rgb_folder}/{currentPath_train.name}")
+			))
+
+			validationset_HAM10000.index.map(lambda x: (
+				currentPath_val := pathlib.Path(validationset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
+				validationset_HAM10000.image[x][0].save(f"{val_rgb_folder}/{currentPath_val.name}")
+			))
+
+			testset_HAM10000.index.map(lambda x: (
+				currentPath_test := pathlib.Path(testset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
+				testset_HAM10000.image[x][0].save(f"{test_rgb_folder}/{currentPath_test.name}")
+			))
+			
 
 
+			trainpixels_HAM10000 = list(map(lambda x:x[1], trainset_HAM10000.image)) # Filter out only pixel from the list
+			testpixels_HAM10000 = list(map(lambda x:x[1], testset_HAM10000.image))
+			validationpixels_HAM10000 = list(map(lambda x:x[1], validationset_HAM10000.image))
 
-			trainimages_HAM10000 = prepareimages(list(trainset_HAM10000.image))
-			testimages_HAM10000 = prepareimages(list(testset_HAM10000.image))
-			validationimages_HAM10000 = prepareimages(list(validationset_HAM10000.image))
+			trainimages_HAM10000 = prepareimages(trainpixels_HAM10000)
+			testimages_HAM10000 = prepareimages(testpixels_HAM10000)
+			validationimages_HAM10000 = prepareimages(validationpixels_HAM10000)
 			trainlabels_multi_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx)
 			testlabels_multi_HAM10000 = np.asarray(testset_HAM10000.cell_type_idx)
 			validationlabels_multi_HAM10000 = np.asarray(validationset_HAM10000.cell_type_idx)
@@ -410,6 +497,19 @@ class Util:
 			trainlabels_binary_HAM10000 = np.asarray(trainset_HAM10000.cell_type_binary_idx)
 			testlabels_binary_HAM10000 = np.asarray(testset_HAM10000.cell_type_binary_idx)
 			validationlabels_binary_HAM10000 = np.asarray(validationset_HAM10000.cell_type_binary_idx)
+
+			# from tifffile import imsave
+
+			trainimages_HAM10000_uint8 = trainimages_HAM10000[:,:,:,::-1]
+			trainimages_HAM10000_uint8 += 255
+			trainimages_HAM10000_uint8 = trainimages_HAM10000_uint8.astype(np.uint8)
+			for idx, order in enumerate(trainset_HAM10000.index):
+				img = Image.fromarray(trainimages_HAM10000_uint8[idx])
+				img.save(f"{train_bgr_folder}/{trainset_HAM10000.image[order][2].name}")
+				# imsave(f"{train_bgr_folder}/{trainset_HAM10000.image[order][2].name}",img[idx])
+				
+
+			
 
 			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
 			trainimages_HAM10000 = trainimages_HAM10000.reshape(trainimages_HAM10000.shape[0], *image_shape)
