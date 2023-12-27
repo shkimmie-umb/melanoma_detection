@@ -119,7 +119,8 @@ class Model:
 
         print(f'Fitting {model_name} model...')
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
-        cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = early_stopper_patience)
+        cb_early_stopper_val_loss = EarlyStopping(monitor = 'val_loss', patience = early_stopper_patience)
+        cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
         cb_checkpointer  = ModelCheckpoint(
             filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
@@ -130,15 +131,15 @@ class Model:
             mode='min'
         )
 
-        callbacks_list = [cb_checkpointer, cb_early_stopper, silent_training_callback()]
+        callbacks_list = [cb_checkpointer, cb_early_stopper_loss, silent_training_callback()]
 
         history = model.fit(
-            data_gen.flow(trainimages, trainlabels, batch_size = batch_size),
+            data_gen.flow(trainimages, trainlabels, batch_size = batch_size, shuffle=True),
             epochs = epochs,
             validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
             verbose = self.CFG['verbose'],
             steps_per_epoch=trainimages.shape[0] // batch_size,
-            callbacks=[cb_checkpointer, cb_early_stopper] # We can add GCCollectCallback() to save memory
+            callbacks=[cb_checkpointer, cb_early_stopper_loss], # We can add GCCollectCallback() to save memory
         )
 
         return history

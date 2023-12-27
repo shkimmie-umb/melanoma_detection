@@ -2,14 +2,34 @@ from tensorflow import keras
 from tensorflow.keras import layers, models
 from tensorflow.keras.models import Sequential
 import Augmentor as am
+import albumentations as A
 import pathlib
 import os
 
 class AugmentationStrategy:
-    def augmentation(self, img_height, img_width, rotation, zoom):
+    # def augmentation(self, img_height, img_width, rotation, zoom):
+    #     pass
+    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
         pass
     def augment_and_save(self):
         pass
+
+class crop_flip_brightnesscontrast(AugmentationStrategy):
+    @staticmethod
+    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip,
+    p_randomBrightnessContrast):
+        transform = A.Compose([
+            A.Rotate(limit=(-90, 90), p=p_rotation),
+            A.Affine(scale=(zoomout, zoomin), p=p_scaling),
+            A.RandomCrop(width=crop_width, height=crop_height),
+            A.VerticalFlip(p=p_vflip),
+            A.HorizontalFlip(p=p_hflip),
+            A.RandomBrightnessContrast(p=p_randomBrightnessContrast),
+        ])
+
+        transformed = transform(image=input_img)
+
+        return transformed
 
 class simple_augmentation(AugmentationStrategy):
     @staticmethod
@@ -58,8 +78,8 @@ class Augmentation:
     def __init__(self, strategy):
         self._strategy = strategy
 
-    def augmentation(self, img_height, img_width, rotation=0.1, zoom=0.1):
-        return self._strategy.augmentation(img_height, img_width, rotation, zoom)
+    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
+        return self._strategy.augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast)
     
     def augment_and_save(self, class_names, path, numSamplesToAdd, probability=0.7, max_left_rotation=10, max_right_rotation=10):
         return self._strategy.augment_and_save(class_names, path, numSamplesToAdd, probability, max_left_rotation, max_right_rotation)
