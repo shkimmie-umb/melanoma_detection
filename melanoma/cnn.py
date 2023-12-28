@@ -30,8 +30,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 class CNN(Base_Model):
 
-    def __init__(self, train_images, train_labels, val_images, val_labels, test_images, test_labels, CFG):
-        super().__init__(train_images, train_labels, val_images, val_labels, test_images, test_labels, CFG)
+    def __init__(self, CFG, train_images=None, train_labels=None, val_images=None, val_labels=None, test_images=None, test_labels=None):
+        super().__init__(CFG, train_images, train_labels, val_images, val_labels, test_images, test_labels)
 
         # self.class_names = class_names
 
@@ -123,6 +123,36 @@ class CNN(Base_Model):
             model.add(layers.Dense(len(class_names),activation='softmax'))
 
             return model
+
+    def myresnet50(self):
+        # Define model with different applications
+        model = Sequential()
+        #vgg-16 , 80% accuracy with 100 epochs
+        # model.add(VGG16(input_shape=(224,224,3),pooling='avg',classes=1000,weights=vgg16_weights_path))
+        #resnet-50 , 87% accuracy with 100 epochs
+        model.add(ResNet50(
+            include_top=False,
+            input_tensor=None,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling='avg',
+            classes=self.CFG['num_classes'],
+            weights=self.CFG['pretrained_weights']))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(BatchNormalization())
+        model.add(Dense(1, activation='sigmoid'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
+
     
     def resnet50(self, ResNet50_name):
         data_gen = ImageDataGenerator(rotation_range = self.CFG['ROTATION_RANGE'], zoom_range = self.CFG['ZOOM_RANGE'],

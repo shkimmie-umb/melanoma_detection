@@ -42,8 +42,7 @@ from .callback import Callback as silent_training_callback
 class Model:
     # img_height, img_width, class_names
     
-    def __init__(self, train_images, train_labels, val_images, val_labels, test_images, test_labels,
-                 CFG):
+    def __init__(self, CFG, train_images, train_labels, val_images, val_labels, test_images, test_labels):
         
         # self.train_ds = train_ds
         # self.val_ds = val_ds
@@ -54,9 +53,9 @@ class Model:
         self.test_images = test_images
         self.test_labels = test_labels
         self.CFG = CFG
-        self.img_size = (CFG['img_height'], CFG['img_width'])
-        self.image_shape = (CFG['img_height'], CFG['img_width'], 3)
-        self.num_classes = CFG['num_classes']
+        # self.img_size = (CFG['img_height'], CFG['img_width'])
+        # self.image_shape = (CFG['img_height'], CFG['img_width'], 3)
+        # self.num_classes = CFG['num_classes']
         
         
         
@@ -108,19 +107,31 @@ class Model:
             
             return model
     
-    def fit_model(self, model, model_name, trainimages, trainlabels, validationimages, \
-    validationlabels, data_gen):
+    def fit_model(self, model, model_name, trainimages, trainlabels, validationimages, validationlabels):
+        data_gen = ImageDataGenerator(
+            featurewise_center=False,  # set input mean to 0 over the dataset
+            samplewise_center=False,  # set each sample mean to 0
+            featurewise_std_normalization=False,  # divide inputs by std of the dataset
+            samplewise_std_normalization=False,  # divide each input by its std
+            zca_whitening=False,  # apply ZCA whitening
+            rotation_range=self.CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
+            zoom_range = self.CFG['ZOOM_RANGE'], # Randomly zoom image 
+            width_shift_range=self.CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
+            height_shift_range=self.CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
+            horizontal_flip=self.CFG['HFLIP'],  # randomly flip images
+            vertical_flip=self.CFG['VFLIP'] # randomly flip images
+        )  
         snapshot_path = self.CFG['snapshot_path']
         early_stopper_patience = self.CFG['stopper_patience']
         epochs = self.CFG['epochs']
         batch_size = self.CFG['batch_size']
         # tf.function - decorated function tried to create variables on non-first call'. 
-        tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
+        # tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
 
         print(f'Fitting {model_name} model...')
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
-        cb_early_stopper_val_loss = EarlyStopping(monitor = 'val_loss', patience = early_stopper_patience)
-        cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
+        
+        # cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
         cb_checkpointer  = ModelCheckpoint(
             filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
@@ -131,15 +142,17 @@ class Model:
             mode='min'
         )
 
-        callbacks_list = [cb_checkpointer, cb_early_stopper_loss, silent_training_callback()]
+        # callbacks_list = [cb_checkpointer, cb_early_stopper_val_loss, silent_training_callback()]
+        extracallbacks = self.CFG['callbacks']
 
         history = model.fit(
-            data_gen.flow(trainimages, trainlabels, batch_size = batch_size, shuffle=True),
+            data_gen.flow(trainimages, trainlabels, batch_size = batch_size),
             epochs = epochs,
-            validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
+            # validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
+            validation_data = (validationimages, validationlabels),
             verbose = self.CFG['verbose'],
             steps_per_epoch=trainimages.shape[0] // batch_size,
-            callbacks=[cb_checkpointer, cb_early_stopper_loss], # We can add GCCollectCallback() to save memory
+            callbacks=[cb_checkpointer, extracallbacks], # We can add GCCollectCallback() to save memory
         )
 
         return history

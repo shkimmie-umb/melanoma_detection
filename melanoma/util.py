@@ -2,6 +2,7 @@ from glob import glob
 import os
 import pathlib
 import numpy as np
+import cv2
 import pandas as pd
 import tensorflow as tf
 from enum import Enum
@@ -10,6 +11,7 @@ import pickle
 
 import PIL
 from PIL import Image
+from tqdm import tqdm
 
 import random
 import math
@@ -17,6 +19,8 @@ import math
 from sklearn.model_selection import train_test_split
 from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications.resnet50 import preprocess_input
+
 
 
 import matplotlib.pyplot as plt
@@ -1332,6 +1336,71 @@ class Util:
 			trainlabels, testlabels, validationlabels, means, stds, num_classes = pickle.load(open(filePath, 'rb'))
 		return trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, means, stds, num_classes
+
+	def loadDatasetFromDirectory(self, path_benign_train, path_malignant_train, path_benign_test, path_malignant_test):
+		#Transfer 'jpg' images to an array IMG
+		def Dataset_loader(imgPath):
+			img_width = self.image_size[1]
+			img_height = self.image_size[0]
+			# IMG = []
+			read = lambda imname: np.asarray(Image.open(imname).resize((img_width, img_height)).convert("RGB"))
+			for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
+				PATH = os.path.join(imgPath,IMAGE_NAME)
+				_, ftype = os.path.splitext(PATH)
+				if ftype == ".jpg":
+					img = read(PATH)
+					img = np.expand_dims(img, axis=0)
+					img = preprocess_input(img)
+					if idx == 0:
+						IMG = img
+					elif idx > 0:
+						IMG = np.vstack((IMG, img))
+					# opencvImage = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+					# opencvImage = cv2.resize(opencvImage, (img_width, img_height), interpolation=cv2.INTER_CUBIC)
+					# img = cv2.cvtColor(opencvImage, cv2.COLOR_BGR2RGB)
+					# IMG.append(np.array(img)/255.)
+			return IMG
+		
+		# Load images
+		benign_train_img = np.array(Dataset_loader(path_benign_train))
+		malignant_train_img = np.array(Dataset_loader(path_malignant_train))
+		benign_test_img = np.array(Dataset_loader(path_benign_test))
+		malignant_test_img = np.array(Dataset_loader(path_malignant_test))
+		
+		# Create labels
+		benign_train_label = np.zeros(len(benign_train_img))
+		malignant_train_label = np.ones(len(malignant_train_img))
+		benign_test_label = np.zeros(len(benign_test_img))
+		malignant_test_label = np.ones(len(malignant_test_img))
+
+		# Merge data 
+		X_train = np.concatenate((benign_train_img, malignant_train_img), axis = 0)
+		Y_train = np.concatenate((benign_train_label, malignant_train_label), axis = 0)
+		X_test = np.concatenate((benign_test_img, malignant_test_img), axis = 0)
+		Y_test = np.concatenate((benign_test_label, malignant_test_label), axis = 0)
+
+		# Shuffle train data
+		s = np.arange(X_train.shape[0])
+		np.random.shuffle(s)
+		X_train = X_train[s]
+		Y_train = Y_train[s]
+
+		# Split validation data from train data
+		# x_train, x_val, y_train, y_val = train_test_split(X_train,Y_train,test_size=0.33,random_state=42)
+		x_train=X_train[1000:]
+		x_val=X_train[:1000]
+		y_train=Y_train[1000:]
+		y_val=Y_train[:1000]
+
+		# Shuffle test data
+		s = np.arange(X_test.shape[0])
+		np.random.shuffle(s)
+		X_test = X_test[s]
+		Y_test = Y_test[s]
+
+		return x_train, y_train, x_val, y_val, X_test, Y_test
+
+
 	
 	def combine_images(self, **kwargs):
 		
