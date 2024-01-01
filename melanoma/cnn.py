@@ -135,7 +135,7 @@ class CNN(Base_Model):
             input_tensor=None,
             input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
             pooling='avg',
-            classes=self.CFG['num_classes'],
+            # classes=self.CFG['num_classes'],
             weights=self.CFG['pretrained_weights']))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
@@ -144,7 +144,8 @@ class CNN(Base_Model):
         model.add(Dense(256, activation='relu'))
         model.add(Dropout(0.5))
         model.add(BatchNormalization())
-        model.add(Dense(1, activation='sigmoid'))
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
 
         model.layers[0].trainable = False
         model.summary()

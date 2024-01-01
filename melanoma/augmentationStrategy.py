@@ -31,6 +31,21 @@ class crop_flip_brightnesscontrast(AugmentationStrategy):
 
         return transformed
 
+class crop_flip(AugmentationStrategy):
+    @staticmethod
+    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast=None):
+        transform = A.Compose([
+            A.Rotate(limit=(-45, 45), p=p_rotation),
+            A.Affine(scale=(zoomout, zoomin), p=p_scaling),
+            A.RandomCrop(width=crop_width, height=crop_height),
+            A.VerticalFlip(p=p_vflip),
+            A.HorizontalFlip(p=p_hflip),
+        ])
+
+        transformed = transform(image=input_img)
+
+        return transformed
+
 class simple_augmentation(AugmentationStrategy):
     @staticmethod
     def augmentation(img_height, img_width, rotation=0.1, zoom=0.1):

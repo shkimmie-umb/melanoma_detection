@@ -146,7 +146,7 @@ class Model:
         extracallbacks = self.CFG['callbacks']
 
         history = model.fit(
-            data_gen.flow(trainimages, trainlabels, batch_size = batch_size),
+            data_gen.flow(trainimages, trainlabels, batch_size = batch_size, shuffle=True),
             epochs = epochs,
             # validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
             validation_data = (validationimages, validationlabels),
@@ -157,7 +157,7 @@ class Model:
 
         return history
     
-
+    
     def evaluate_model(self,
     model_name,
     model_path,
