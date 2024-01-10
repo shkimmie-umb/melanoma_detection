@@ -13,14 +13,14 @@ import PIL
 from PIL import Image
 from tqdm import tqdm
 
-import random
-import math
+
 
 from sklearn.model_selection import train_test_split
 from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.resnet import preprocess_input as preprocess_input_resnet50
+
 from keras.preprocessing.image import img_to_array, load_img
+from .preprocess import Preprocess
 
 
 import matplotlib.pyplot as plt
@@ -31,7 +31,8 @@ from IPython.display import display
 
 import logging
 
-from melanoma import augmentationStrategy as aug
+
+
 
 class DatasetType(Enum):
 	HAM10000 = 1
@@ -364,6 +365,8 @@ class Util:
 		img_height = self.image_size[0]
 		img_width = self.image_size[1]
 
+		preprocessor = Preprocess(self.image_size)
+
 		def getMeanStd(trainingimages):
 			# images is a list of images
 			trainingimages = np.asarray(trainingimages).astype(np.float64)
@@ -402,15 +405,7 @@ class Util:
 		# 	IMG = np.vstack(imgList)
 		# 	return IMG
 		# def prep_cnn_data(num, n_x, n_c, path):
-		def normalizeImgs(imgs):
-			imgList = []
-			for img in imgs:
-				transformed_img = np.expand_dims(img, axis=0)
-				transformed_img = preprocess_input_resnet50(transformed_img) # RGB to BGR
-				# imgList.append(transformed_img/255.)
-				imgList.append(transformed_img)
-			IMG = np.vstack(imgList)
-			return IMG
+		
 
 
 		# HAM10000 multi-class images/labels
@@ -540,9 +535,9 @@ class Util:
 			validationpixels_HAM10000 = list(map(lambda x:x[1], validationset_HAM10000.image))
 
 			# means, stds = getMeanStd(trainpixels_HAM10000)
-			trainimages_HAM10000 = normalizeImgs(trainpixels_HAM10000)
-			testimages_HAM10000 = normalizeImgs(testpixels_HAM10000)
-			validationimages_HAM10000 = normalizeImgs(validationpixels_HAM10000)
+			trainimages_HAM10000 = preprocessor.normalizeImgs(trainpixels_HAM10000)
+			testimages_HAM10000 = preprocessor.normalizeImgs(testpixels_HAM10000)
+			validationimages_HAM10000 = preprocessor.normalizeImgs(validationpixels_HAM10000)
 
 			
 			trainlabels_multi_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx, dtype='float64')
@@ -609,167 +604,20 @@ class Util:
 
 			# Augmentation only on training set
 			if augment_ratio is not None and augment_ratio >= 1.0:
-				# mel_cnt = df_HAM10000['cell_type_binary'].value_counts()['Melanoma']
-				# non_mel_cnt = df_HAM10000['cell_type_binary'].value_counts()['Non-Melanoma']
-				mel_cnt = trainset_HAM10000[trainset_HAM10000.cell_type_binary=='Melanoma'].shape[0]
-				non_mel_cnt = trainset_HAM10000[trainset_HAM10000.cell_type_binary=='Non-Melanoma'].shape[0]
-
 				
-				# augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
-				augMethod = aug.Augmentation(aug.crop_flip())
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_HAM10000_augmented, trainlabels_binary_HAM10000_augmented = \
+					preprocessor.augmentation(mode, train_rgb_folder, labels, trainimages_HAM10000, trainlabels_binary_HAM10000, \
+						augment_ratio, trainset_HAM10000)
 
-				df_mel = trainset_HAM10000[trainset_HAM10000.cell_type_binary=='Melanoma']
-				df_non_mel = trainset_HAM10000[trainset_HAM10000.cell_type_binary=='Non-Melanoma']
-
-				df_mel_augmented = pd.DataFrame(columns=trainset_HAM10000.columns.tolist())
-				df_non_mel_augmented = pd.DataFrame(columns=trainset_HAM10000.columns.tolist())
-
-				# trainset_HAM10000_cp = trainset_HAM10000.copy()
-				
-				# trainset_HAM10000_cp['image'] = ExtractPixel(trainset_HAM10000['image'])
-
-				if mel_cnt < non_mel_cnt:
-					# melanoma augmentation here
-					# Melanoma images will be augmented to N times of the Non-melanoma images
-					for j, id in enumerate(range((non_mel_cnt - mel_cnt), math.ceil(non_mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_HAM10000.path[randmel_idx]
-						img = Image.open(trainset_HAM10000.path[randmel_idx]).convert("RGB")
-						# np_img = np.asarray(img)
-						np_img = img_to_array(img)
-						df_mel_augmented.loc[j] = trainset_HAM10000.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, id in enumerate(range(non_mel_cnt, math.ceil(non_mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_HAM10000.path[randnonmel_idx]
-						img = Image.open(trainset_HAM10000.path[randnonmel_idx]).convert("RGB")
-						# np_img = np.asarray(img)
-						np_img = img_to_array(img)
-						df_non_mel_augmented.loc[j] = trainset_HAM10000.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-				elif mel_cnt > non_mel_cnt:
-					# melanoma augmentation here
-					for j, id in enumerate(range(mel_cnt, math.ceil(mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_HAM10000.path[randmel_idx]
-						img = Image.open(trainset_HAM10000.path[randmel_idx]).convert("RGB")
-						# np_img = np.asarray(img)
-						np_img = img_to_array(img)
-						df_mel_augmented.loc[j] = trainset_HAM10000.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, id in enumerate(range((mel_cnt - non_mel_cnt), math.ceil(mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_HAM10000.path[randnonmel_idx]
-						img = Image.open(trainset_HAM10000.path[randnonmel_idx]).convert("RGB")
-						# np_img = np.asarray(img)
-						np_img = img_to_array(img)
-						df_non_mel_augmented.loc[j] = trainset_HAM10000.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-
-				trainset_HAM10000_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented])
-
-				augmentation_folder = f"{train_rgb_folder}/augmented"
-				isAugFolderExist = os.path.exists(augmentation_folder)
-				if not isAugFolderExist:
-					for i in labels:
-						os.makedirs(f"{augmentation_folder}/{i}", exist_ok=True)
-
-				# Save augmented images for viewing purpose
-				for idx in df_mel_augmented.index:
-					img = Image.fromarray(df_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_mel_augmented.path[idx])
-					label = df_mel_augmented.cell_type_binary[idx]
-					assert label == 'Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-
-				for idx in df_non_mel_augmented.index:
-					img = Image.fromarray(df_non_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_non_mel_augmented.path[idx])
-					label = df_non_mel_augmented.cell_type_binary[idx]
-					assert label == 'Non-Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-			
-				trainpixels_HAM10000_augmented = list(map(lambda x:x, trainset_HAM10000_augmented.image)) # Filter out only pixel from the list
-
-				# new_means, new_stds = getMeanStd(trainpixels_HAM10000_augmented)
-				imgs_augmented = normalizeImgs(trainpixels_HAM10000_augmented)
-				trainimages_HAM10000_augmented = np.vstack((trainimages_HAM10000, imgs_augmented))
-				
-				
-				# labels_augmented = np.asarray(trainset_HAM10000_augmented.cell_type_binary_idx, dtype='float64')
-				labels_augmented = to_categorical(trainset_HAM10000_augmented.cell_type_binary_idx, num_classes=2)
-				trainlabels_binary_HAM10000_augmented = np.vstack((trainlabels_binary_HAM10000, labels_augmented))
-
-				assert len(trainpixels_HAM10000_augmented) == labels_augmented.shape[0]
-				assert trainlabels_binary_HAM10000_augmented.shape[0] == trainimages_HAM10000_augmented.shape[0]
-			
-				# Save features from train/val/test sets divided into malignant/benign (This is only for viewing purpose)
-				# for idx, order in enumerate(trainset_HAM10000.index):
-				# 	img = Image.fromarray(trainimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB') # back to RGB
-				# 	label = trainset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{train_feature_folder}/{label}/{trainset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				# 	# imsave(f"{train_feature_folder}/{trainset_HAM10000.image[order][2].stem}.tiff",trainimages_HAM10000[idx][:,:,::-1].astype("uint8"))
-
-				# for idx, order in enumerate(validationset_HAM10000.index):
-				# 	img = Image.fromarray(validationimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = validationset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{val_feature_folder}/{label}/{validationset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
-				# for idx, order in enumerate(testset_HAM10000.index):
-				# 	img = Image.fromarray(testimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = testset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				
-
-			
-
-				# Unpack all image pixels using asterisk(*) with dimension (shape[0])
-				# trainimages_HAM10000_augmented = trainimages_HAM10000_augmented.reshape(trainimages_HAM10000_augmented.shape[0], *image_shape)
-
-				filename_bin = path+'/'+f'{mode.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-				
+				assert augmented_db_name.name == 'HAM10000'
+				filename_bin = path+'/'+f'{mode.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{img_height}h_{img_width}w_binary.pkl' # height x width
+        
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_HAM10000_augmented, testimages_HAM10000, validationimages_HAM10000,
 					trainlabels_binary_HAM10000_augmented, testlabels_binary_HAM10000, validationlabels_binary_HAM10000,
 					2), file_bin)
 				file_bin.close()
-
-			
-
 
 
 		
@@ -779,6 +627,9 @@ class Util:
 
 			num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
 			num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
+
+			assert num_train_img_ISIC2016 == 900
+			assert num_test_img_ISIC2016 == 379
 
 			logger.debug('%s %s', "Images available in ISIC2016 train dataset:", num_train_img_ISIC2016)
 			logger.debug('%s %s', "Images available in ISIC2016 test dataset:", num_test_img_ISIC2016)
@@ -894,9 +745,9 @@ class Util:
 			validationpixels_ISIC2016 = list(map(lambda x:x[1], validationset_ISIC2016.image))
 
 			# means, stds = getMeanStd(trainpixels_ISIC2016)
-			trainimages_ISIC2016 = normalizeImgs(trainpixels_ISIC2016)
-			testimages_ISIC2016 = normalizeImgs(testpixels_ISIC2016)
-			validationimages_ISIC2016 = normalizeImgs(validationpixels_ISIC2016)
+			trainimages_ISIC2016 = preprocessor.normalizeImgs(trainpixels_ISIC2016)
+			testimages_ISIC2016 = preprocessor.normalizeImgs(testpixels_ISIC2016)
+			validationimages_ISIC2016 = preprocessor.normalizeImgs(validationpixels_ISIC2016)
 			# trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx, dtype='float64')
@@ -926,150 +777,12 @@ class Util:
 
 			# Augmentation only on training set
 			if augment_ratio is not None and augment_ratio >= 1.0:
-				mel_cnt = trainset_ISIC2016[trainset_ISIC2016.cell_type_binary=='Melanoma'].shape[0]
-				non_mel_cnt = trainset_ISIC2016[trainset_ISIC2016.cell_type_binary=='Non-Melanoma'].shape[0]
-
 				
-				# augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
-				augMethod = aug.Augmentation(aug.crop_flip())
-
-				df_mel = trainset_ISIC2016[trainset_ISIC2016.cell_type_binary=='Melanoma']
-				df_non_mel = trainset_ISIC2016[trainset_ISIC2016.cell_type_binary=='Non-Melanoma']
-
-				df_mel_augmented = pd.DataFrame(columns=trainset_ISIC2016.columns.tolist())
-				df_non_mel_augmented = pd.DataFrame(columns=trainset_ISIC2016.columns.tolist())
-
-
-				if mel_cnt < non_mel_cnt:
-					# melanoma augmentation here
-					# Melanoma images will be augmented to N times of the Non-melanoma images
-					for j, id in enumerate(range((non_mel_cnt - mel_cnt), math.ceil(non_mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_ISIC2016.path[randmel_idx]
-						img = Image.open(trainset_ISIC2016.path[randmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_mel_augmented.loc[j] = trainset_ISIC2016.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, id in enumerate(range(non_mel_cnt, math.ceil(non_mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_ISIC2016.path[randnonmel_idx]
-						img = Image.open(trainset_ISIC2016.path[randnonmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_non_mel_augmented.loc[j] = trainset_ISIC2016.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-				elif mel_cnt > non_mel_cnt:
-					# melanoma augmentation here
-					for j, id in enumerate(range(mel_cnt, math.ceil(mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_ISIC2016.path[randmel_idx]
-						img = Image.open(trainset_ISIC2016.path[randmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_mel_augmented.loc[j] = trainset_ISIC2016.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, i in enumerate(range((mel_cnt - non_mel_cnt), math.ceil(mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_ISIC2016.path[randnonmel_idx]
-						img = Image.open(trainset_ISIC2016.path[randnonmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_non_mel_augmented.loc[j] = trainset_ISIC2016.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-
-				trainset_ISIC2016_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented])
-
-				augmentation_folder = f"{train_rgb_folder}/augmented"
-				isAugFolderExist = os.path.exists(augmentation_folder)
-				if not isAugFolderExist:
-					for i in labels:
-						os.makedirs(f"{augmentation_folder}/{i}", exist_ok=True)
-
-				# Save augmented images for viewing purpose
-				for idx in df_mel_augmented.index:
-					img = Image.fromarray(df_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_mel_augmented.path[idx])
-					label = df_mel_augmented.cell_type_binary[idx]
-					assert label == 'Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-
-				for idx in df_non_mel_augmented.index:
-					img = Image.fromarray(df_non_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_non_mel_augmented.path[idx])
-					label = df_non_mel_augmented.cell_type_binary[idx]
-					assert label == 'Non-Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-			
-				trainpixels_ISIC2016_augmented = list(map(lambda x:x, trainset_ISIC2016_augmented.image)) # Filter out only pixel from the list
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2016_augmented, trainlabels_binary_ISIC2016_augmented = \
+					preprocessor.augmentation(mode, train_rgb_folder, labels, trainimages_ISIC2016, trainlabels_binary_ISIC2016, \
+						augment_ratio, df_training_ISIC2016)
 				
-				imgs_augmented = normalizeImgs(trainpixels_ISIC2016_augmented)
-				trainimages_ISIC2016_augmented = np.vstack((trainimages_ISIC2016, imgs_augmented))
-				
-				
-				# labels_augmented = np.asarray(trainset_ISIC2016_augmented.cell_type_binary_idx, dtype='float64')
-				# trainlabels_binary_ISIC2016_augmented = np.hstack((trainlabels_binary_ISIC2016, labels_augmented))
-				labels_augmented = to_categorical(trainset_ISIC2016_augmented.cell_type_binary_idx, num_classes=2)
-				trainlabels_binary_ISIC2016_augmented = np.vstack((trainlabels_binary_ISIC2016, labels_augmented))
-				
-
-				assert len(trainpixels_ISIC2016_augmented) == labels_augmented.shape[0]
-				assert trainlabels_binary_ISIC2016_augmented.shape[0] == trainimages_ISIC2016_augmented.shape[0]
-			
-				# Save features from train/val/test sets divided into malignant/benign (This is only for viewing purpose)
-				# for idx, order in enumerate(trainset_HAM10000.index):
-				# 	img = Image.fromarray(trainimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB') # back to RGB
-				# 	label = trainset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{train_feature_folder}/{label}/{trainset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				# 	# imsave(f"{train_feature_folder}/{trainset_HAM10000.image[order][2].stem}.tiff",trainimages_HAM10000[idx][:,:,::-1].astype("uint8"))
-
-				# for idx, order in enumerate(validationset_HAM10000.index):
-				# 	img = Image.fromarray(validationimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = validationset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{val_feature_folder}/{label}/{validationset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
-				# for idx, order in enumerate(testset_HAM10000.index):
-				# 	img = Image.fromarray(testimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = testset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				
-
-			
-
-				# Unpack all image pixels using asterisk(*) with dimension (shape[0])
-				# trainimages_HAM10000_augmented = trainimages_HAM10000_augmented.reshape(trainimages_HAM10000_augmented.shape[0], *image_shape)
-
-				assert mode.name == 'ISIC2016'
+				assert augmented_db_name.name == 'ISIC2016'
 				filename_bin = path+'/'+f'{mode.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
 				with open(filename_bin, 'wb') as file_bin:
@@ -1088,6 +801,10 @@ class Util:
 			num_train_img_ISIC2017 = len(list(ISIC2017_training_path.glob('./*.jpg'))) # counts all ISIC2017 training images
 			num_val_img_ISIC2017 = len(list(ISIC2017_val_path.glob('./*.jpg'))) # counts all ISIC2017 validation images
 			num_test_img_ISIC2017 = len(list(ISIC2017_test_path.glob('./*.jpg'))) # counts all ISIC2017 test images
+
+			assert num_train_img_ISIC2017 == 2000
+			assert num_val_img_ISIC2017 == 150
+			assert num_test_img_ISIC2017 == 600
 
 			logger.debug('%s %s', "Images available in ISIC2017 train dataset:", num_train_img_ISIC2017)
 			logger.debug('%s %s', "Images available in ISIC2017 validation dataset:", num_val_img_ISIC2017)
@@ -1231,9 +948,9 @@ class Util:
 			validationpixels_ISIC2017 = list(map(lambda x:x[1], validationset_ISIC2017.image)) # Filter out only pixel from the list
 			testpixels_ISIC2017 = list(map(lambda x:x[1], testset_ISIC2017.image)) # Filter out only pixel from the list
 			
-			trainimages_ISIC2017 = normalizeImgs(trainpixels_ISIC2017)
-			testimages_ISIC2017 = normalizeImgs(testpixels_ISIC2017)
-			validationimages_ISIC2017 = normalizeImgs(validationpixels_ISIC2017)
+			trainimages_ISIC2017 = preprocessor.normalizeImgs(trainpixels_ISIC2017)
+			testimages_ISIC2017 = preprocessor.normalizeImgs(testpixels_ISIC2017)
+			validationimages_ISIC2017 = preprocessor.normalizeImgs(validationpixels_ISIC2017)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1261,150 +978,13 @@ class Util:
 				2), file_bin)
 			file_bin.close()
 
-			# Augmentation only on training set
 			if augment_ratio is not None and augment_ratio >= 1.0:
-				mel_cnt = trainset_ISIC2017[trainset_ISIC2017.cell_type_binary=='Melanoma'].shape[0]
-				non_mel_cnt = trainset_ISIC2017[trainset_ISIC2017.cell_type_binary=='Non-Melanoma'].shape[0]
-
 				
-				# augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
-				augMethod = aug.Augmentation(aug.crop_flip())
-
-				df_mel = trainset_ISIC2017[trainset_ISIC2017.cell_type_binary=='Melanoma']
-				df_non_mel = trainset_ISIC2017[trainset_ISIC2017.cell_type_binary=='Non-Melanoma']
-
-				df_mel_augmented = pd.DataFrame(columns=trainset_ISIC2017.columns.tolist())
-				df_non_mel_augmented = pd.DataFrame(columns=trainset_ISIC2017.columns.tolist())
-
-				if mel_cnt < non_mel_cnt:
-					# melanoma augmentation here
-					# Melanoma images will be augmented to N times of the Non-melanoma images
-					for j, id in enumerate(range((non_mel_cnt - mel_cnt), math.ceil(non_mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_ISIC2017.path[randmel_idx]
-						img = Image.open(trainset_ISIC2017.path[randmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_mel_augmented.loc[j] = trainset_ISIC2017.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, id in enumerate(range(non_mel_cnt, math.ceil(non_mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_ISIC2017.path[randnonmel_idx]
-						img = Image.open(trainset_ISIC2017.path[randnonmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_non_mel_augmented.loc[j] = trainset_ISIC2017.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-				elif mel_cnt > non_mel_cnt:
-					# melanoma augmentation here
-					for j, id in enumerate(range(mel_cnt, math.ceil(mel_cnt * augment_ratio))):
-						randmel_idx = random.choice(df_mel.index)
-						assert df_mel.path[randmel_idx] == trainset_ISIC2017.path[randmel_idx]
-						img = Image.open(trainset_ISIC2017.path[randmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_mel_augmented.loc[j] = trainset_ISIC2017.loc[randmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_mel_augmented.at[j, 'image'] = None
-						df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
-						assert df_mel_augmented.shape[0] <= num_augmented_img
-					# non-melanoma augmentation here
-					for j, i in enumerate(range((mel_cnt - non_mel_cnt), math.ceil(mel_cnt * augment_ratio))):
-						randnonmel_idx = random.choice(df_non_mel.index)
-						assert df_non_mel.path[randnonmel_idx] == trainset_ISIC2017.path[randnonmel_idx]
-						img = Image.open(trainset_ISIC2017.path[randnonmel_idx]).convert("RGB")
-						np_img = np.asarray(img)
-						df_non_mel_augmented.loc[j] = trainset_ISIC2017.loc[randnonmel_idx]
-						# augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
-    					# 										p_randomBrightnessContrast=0.2)
-						augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
-						df_non_mel_augmented.at[j, 'image'] = None
-						df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
-						num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
-						assert df_non_mel_augmented.shape[0] <= num_augmented_img
-
-				trainset_ISIC2017_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented])
-
-				augmentation_folder = f"{train_rgb_folder}/augmented"
-				isAugFolderExist = os.path.exists(augmentation_folder)
-				if not isAugFolderExist:
-					for i in labels:
-						os.makedirs(f"{augmentation_folder}/{i}", exist_ok=True)
-
-				# Save augmented images for viewing purpose
-				for idx in df_mel_augmented.index:
-					img = Image.fromarray(df_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_mel_augmented.path[idx])
-					label = df_mel_augmented.cell_type_binary[idx]
-					assert label == 'Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-
-				for idx in df_non_mel_augmented.index:
-					img = Image.fromarray(df_non_mel_augmented.image[idx], mode='RGB')
-					currentPath = pathlib.Path(df_non_mel_augmented.path[idx])
-					label = df_non_mel_augmented.cell_type_binary[idx]
-					assert label == 'Non-Melanoma'
-					img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
-			
-				trainpixels_ISIC2017_augmented = list(map(lambda x:x, trainset_ISIC2017_augmented.image)) # Filter out only pixel from the list
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2017_augmented, trainlabels_binary_ISIC2017_augmented = \
+					preprocessor.augmentation(mode, train_rgb_folder, labels, trainimages_ISIC2017, trainlabels_binary_ISIC2017, \
+						augment_ratio, df_training_ISIC2017)
 				
-				imgs_augmented = normalizeImgs(trainpixels_ISIC2017_augmented)
-				trainimages_ISIC2017_augmented = np.vstack((trainimages_ISIC2017, imgs_augmented))
-				
-				# labels_augmented = np.asarray(trainset_ISIC2017_augmented.cell_type_binary_idx, dtype='float64')
-				# trainlabels_binary_ISIC2017_augmented = np.hstack((trainlabels_binary_ISIC2017, labels_augmented))
-				labels_augmented = to_categorical(trainset_ISIC2017_augmented.cell_type_binary_idx, num_classes=2)
-				trainlabels_binary_ISIC2017_augmented = np.vstack((trainlabels_binary_ISIC2017, labels_augmented))
-
-				assert len(trainpixels_ISIC2017_augmented) == labels_augmented.shape[0]
-				assert trainlabels_binary_ISIC2017_augmented.shape[0] == trainimages_ISIC2017_augmented.shape[0]
-
-			
-				# Save features from train/val/test sets divided into malignant/benign (This is only for viewing purpose)
-				# for idx, order in enumerate(trainset_HAM10000.index):
-				# 	img = Image.fromarray(trainimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB') # back to RGB
-				# 	label = trainset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{train_feature_folder}/{label}/{trainset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				# 	# imsave(f"{train_feature_folder}/{trainset_HAM10000.image[order][2].stem}.tiff",trainimages_HAM10000[idx][:,:,::-1].astype("uint8"))
-
-				# for idx, order in enumerate(validationset_HAM10000.index):
-				# 	img = Image.fromarray(validationimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = validationset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{val_feature_folder}/{label}/{validationset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
-				# for idx, order in enumerate(testset_HAM10000.index):
-				# 	img = Image.fromarray(testimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-				# 	label = testset_HAM10000.cell_type_binary[order]
-				# 	assert label == df_HAM10000.cell_type_binary[order]
-				# 	img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				
-
-			
-
-				# Unpack all image pixels using asterisk(*) with dimension (shape[0])
-				# trainimages_HAM10000_augmented = trainimages_HAM10000_augmented.reshape(trainimages_HAM10000_augmented.shape[0], *image_shape)
-
-				assert mode.name == 'ISIC2017'
+				assert augmented_db_name.name == 'ISIC2017'
 				filename_bin = path+'/'+f'{mode.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
 				with open(filename_bin, 'wb') as file_bin:
@@ -1413,7 +993,6 @@ class Util:
 					trainlabels_binary_ISIC2017_augmented, testlabels_binary_ISIC2017, validationlabels_binary_ISIC2017,
 					2), file_bin)
 				file_bin.close()
-
 		
 	def normalizeImagesWithCustomMeanStd(self, trainingimages, validationimages, testimages, means, stds):
 		# images is a list of images
@@ -1484,28 +1063,13 @@ class Util:
 		# 			# img = cv2.cvtColor(opencvImage, cv2.COLOR_BGR2RGB)
 		# 			# IMG.append(np.array(img)/255.)
 		# 	return IMG
-		def Dataset_loader(imgPath):
-			img_width = self.image_size[1]
-			img_height = self.image_size[0]
-			imgList = []
-			read = lambda imname: load_img(path=imname, target_size=(img_height, img_width))
-			for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
-				PATH = os.path.join(imgPath,IMAGE_NAME)
-				_, ftype = os.path.splitext(PATH)
-				if ftype == ".jpg":
-					img = read(PATH)
-					img = np.expand_dims(img, axis=0)
-					transformed_img = preprocess_input_resnet50(img)
-					# imgList.append(transformed_img/255.)
-					imgList.append(transformed_img)
-			IMG = np.vstack(imgList)
-			return IMG
+
 		
 		# Load images
-		benign_train_img = np.array(Dataset_loader(path_benign_train))
-		malignant_train_img = np.array(Dataset_loader(path_malignant_train))
-		benign_test_img = np.array(Dataset_loader(path_benign_test))
-		malignant_test_img = np.array(Dataset_loader(path_malignant_test))
+		benign_train_img = np.array(Preprocess.Dataset_loader(path_benign_train))
+		malignant_train_img = np.array(Preprocess.Dataset_loader(path_malignant_train))
+		benign_test_img = np.array(Preprocess.Dataset_loader(path_benign_test))
+		malignant_test_img = np.array(Preprocess.Dataset_loader(path_malignant_test))
 		
 		# Create labels
 		benign_train_label = np.zeros(len(benign_train_img))

@@ -35,6 +35,10 @@ from collections import Counter
 from warnings import filterwarnings
 
 import numpy as np
+import pickle
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 
 from .callback import Callback as silent_training_callback
 
@@ -157,6 +161,67 @@ class Model:
 
         return history
     
+
+    def evaluate_model_onAll(self, model_name, model_path, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017):
+
+        kaggle_mn = 'Testing Kaggle DB on ' + model_name
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
+        print('Testing on Kaggle DB')
+        model, _, _ = self.evaluate_model(kaggle_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = kaggle_mn, trainimages = trainimages, testimages = testimages
+        )
+        self.model_report(
+            model_name = kaggle_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
+            testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        HAM10000_mn = 'Testing HAM10000 on ' + model_name
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_HAM10000, 'rb'))
+        print('Testing on HAM10000')
+        model, _, _ = self.evaluate_model(HAM10000_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = HAM10000_mn, trainimages = trainimages, testimages = testimages
+        )
+        self.model_report(
+            model_name = HAM10000_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
+            testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        ISIC2016_mn = 'Testing ISIC2016 on ' + model_name
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2016, 'rb'))
+        assert testimages.shape[0] == 379
+        assert len(testlabels) == 379
+        print('Testing on ISIC2016')
+        model, _, _ = self.evaluate_model(ISIC2016_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = ISIC2016_mn, trainimages = trainimages, testimages = testimages
+        )
+        self.model_report(
+            model_name = ISIC2016_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
+            testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        ISIC2017_mn = 'Testing ISIC2017 on ' + model_name
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2017, 'rb'))
+        assert testimages.shape[0] == 600
+        assert len(testlabels) == 600
+        print('Testing on ISIC2017')
+        model, _, _ = self.evaluate_model(ISIC2017_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = ISIC2017_mn, trainimages = trainimages, testimages = testimages
+        )
+        self.model_report(
+            model_name = ISIC2017_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
+            testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        
+
     
     def evaluate_model(self,
     model_name,
@@ -191,7 +256,43 @@ class Model:
 
         return train_pred, train_pred_classes, test_pred, test_pred_classes
 
+    def model_report(self,
+        model_name,
+        trainlabels,
+        train_pred_classes,
+        testlabels,
+        test_pred_classes,
+        fontsize = 13
+    ):
+        label_substitution = {
+			0.0: 'Benign',
+			1.0: 'Malignant'
+		}
+        trainlabels_digit = np.argmax(trainlabels, axis=1)
+        testlabels_digit = np.argmax(testlabels, axis=1)
+        print(f'Model report for {model_name} model ->\n\n')
+        print("Train Report :\n", classification_report(trainlabels_digit, train_pred_classes, target_names=label_substitution.values()))
+        print("Test Report :\n", classification_report(testlabels_digit, test_pred_classes, target_names=label_substitution.values()))
 
+        cm = confusion_matrix(testlabels_digit, test_pred_classes)
+
+        fig = plt.figure(figsize=(12, 8))
+        df_cm = pd.DataFrame(cm, index=label_substitution.values(), columns=label_substitution.values())
+
+        try:
+            heatmap = sns.heatmap(df_cm, annot=True, fmt="d", cbar=False, cmap='Blues')
+        except ValueError:
+            raise ValueError("Confusion matrix values must be integers.")
+
+        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
+        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
+        plt.ylabel('True label', fontsize=fontsize)
+        plt.xlabel('Predicted label', fontsize=fontsize)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.95)
+        plt.title(f'Confusion Matrix for Multiclass Classifcation ({model_name})', fontsize=fontsize)
+        plt.show()
 
 	
     def trainData(self):

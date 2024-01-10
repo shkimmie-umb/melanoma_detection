@@ -7,8 +7,8 @@ import pandas as pd
 from tensorflow.keras.utils import plot_model
 # from keras.utils.vis_utils import plot_model
 
-from sklearn.metrics import confusion_matrix, classification_report
-import seaborn as sns
+
+
 
 
 class Visualizer:
@@ -116,35 +116,4 @@ class Visualizer:
         plt.suptitle(f'Accuracy & Loss for {model_name} model', fontsize=fontsize)
         plt.show()
 
-    def model_report(self,
-        model_name,
-        trainlabels,
-        train_pred_classes,
-        testlabels,
-        test_pred_classes,
-        lesion_type_dict,
-        fontsize = 14
-    ):
-        print(f'Model report for {model_name} model ->\n\n')
-        print("Train Report :\n", classification_report(trainlabels, train_pred_classes, target_names=lesion_type_dict.values()))
-        print("Test Report :\n", classification_report(testlabels, test_pred_classes, target_names=lesion_type_dict.values()))
-
-        cm = confusion_matrix(testlabels, test_pred_classes)
-
-        fig = plt.figure(figsize=(12, 8))
-        df_cm = pd.DataFrame(cm, index=lesion_type_dict.values(), columns=lesion_type_dict.values())
-
-        try:
-            heatmap = sns.heatmap(df_cm, annot=True, fmt="d", cbar=False, cmap='Blues')
-        except ValueError:
-            raise ValueError("Confusion matrix values must be integers.")
-
-        heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
-        heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
-        plt.ylabel('True label', fontsize=fontsize)
-        plt.xlabel('Predicted label', fontsize=fontsize)
-
-        plt.tight_layout()
-        plt.subplots_adjust(top=0.95)
-        plt.title(f'Confusion Matrix for Multiclass Classifcation ({model_name})', fontsize=fontsize)
-        plt.show()
+    
