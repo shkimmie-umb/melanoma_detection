@@ -18,8 +18,8 @@
   - Squamous cell carcinoma
   - Vascular lesion
 
-Original Download link: https://challenge.isic-archive.com/data/
-Folder-structured custom db: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj/view?usp=drive_link
+- Original Download link: https://challenge.isic-archive.com/data/
+- Folder-structured custom db: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj/view?usp=drive_link
 
 ## Environment (chimera clean env)
 - Keras - 2.5.0rc0
