@@ -162,7 +162,7 @@ class Model:
         return history
     
 
-    def evaluate_model_onAll(self, model_name, model_path, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017):
+    def evaluate_model_onAll(self, model_name, model_path, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018):
 
         kaggle_mn = 'Testing Kaggle DB on ' + model_name
         trainimages, testimages, validationimages, \
@@ -217,6 +217,21 @@ class Model:
         )
         self.model_report(
             model_name = ISIC2017_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
+            testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        ISIC2018_mn = 'Testing ISIC2018 on ' + model_name
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2018, 'rb'))
+        assert testimages.shape[0] == 1512
+        assert len(testlabels) == 1512
+        print('Testing on ISIC2018')
+        model, _, _ = self.evaluate_model(ISIC2018_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = ISIC2018_mn, trainimages = trainimages, testimages = testimages
+        )
+        self.model_report(
+            model_name = ISIC2018_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
             testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 

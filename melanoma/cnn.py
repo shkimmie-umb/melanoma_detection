@@ -16,13 +16,10 @@ from tensorflow.keras.layers import (
 from keras.layers.merge import concatenate
 
 from tensorflow.keras.applications.vgg16 import VGG16
-from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.applications.vgg19 import VGG19
-from tensorflow.keras.applications.vgg19 import preprocess_input
 from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.applications.inception_v3 import InceptionV3
-from tensorflow.keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.applications.xception import Xception
 
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -124,6 +121,118 @@ class CNN(Base_Model):
 
             return model
 
+    def vgg16(self):
+        # Define model with different applications
+        model = Sequential()
+        model.add(VGG16(
+            include_top=False,
+            input_tensor=None,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling='avg',
+            # classes=self.CFG['num_classes'],
+            weights=self.CFG['pretrained_weights']))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
+
+    def vgg19(self):
+        # Define model with different applications
+        model = Sequential()
+        model.add(VGG19(
+            include_top=False,
+            input_tensor=None,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling='avg',
+            # classes=self.CFG['num_classes'],
+            weights=self.CFG['pretrained_weights']))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
+    
+    def inceptionV3(self):
+        # Define model with different applications
+        model = Sequential()
+        #vgg-16 , 80% accuracy with 100 epochs
+        # model.add(VGG16(input_shape=(224,224,3),pooling='avg',classes=1000,weights=vgg16_weights_path))
+        #resnet-50 , 87% accuracy with 100 epochs
+        model.add(InceptionV3(
+            include_top=False,
+            input_tensor=None,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling='avg',
+            # classes=self.CFG['num_classes'],
+            weights=self.CFG['pretrained_weights']))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
+
+    def xception(self):
+        # Define model with different applications
+        model = Sequential()
+        model.add(Xception(
+            
+            include_top=False,
+            input_tensor=None,
+            input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+            pooling='avg',
+            # classes=self.CFG['num_classes'],
+            weights=self.CFG['pretrained_weights']))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
+
     def myresnet50(self):
         # Define model with different applications
         model = Sequential()
@@ -139,10 +248,10 @@ class CNN(Base_Model):
             weights=self.CFG['pretrained_weights']))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
         model.add(BatchNormalization())
         model.add(Dense(256, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
         model.add(BatchNormalization())
         # model.add(Dense(1, activation='sigmoid'))
         model.add(Dense(2, activation='softmax'))
