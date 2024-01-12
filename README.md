@@ -32,4 +32,4 @@
 - conda install -c anaconda graphviz
 
 ## Contact
-Created by [@shkimmie-umb] - feel free to contact me!
+sanghyuk.kim001@umb.edu
