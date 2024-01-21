@@ -2,7 +2,6 @@ from glob import glob
 import os
 import pathlib
 import numpy as np
-import cv2
 import pandas as pd
 import tensorflow as tf
 from enum import Enum
@@ -12,7 +11,7 @@ import pickle
 import PIL
 from PIL import Image
 from tqdm import tqdm
-
+import json
 
 
 from sklearn.model_selection import train_test_split
@@ -46,6 +45,7 @@ class DatasetType(Enum):
 	ISIC2018 = 4
 	ISIC2019 = 5
 	ISIC2020 = 6
+	PH2 = 7
 	ALL = 100
 
 class ClassType(Enum):
@@ -1345,11 +1345,6 @@ class Util:
 					os.makedirs(f"{val_feature_folder}/{i}", exist_ok=True)
 					os.makedirs(f"{test_feature_folder}/{i}", exist_ok=True)
 
-
-			# df_training_ISIC2017['image'] = df_training_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-			# df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-			# df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-
 			# Dividing ISIC2019 into train/val set
 			trainset_ISIC2019, validationset_ISIC2019 = train_test_split(df_training_ISIC2019, test_size=0.2,random_state = 1)
 
@@ -1375,9 +1370,7 @@ class Util:
 			elif networktype.name == NetworkType.VGG19.name:
 				trainimages_ISIC2019 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2019)
 				validationimages_ISIC2019 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2019)
-			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
-			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
-			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+
 			trainlabels_binary_ISIC2019 = to_categorical(trainset_ISIC2019.cell_type_binary_idx, num_classes=2)
 			validationlabels_binary_ISIC2019 = to_categorical(validationset_ISIC2019.cell_type_binary_idx, num_classes=2)
 
@@ -1549,6 +1542,124 @@ class Util:
 					2), file_bin)
 				file_bin.close()
 
+		if datasettype.value == DatasetType.PH2.value:
+			PH2path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PH2Dataset')
+
+			img_path =pathlib.Path.joinpath(PH2path, './PH2 Dataset images')
+
+			num_imgs = len(list(img_path.glob('*/*_Dermoscopic_Image/*.bmp'))) # counts all PH2 training images
+
+			assert num_imgs == 200
+
+			logger.debug('%s %s', f"Images available in {datasettype.name} train dataset:", num_imgs)
+
+			imageid_path_dict_PH2 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(img_path, '*/*_Dermoscopic_Image/*.bmp'))}
+
+			
+			df_PH2 = pd.read_excel(str(PH2path) + '/PH2_dataset.xlsx', header=12)
+
+			assert df_PH2.shape[0] == 200
+
+			logger.debug("Let's check PH2 metadata briefly")
+			logger.debug("This is PH2 data samples")
+			display(df_PH2.head())
+
+
+
+			# PH2: Creating New Columns for better readability
+			df_PH2['path'] = df_PH2['Image Name'].map(imageid_path_dict_PH2.get)
+			df_PH2['cell_type_binary'] = np.where(df_PH2['Melanoma'] == 'X', 'Melanoma', 'Non-Melanoma')
+			df_PH2['cell_type_binary_idx'] = pd.CategoricalIndex(df_PH2.cell_type_binary, categories=classes_melanoma_binary).codes
+
+
+			logger.debug("Check null data in ISIC2020 training metadata")
+			display(df_PH2.isnull().sum())
+			
+			df_PH2['image'] = df_PH2.path.map(
+				lambda x:(
+					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					currentPath := pathlib.Path(x), # [2]: PosixPath
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			labels = df_PH2.cell_type_binary.unique()
+
+			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+				for i in labels:
+					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+					
+			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
+				for i in labels:
+					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
+
+
+			# df_training_ISIC2017['image'] = df_training_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+
+			# Dividing PH2 into train/val set
+			# trainset_ISIC2020, validationset_ISIC2020 = train_test_split(df_training_ISIC2020, test_size=0.2,random_state = 1)
+			
+
+			preprocessor.saveNumpyImagesToFiles(df_PH2, df_PH2, train_rgb_folder)
+
+			# PH2 binary images/labels
+			trainpixels_PH2 = list(map(lambda x:x[1], df_PH2.image)) # Filter out only pixel from the list
+			
+			
+			if networktype.name == NetworkType.ResNet50.name:
+				trainimages_PH2 = preprocessor.normalizeImgs_ResNet50(trainpixels_PH2)
+			elif networktype.name == NetworkType.Xception.name:
+				trainimages_PH2 = preprocessor.normalizeImgs_Xception(trainpixels_PH2)
+			elif networktype.name == NetworkType.InceptionV3.name:
+				trainimages_PH2 = preprocessor.normalizeImgs_inceptionV3(trainpixels_PH2)
+			elif networktype.name == NetworkType.VGG16.name:
+				trainimages_PH2 = preprocessor.normalizeImgs_vgg16(trainpixels_PH2)
+			elif networktype.name == NetworkType.VGG19.name:
+				trainimages_PH2 = preprocessor.normalizeImgs_vgg19(trainpixels_PH2)
+			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			trainlabels_binary_PH2 = to_categorical(df_PH2.cell_type_binary_idx, num_classes=2)
+
+			assert num_train_img_PH2 == len(trainpixels_PH2)
+			assert len(trainpixels_PH2) == trainlabels_binary_PH2.shape[0]
+			assert trainimages_PH2.shape[0] == trainlabels_binary_PH2.shape[0]
+
+			# trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			assert datasettype.name == 'PH2'
+			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_PH2, None, None,
+				trainlabels_binary_PH2, None, None,
+				2), file_bin)
+			file_bin.close()
+
+			if augment_ratio is not None and augment_ratio >= 1.0:
+				
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_PH2_augmented, trainlabels_binary_PH2_augmented = \
+					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_PH2, trainlabels_binary_PH2, \
+						augment_ratio, df_PH2)
+				
+				assert augmented_db_name.name == 'PH2'
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_PH2_augmented, None, None,
+					trainlabels_binary_PH2_augmented, None, None,
+					2), file_bin)
+				file_bin.close()
+
+
 		
 
 		
@@ -1696,42 +1807,91 @@ class Util:
 
 	def combineSavedDatasets(self, new_path, new_filename, *args):
 		totalpath = new_path + new_filename
+
 		trainimgs_list = []
-		# testimgs_list = []
 		valimgs_list = []
 		trainlabels_list = []
-		# testlabels_list = []
 		vallabels_list = []
-		for db in args:
-			trainimages, _, validationimages, \
-			trainlabels, _, validationlabels, num_classes = pickle.load(open(db, 'rb'))
-			trainimgs_list.append(trainimages)
-			# testimgs_list.append(testimages)
-			valimgs_list.append(validationimages)
-			trainlabels_list.append(trainlabels)
-			# testlabels_list.append(testlabels)
-			vallabels_list.append(validationlabels)
-		trainimages_combined = np.vstack(trainimgs_list)
-		# testimages_combined = np.vstack(testimgs_list)
-		validationimages_combined = np.vstack(valimgs_list)
-		trainlabels_combined = np.vstack(trainlabels_list)
-		# testlabels_combined = np.vstack(testlabels_list)
-		validationlabels_combined = np.vstack(vallabels_list)
+		# for db in args:
+		# 	trainimages, _, validationimages, \
+		# 	trainlabels, _, validationlabels, num_classes = pickle.load(open(db, 'rb'))
+		# 	trainimgs_list.append(trainimages)
+		# 	# testimgs_list.append(testimages)
+		# 	valimgs_list.append(validationimages)
+		# 	trainlabels_list.append(trainlabels)
+		# 	# testlabels_list.append(testlabels)
+		# 	vallabels_list.append(validationlabels)
+
+		print('Combining...')
+		for idx, pkl_file in enumerate(args):
+			
+			datum = pickle.load(open(pkl_file, 'rb'))
+			print(f'Combining {idx+1} db out of {len(args)} dbs')
+			# [0]:Trainimgs, [1]:Valimgs, [2]:testimgs, [3]:trainlabels, [4]:vallabels, [5]:testlabels
+			trainimgs_list.append(datum[0])
+			if datum[1] is not None:
+				valimgs_list.append(datum[1])
+			trainlabels_list.append(datum[3])
+			if datum[4] is not None:
+				vallabels_list.append(datum[4])
+			
+
+		
+		
+		assert sum(list(map(lambda v: len(v), trainimgs_list))) == sum(list(map(lambda v: len(v), trainlabels_list)))
+		for idx, file in enumerate(trainimgs_list):
+			assert trainimgs_list[idx].shape[0] == trainlabels_list[idx].shape[0]
+		
+
+		print('Stacking training images')
+		list_size = sum(list(map(lambda v: len(v), trainimgs_list)))
+		trainimgs_list = np.vstack(trainimgs_list)
+		assert trainimgs_list.shape[0] == list_size
+		# assert trainimages_combined.shape[0] == sum(list(map(lambda v: len(v), trainimgs_list)))
+		# del trainimgs_list
+
+		print('Stacking training labels')
+		list_size = sum(list(map(lambda v: len(v), trainlabels_list)))
+		trainlabels_list = np.vstack(trainlabels_list)
+		assert trainlabels_list.shape[0] == list_size
+		# assert trainlabels_combined.shape[0] == sum(list(map(lambda v: len(v), trainlabels_list)))
+		# del trainlabels_list
+		
+		
+
+		assert sum(list(map(lambda v: len(v), valimgs_list))) == sum(list(map(lambda v: len(v), vallabels_list)))
+		for idx, file in enumerate(valimgs_list):
+			assert valimgs_list[idx].shape[0] == vallabels_list[idx].shape[0]
+		
+		
+
+		print('Stacking validation images')
+		list_size = sum(list(map(lambda v: len(v), valimgs_list)))
+		valimgs_list = np.vstack(valimgs_list)		
+		assert valimgs_list.shape[0] == list_size
+		# assert validationimages_combined.shape[0] == sum(list(map(lambda v: len(v), valimgs_list)))
+		# del valimgs_list
+
+		print('Stacking validation labels')
+		list_size = sum(list(map(lambda v: len(v), vallabels_list)))
+		vallabels_list = np.vstack(vallabels_list)
+		assert vallabels_list.shape[0] == list_size
+		# assert validationlabels_combined.shape[0] == sum(list(map(lambda v: len(v), vallabels_list)))
+		# del vallabels_list
+
+		
 
 		leng = lambda x: len(x[x.len()])
 
-		assert trainimages_combined.shape[0] == sum(list(map(lambda v: len(v), trainimgs_list)))
-		# assert testimages_combined.shape[0] == sum(list(map(lambda v: len(v), testimgs_list)))
-		assert validationimages_combined.shape[0] == sum(list(map(lambda v: len(v), valimgs_list)))
-		assert trainlabels_combined.shape[0] == sum(list(map(lambda v: len(v), trainlabels_list)))
-		# assert testlabels_combined.shape[0] == sum(list(map(lambda v: len(v), testlabels_list)))
-		assert validationlabels_combined.shape[0] == sum(list(map(lambda v: len(v), vallabels_list)))
-
+		print(f'Pickling {new_filename}...')
 		with open(totalpath, 'wb') as file:
 				
-				pickle.dump((trainimages_combined, None, validationimages_combined,
-				trainlabels_combined, None, validationlabels_combined, 2), file)
+				# pickle.dump((trainimages_combined, None, validationimages_combined,
+				# trainlabels_combined, None, validationlabels_combined, 2), file)
+				pickle.dump((trainimgs_list, None, valimgs_list,
+				trainlabels_list, None, vallabels_list, 2), file)
 		file.close()
+		print(f'{new_filename} generated')
 		
 	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, path_benign_train, path_malignant_train, path_benign_test, path_malignant_test):
 		totalpath = new_path + new_filename
@@ -1746,32 +1906,7 @@ class Util:
 
 
 	
-	def combine_images(self, **kwargs):
-		
-		for idx, (key, value) in enumerate(kwargs.items()):
-			print("Input " + str(idx) + ": " + key)
-			if idx==0:
-				name = key + " AND "
-				combined = value
-			elif idx>0:
-				name = name + key + " AND "
-				combined = np.vstack((combined, value))
-			
-		print("Combined images: " + name)
-		return combined
-	
-	def combine_labels(self, **kwargs):
-		for idx, (key, value) in enumerate(kwargs.items()):
-			print("Input: " + str(idx) + ": " + key)
-			if idx==0:
-				name = key + " AND "
-				combined = value
-			elif idx>0:
-				name = name + key + " AND "
-				combined = np.hstack((combined, value))
-			
-		print("Combined labels: " + name)
-		return combined
+
 
 	def loadCSV(self, mode):
 		if mode == DatasetType.HAM10000:
