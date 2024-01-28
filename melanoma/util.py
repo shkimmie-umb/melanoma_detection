@@ -46,6 +46,7 @@ class DatasetType(Enum):
 	ISIC2019 = 5
 	ISIC2020 = 6
 	PH2 = 7
+	_7_point_criteria = 8
 	ALL = 100
 
 class ClassType(Enum):
@@ -58,16 +59,16 @@ class Util:
 	# train_ds = ''
 	# val_ds = ''
 	# class_names = []
-	def __init__(self, path, image_size=(None, None), seed_val=1, split_portion=0.2, batch_size=32, color_mode='rgb'):
+	def __init__(self, path, image_size=(None, None)):
 		self.base_dir = pathlib.Path(path)
 		
 		# self.trainDataPath = pathlib.Path.joinpath(path, '/Train')
 		# self.testDataPath = pathlib.Path.joinpath(path, '/Test')
-		self.seed_val = seed_val
-		self.split_portion = split_portion
+		# self.seed_val = seed_val
+		# self.split_portion = split_portion
 		self.image_size = image_size # (height, width)
-		self.batch_size = batch_size
-		self.color_mode = color_mode
+		# self.batch_size = batch_size
+		# self.color_mode = color_mode
 		# self.epochs = epochs
 		self.class_names = []
 		# self.class_names = class_names
@@ -328,8 +329,6 @@ class Util:
 			pass
 
 		print("path: ", self.base_dir)
-		print("seed value: ", self.seed_val)
-		print("color_mode: ", self.color_mode)
 		
 		# Dataset path define
 		from datetime import datetime
@@ -430,7 +429,7 @@ class Util:
 
 
 		# HAM10000 multi-class images/labels
-		if datasettype.value == DatasetType.HAM10000.value or datasettype.value == DatasetType.ALL.value:
+		if datasettype.value == DatasetType.HAM10000.value:
 			HAM10000_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_images_combined')
 			num_train_img_HAM10000 = len(list(HAM10000_path.glob('./*.jpg'))) # counts all HAM10000 images
 
@@ -654,7 +653,7 @@ class Util:
 
 
 		
-		if datasettype.value == DatasetType.ISIC2016.value or datasettype.value == DatasetType.ALL.value:
+		if datasettype.value == DatasetType.ISIC2016.value:
 			ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
 			ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
 
@@ -849,7 +848,7 @@ class Util:
 				file_bin.close()
 
 
-		if datasettype.value == DatasetType.ISIC2017.value or datasettype.value == DatasetType.ALL.value:
+		if datasettype.value == DatasetType.ISIC2017.value:
 			ISIC2017_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Training_Data')
 			ISIC2017_val_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Validation_Data')
 			ISIC2017_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Test_v2_Data')
@@ -1551,7 +1550,7 @@ class Util:
 
 			assert num_imgs == 200
 
-			logger.debug('%s %s', f"Images available in {datasettype.name} train dataset:", num_imgs)
+			logger.debug('%s %s', f"Images available in {datasettype.name} dataset:", num_imgs)
 
 			imageid_path_dict_PH2 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(img_path, '*/*_Dermoscopic_Image/*.bmp'))}
 
@@ -1628,7 +1627,7 @@ class Util:
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			trainlabels_binary_PH2 = to_categorical(df_PH2.cell_type_binary_idx, num_classes=2)
 
-			assert num_train_img_PH2 == len(trainpixels_PH2)
+			assert num_imgs == len(trainpixels_PH2)
 			assert len(trainpixels_PH2) == trainlabels_binary_PH2.shape[0]
 			assert trainimages_PH2.shape[0] == trainlabels_binary_PH2.shape[0]
 
@@ -1658,6 +1657,174 @@ class Util:
 					trainlabels_binary_PH2_augmented, None, None,
 					2), file_bin)
 				file_bin.close()
+
+
+		if datasettype.value == DatasetType._7_point_criteria.value:
+			_7pointdb_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './release_v0')
+
+			img_path =pathlib.Path.joinpath(_7pointdb_path, './images')
+
+			num_imgs = len(list(img_path.glob('*/*.*'))) # counts all 7-point db training images
+
+			assert num_imgs == 2013 # Num of files in folder
+
+			logger.debug('%s %s', f"Images available in {datasettype.name} dataset:", num_imgs)
+
+
+			imagedir_dict = {os.path.join(os.path.basename(os.path.dirname(x)), os.path.basename(x)): x for x in glob(os.path.join(img_path, '*/*.*'))}
+			imagedir_dict_lower = {k.lower(): v for k, v in imagedir_dict.items()}
+			# imagedir_dict_lower = list(map(lambda x: x.lower(), list(imagedir_dict.keys())))
+			# imageid_path_dict_7pointdb = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(img_path, '*/*.*'))}
+
+			# imagedir_dict_lower_dict = dict()
+			# for ele in imagedir_dict_lower:
+			# 	imagedir_dict_lower_dict[str(ele)] = ele
+			
+			df_7pointdb = pd.read_csv(str(_7pointdb_path) + '/meta/meta.csv', header=0)
+
+			assert df_7pointdb.shape[0] == 1011 # meta rows
+
+			logger.debug("Let's check 7-point criteria db metadata briefly")
+			logger.debug("This is 7-point criteria db samples")
+			display(df_7pointdb.head())
+
+			# 7 point criteria db: Creating New Columns for better readability
+			# df_7pointdb['path_clinic'] = df_7pointdb['clinic'].str.lower().map(imagedir_dict_lower.get)
+			df_7pointdb['path'] = df_7pointdb['derm'].str.lower().map(imagedir_dict_lower.get)
+			# df_7pointdb['path_clinic'].shape[0] == 1011
+			df_7pointdb['path'].shape[0] == 1011
+			df_7pointdb['cell_type_binary'] = df_7pointdb['diagnosis'].apply(lambda x: 'Melanoma' if 'melanoma' in x else 'Non-Melanoma')
+			df_7pointdb['cell_type_binary_idx'] = pd.CategoricalIndex(df_7pointdb.cell_type_binary, categories=classes_melanoma_binary).codes
+
+
+			logger.debug("Check null data in 7 point db training metadata")
+			display(df_7pointdb.isnull().sum())
+			
+			# df_7pointdb['image_clinic'] = df_7pointdb.path_clinic.map(
+			# 	lambda x:(
+			# 		# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+			# 		img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+			# 		# np.asarray(img), # [1]: pixel array
+			# 		img_to_array(img), # [1]: pixel array
+			# 		currentPath := pathlib.Path(x), # [2]: PosixPath
+			# 		# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+			# 	)
+			# )
+			df_7pointdb['image'] = df_7pointdb.path.map(
+				lambda x:(
+					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					currentPath := pathlib.Path(x), # [2]: PosixPath
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			labels = df_7pointdb.cell_type_binary.unique()
+
+			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+				for i in labels:
+					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
+			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
+				for i in labels:
+					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{val_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{test_feature_folder}/{i}", exist_ok=True)
+
+			df_training_index = pd.read_csv(str(_7pointdb_path) + '/meta/train_indexes.csv', header=0)
+			df_validation_index = pd.read_csv(str(_7pointdb_path) + '/meta/valid_indexes.csv', header=0)
+			df_test_index = pd.read_csv(str(_7pointdb_path) + '/meta/test_indexes.csv', header=0)
+			# df_training_7pointdb = df_7pointdb[df_7pointdb.index.isin(df_training_index['indexes'])]
+			df_training_7pointdb = df_7pointdb.filter(items = df_training_index['indexes'], axis=0)
+			df_validation_7pointdb = df_7pointdb.filter(items = df_validation_index['indexes'], axis=0)
+			df_test_7pointdb = df_7pointdb.filter(items = df_test_index['indexes'], axis=0)
+			df_training_7pointdb.shape[0] == 413
+			df_validation_7pointdb.shape[0] == 203
+			df_test_7pointdb.shape[0] == 395
+			
+
+			# df_training_7pointdb['image'] = df_training_7pointdb.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))			
+
+			preprocessor.saveNumpyImagesToFiles(df_training_7pointdb, df_7pointdb, train_rgb_folder)
+			preprocessor.saveNumpyImagesToFiles(df_validation_7pointdb, df_7pointdb, val_rgb_folder)
+			preprocessor.saveNumpyImagesToFiles(df_test_7pointdb, df_7pointdb, test_rgb_folder)
+
+			# 7 point db binary images/labels
+			trainpixels_7pointdb = list(map(lambda x:x[1], df_training_7pointdb.image)) # Filter out only pixel from the list
+			validationpixels_7pointdb = list(map(lambda x:x[1], df_validation_7pointdb.image)) # Filter out only pixel from the list
+			testpixels_7pointdb = list(map(lambda x:x[1], df_test_7pointdb.image)) # Filter out only pixel from the list
+			
+			
+			if networktype.name == NetworkType.ResNet50.name:
+				trainimages_7pointdb = preprocessor.normalizeImgs_ResNet50(trainpixels_7pointdb)
+				validationimages_7pointdb = preprocessor.normalizeImgs_ResNet50(validationpixels_7pointdb)
+				testimages_7pointdb = preprocessor.normalizeImgs_ResNet50(testpixels_7pointdb)
+			elif networktype.name == NetworkType.Xception.name:
+				trainimages_7pointdb = preprocessor.normalizeImgs_Xception(trainpixels_7pointdb)
+				validationimages_7pointdb = preprocessor.normalizeImgs_Xception(validationpixels_7pointdb)
+				testimages_7pointdb = preprocessor.normalizeImgs_Xception(testpixels_7pointdb)
+			elif networktype.name == NetworkType.InceptionV3.name:
+				trainimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(trainpixels_7pointdb)
+				validationimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(validationpixels_7pointdb)
+				testimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(testpixels_7pointdb)
+			elif networktype.name == NetworkType.VGG16.name:
+				trainimages_7pointdb = preprocessor.normalizeImgs_vgg16(trainpixels_7pointdb)
+				validationimages_7pointdb = preprocessor.normalizeImgs_vgg16(validationpixels_7pointdb)
+				testimages_7pointdb = preprocessor.normalizeImgs_vgg16(testpixels_7pointdb)
+			elif networktype.name == NetworkType.VGG19.name:
+				trainimages_7pointdb = preprocessor.normalizeImgs_vgg19(trainpixels_7pointdb)
+				validationimages_7pointdb = preprocessor.normalizeImgs_vgg19(validationpixels_7pointdb)
+				testimages_7pointdb = preprocessor.normalizeImgs_vgg19(testpixels_7pointdb)
+			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			trainlabels_binary_7pointdb = to_categorical(df_training_7pointdb.cell_type_binary_idx, num_classes=2)
+			validationlabels_binary_7pointdb = to_categorical(df_validation_7pointdb.cell_type_binary_idx, num_classes=2)
+			testlabels_binary_7pointdb = to_categorical(df_test_7pointdb.cell_type_binary_idx, num_classes=2)
+
+			
+			assert len(trainpixels_7pointdb) == trainlabels_binary_7pointdb.shape[0]
+			assert len(validationpixels_7pointdb) == validationlabels_binary_7pointdb.shape[0]
+			assert len(testpixels_7pointdb) == testlabels_binary_7pointdb.shape[0]
+			assert trainimages_7pointdb.shape[0] == trainlabels_binary_7pointdb.shape[0]
+			assert validationimages_7pointdb.shape[0] == validationlabels_binary_7pointdb.shape[0]
+			assert testimages_7pointdb.shape[0] == testlabels_binary_7pointdb.shape[0]
+
+			# trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			assert datasettype.name == '_7_point_criteria'
+			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_7pointdb, testimages_7pointdb, validationimages_7pointdb,
+				trainlabels_binary_7pointdb, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
+				2), file_bin)
+			file_bin.close()
+
+			if augment_ratio is not None and augment_ratio >= 1.0:
+				
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_7pointdb_augmented, trainlabels_binary_7pointdb_augmented = \
+					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_7pointdb, trainlabels_binary_7pointdb, \
+						augment_ratio, df_training_7pointdb)
+				
+				assert augmented_db_name.name == '_7_point_criteria'
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_7pointdb_augmented, testimages_7pointdb, validationimages_7pointdb,
+					trainlabels_binary_7pointdb_augmented, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
+					2), file_bin)
+				file_bin.close()
+
+		
 
 
 		

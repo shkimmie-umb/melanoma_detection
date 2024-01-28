@@ -2,7 +2,7 @@ import tensorflow as tf
 from .model import Model as Base_Model
 from melanoma import augmentationStrategy as aug
 # from .util import NetworkType
-import melanoma
+import melanoma as mel
 from keras.preprocessing.image import array_to_img, img_to_array, load_img
 import numpy as np
 import pandas as pd
@@ -266,15 +266,15 @@ class Preprocess:
         trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented.image)) # Filter out only pixel from the list
 
         # new_means, new_stds = getMeanStd(trainpixels_HAM10000_augmented)
-        if networktype.name == NetworkType.ResNet50.name:
+        if networktype.name == mel.NetworkType.ResNet50.name:
             imgs_augmented = self.normalizeImgs_ResNet50(trainpixels_augmented)
-        elif networktype.name == NetworkType.Xception.name:
+        elif networktype.name == mel.NetworkType.Xception.name:
             imgs_augmented = self.normalizeImgs_Xception(trainpixels_augmented)
-        elif networktype.name == NetworkType.InceptionV3.name:
+        elif networktype.name == mel.NetworkType.InceptionV3.name:
             imgs_augmented = self.normalizeImgs_inceptionV3(trainpixels_augmented)
-        elif networktype.name == NetworkType.VGG16.name:
+        elif networktype.name == mel.NetworkType.VGG16.name:
             imgs_augmented = self.normalizeImgs_vgg16(trainpixels_augmented)
-        elif networktype.name == NetworkType.VGG19.name:
+        elif networktype.name == mel.NetworkType.VGG19.name:
             imgs_augmented = self.normalizeImgs_vgg19(trainpixels_augmented)
         trainimages_augmented = np.vstack((trainimages, imgs_augmented))
         

@@ -1,5 +1,5 @@
 # __init__.py
-from .util import NetworkType, DatasetType, ClassType, Util
+from .util import Util, NetworkType, DatasetType, ClassType
 from .model import Model
 from .visualizer import Visualizer
 from .cnn import CNN
