@@ -156,18 +156,32 @@ class Preprocess:
         # augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
         augMethod = aug.Augmentation(aug.crop_flip())
 
+        resize_ratio = 0.75
+
+        # heightsz_weight = -(1-0.75)*((img_height-min_height)/(max_height-min_height))+1
+        # widthsz_weight = -(1-0.75)*((img_width-min_width)/(max_width-min_width))+1
+
+
         df_mel = df_trainset[df_trainset.cell_type_binary=='Melanoma']
+        # df_mel = df_mel[df_mel.apply(lambda x:x.img_sizes[0] * -(1-0.75)*((x.img_sizes[0]-min_height)/(max_height-min_height))+1 > self.img_height, axis=1)]
+        cnt_mel = df_mel.shape[0]
+        # Filtering out small images less than cropping size
+        df_mel = df_mel[df_mel.apply(lambda x: x.img_sizes[0] * resize_ratio > self.img_height, axis=1)]
+        cnt_mel_filt = df_mel.shape[0]
+        diff_mel = cnt_mel - cnt_mel_filt
         df_non_mel = df_trainset[df_trainset.cell_type_binary=='Non-Melanoma']
+        cnt_non_mel = df_non_mel.shape[0]
+        # Filtering out small images less than cropping size
+        df_non_mel = df_non_mel[df_non_mel.apply(lambda x: x.img_sizes[1] * resize_ratio > self.img_width, axis=1)]
+        cnt_non_mel_filt = df_non_mel.shape[0]
+        diff_non_mel = cnt_non_mel - cnt_non_mel_filt
 
         mel_cnt = df_mel.shape[0]
         non_mel_cnt = df_non_mel.shape[0]
 
         df_mel_augmented = pd.DataFrame(columns=df_trainset.columns.tolist())
         df_non_mel_augmented = pd.DataFrame(columns=df_trainset.columns.tolist())
-
-        # trainset_HAM10000_cp = trainset_HAM10000.copy()
         
-        # trainset_HAM10000_cp['image'] = ExtractPixel(trainset_HAM10000['image'])
 
         if mel_cnt < non_mel_cnt:
             # melanoma augmentation here
@@ -181,12 +195,14 @@ class Preprocess:
                 df_mel_augmented.loc[j] = df_trainset.loc[randmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                # display(f'path: {df_trainset.path[randmel_idx]}')
+                augmented_img = augMethod.augmentation(input_img=np_img, resize_ratio=resize_ratio, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
                 assert df_mel_augmented.shape[0] <= num_augmented_img
+                
+
             # non-melanoma augmentation here
             for j, id in enumerate(range(non_mel_cnt, math.ceil(non_mel_cnt * augment_ratio))):
                 randnonmel_idx = random.choice(df_non_mel.index)
@@ -197,10 +213,9 @@ class Preprocess:
                 df_non_mel_augmented.loc[j] = df_trainset.loc[randnonmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(input_img=np_img, resize_ratio=resize_ratio, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
                 assert df_non_mel_augmented.shape[0] <= num_augmented_img
         elif mel_cnt > non_mel_cnt:
@@ -214,12 +229,12 @@ class Preprocess:
                 df_mel_augmented.loc[j] = df_trainset.loc[randmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(input_img=np_img, resize_ratio=resize_ratio, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = augmented_img['image']
-
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
                 assert df_mel_augmented.shape[0] <= num_augmented_img
+
             # non-melanoma augmentation here
             for j, id in enumerate(range((mel_cnt - non_mel_cnt), math.ceil(mel_cnt * augment_ratio))):
                 randnonmel_idx = random.choice(df_non_mel.index)
@@ -231,10 +246,9 @@ class Preprocess:
                 df_non_mel_augmented.loc[j] = df_trainset.loc[randnonmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(input_img=np_img, resize_ratio=resize_ratio, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
-
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
                 assert df_non_mel_augmented.shape[0] <= num_augmented_img
 

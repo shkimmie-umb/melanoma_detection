@@ -9,7 +9,7 @@ import os
 class AugmentationStrategy:
     # def augmentation(self, img_height, img_width, rotation, zoom):
     #     pass
-    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
+    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None, resize_ratio=None):
         pass
     def augment_and_save(self):
         pass
@@ -17,7 +17,7 @@ class AugmentationStrategy:
 class crop_flip_brightnesscontrast(AugmentationStrategy):
     @staticmethod
     def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip,
-    p_randomBrightnessContrast):
+    p_randomBrightnessContrast, resize_ratio=None):
         transform = A.Compose([
             A.Rotate(limit=(-90, 90), p=p_rotation),
             A.Affine(scale=(zoomout, zoomin), p=p_scaling),
@@ -33,11 +33,12 @@ class crop_flip_brightnesscontrast(AugmentationStrategy):
 
 class crop_flip(AugmentationStrategy):
     @staticmethod
-    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast=None):
+    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast=None, resize_ratio=None):
         img_width = input_img.shape[1]
         img_height = input_img.shape[0]
+
         transform = A.Compose([
-            A.Resize(int(img_height*0.75), int(img_width*0.75)),
+            A.Resize(int(img_height * resize_ratio), int(img_width * resize_ratio)),
             A.Rotate(limit=(-45, 45), p=p_rotation),
             A.Affine(scale=(zoomout, zoomin), p=p_scaling),
             A.RandomCrop(width=crop_width, height=crop_height),
@@ -96,8 +97,8 @@ class Augmentation:
     def __init__(self, strategy):
         self._strategy = strategy
 
-    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
-        return self._strategy.augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast)
+    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None, resize_ratio=None):
+        return self._strategy.augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast, resize_ratio)
     
     def augment_and_save(self, class_names, path, numSamplesToAdd, probability=0.7, max_left_rotation=10, max_right_rotation=10):
         return self._strategy.augment_and_save(class_names, path, numSamplesToAdd, probability, max_left_rotation, max_right_rotation)

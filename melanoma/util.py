@@ -47,7 +47,7 @@ class DatasetType(Enum):
 	ISIC2020 = 6
 	PH2 = 7
 	_7_point_criteria = 8
-	ALL = 100
+	PAD_UFES_20 = 9
 
 class ClassType(Enum):
 	multi = 1
@@ -496,6 +496,12 @@ class Util:
 				)
 			)
 
+			df_HAM10000['img_sizes'] = df_HAM10000.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			labels = df_HAM10000.cell_type_binary.unique()
 
 			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
@@ -728,6 +734,12 @@ class Util:
 				)
 			)
 
+			df_training_ISIC2016['img_sizes'] = df_training_ISIC2016.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			# df_test_ISIC2016['ori_image'] = df_test_ISIC2016.path.map(
 			# 	lambda x:(
 			# 		img := Image.open(x), # [0]: PIL object
@@ -745,6 +757,8 @@ class Util:
 					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
 				)
 			)
+
+			
 
 			assert all(df_training_ISIC2016.cell_type_binary.unique() == df_test_ISIC2016.cell_type_binary.unique())
 			labels = df_training_ISIC2016.cell_type_binary.unique()
@@ -975,6 +989,12 @@ class Util:
 				)
 			)
 
+			df_training_ISIC2017['img_sizes'] = df_training_ISIC2017.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			assert all(df_training_ISIC2017.cell_type_binary.unique() == df_test_ISIC2017.cell_type_binary.unique())
 			assert all(df_val_ISIC2017.cell_type_binary.unique() == df_test_ISIC2017.cell_type_binary.unique())
 			labels = df_training_ISIC2017.cell_type_binary.unique()
@@ -1179,6 +1199,12 @@ class Util:
 				)
 			)
 
+			df_training_ISIC2018['img_sizes'] = df_training_ISIC2018.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			assert all(df_training_ISIC2018.cell_type_binary.unique() == df_test_ISIC2018.cell_type_binary.unique())
 			assert all(df_val_ISIC2018.cell_type_binary.unique() == df_test_ISIC2018.cell_type_binary.unique())
 			labels = df_training_ISIC2018.cell_type_binary.unique()
@@ -1325,6 +1351,12 @@ class Util:
 				)
 			)
 
+			df_training_ISIC2019['img_sizes'] = df_training_ISIC2019.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 
 
 			# assert all(df_training_ISIC2019.cell_type_binary.unique() == df_test_ISIC2019.cell_type_binary.unique())
@@ -1450,6 +1482,12 @@ class Util:
 					img_to_array(img), # [1]: pixel array
 					currentPath := pathlib.Path(x), # [2]: PosixPath
 					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			df_training_ISIC2020['img_sizes'] = df_training_ISIC2020.path.map(
+				lambda x:(
+					Image.open(x).size
 				)
 			)
 
@@ -1821,6 +1859,147 @@ class Util:
 					
 					pickle.dump((trainimages_7pointdb_augmented, testimages_7pointdb, validationimages_7pointdb,
 					trainlabels_binary_7pointdb_augmented, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
+					2), file_bin)
+				file_bin.close()
+
+		if datasettype.value == DatasetType.PAD_UFES_20.value:
+			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PAD-UFES-20')
+
+			img_path =pathlib.Path.joinpath(dbpath, './images')
+
+			num_imgs = len(list(img_path.glob('imgs_part_*/*.*'))) # counts all PAD_UFES_20 training images
+
+			assert num_imgs == 2298
+
+			logger.debug('%s %s', f"Images available in {datasettype.name} dataset:", num_imgs)
+
+			imageid_path_dict = {os.path.basename(x): x for x in glob(os.path.join(img_path, 'imgs_part_*/*.*'))}
+
+			
+			df_PAD_UFES_20 = pd.read_csv(str(dbpath) + '/metadata.csv', header=0)
+
+			assert df_PAD_UFES_20.shape[0] == 2298
+
+			logger.debug("Let's check PAD UFES 20 metadata briefly")
+			logger.debug("This is PAD UFES 20 data samples")
+			display(df_PAD_UFES_20.head())
+
+
+
+			# PAD UFES 20: Creating New Columns for better readability
+			df_PAD_UFES_20['path'] = df_PAD_UFES_20['img_id'].map(imageid_path_dict.get)
+			df_PAD_UFES_20['cell_type_binary'] = np.where(df_PAD_UFES_20['diagnostic'] == 'MEL', 'Melanoma', 'Non-Melanoma')
+			df_PAD_UFES_20['cell_type_binary_idx'] = pd.CategoricalIndex(df_PAD_UFES_20.cell_type_binary, categories=classes_melanoma_binary).codes
+
+
+			logger.debug("Check null data in PAD UFES 20 training metadata")
+			display(df_PAD_UFES_20.isnull().sum())
+			
+			df_PAD_UFES_20['image'] = df_PAD_UFES_20.path.map(
+				lambda x:(
+					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					currentPath := pathlib.Path(x), # [2]: PosixPath
+					
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			df_PAD_UFES_20['img_sizes'] = df_PAD_UFES_20.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+			# max_height, max_width = df_PAD_UFES_20['img_sizes'].max()
+			# min_height, min_width = df_PAD_UFES_20['img_sizes'].min()
+			# max_min = dict(max_height=max_height, min_height=min_height, max_width=max_width, min_width=min_width)
+
+			
+
+
+			
+
+			labels = df_PAD_UFES_20.cell_type_binary.unique()
+
+			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+				for i in labels:
+					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+					
+			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
+				for i in labels:
+					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
+
+
+			# df_training_ISIC2017['image'] = df_training_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+			# df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
+
+			# Dividing PAD UFES 20 into train/val set
+			trainset_PAD_UFES_20, validationset_PAD_UFES_20 = train_test_split(df_PAD_UFES_20, test_size=0.2,random_state = 1)
+			
+
+			preprocessor.saveNumpyImagesToFiles(df_PAD_UFES_20, df_PAD_UFES_20, train_rgb_folder)
+
+			# PAD UFES 20 binary images/labels
+			trainpixels_PAD_UFES_20 = list(map(lambda x:x[1], trainset_PAD_UFES_20.image)) # Filter out only pixel from the list
+			validationpixels_PAD_UFES_20 = list(map(lambda x:x[1], validationset_PAD_UFES_20.image)) # Filter out only pixel from the list
+			
+			
+			if networktype.name == NetworkType.ResNet50.name:
+				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_ResNet50(trainpixels_PAD_UFES_20)
+				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_ResNet50(validationpixels_PAD_UFES_20)
+			elif networktype.name == NetworkType.Xception.name:
+				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_Xception(trainpixels_PAD_UFES_20)
+				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_Xception(validationpixels_PAD_UFES_20)
+			elif networktype.name == NetworkType.InceptionV3.name:
+				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_inceptionV3(trainpixels_PAD_UFES_20)
+				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_inceptionV3(validationpixels_PAD_UFES_20)
+			elif networktype.name == NetworkType.VGG16.name:
+				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg16(trainpixels_PAD_UFES_20)
+				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg16(validationpixels_PAD_UFES_20)
+			elif networktype.name == NetworkType.VGG19.name:
+				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg19(trainpixels_PAD_UFES_20)
+				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg19(validationpixels_PAD_UFES_20)
+			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			trainlabels_binary_PAD_UFES_20 = to_categorical(trainset_PAD_UFES_20.cell_type_binary_idx, num_classes=2)
+			validationlabels_binary_PAD_UFES_20 = to_categorical(validationset_PAD_UFES_20.cell_type_binary_idx, num_classes=2)
+
+			assert num_imgs == len(trainpixels_PAD_UFES_20) + len(validationpixels_PAD_UFES_20)
+			assert len(trainpixels_PAD_UFES_20) == trainlabels_binary_PAD_UFES_20.shape[0]
+			assert len(validationpixels_PAD_UFES_20) == validationlabels_binary_PAD_UFES_20.shape[0]
+			assert trainimages_PAD_UFES_20.shape[0] == trainlabels_binary_PAD_UFES_20.shape[0]
+			assert validationimages_PAD_UFES_20.shape[0] == validationlabels_binary_PAD_UFES_20.shape[0]
+
+			# trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			assert datasettype.name == 'PAD_UFES_20'
+			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages_PAD_UFES_20, None, validationimages_PAD_UFES_20,
+				trainlabels_binary_PAD_UFES_20, None, validationlabels_binary_PAD_UFES_20,
+				2), file_bin)
+			file_bin.close()
+
+			if augment_ratio is not None and augment_ratio >= 1.0:
+				
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_PAD_UFES_20_augmented, trainlabels_binary_PAD_UFES_20_augmented = \
+					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_PAD_UFES_20, trainlabels_binary_PAD_UFES_20, \
+						augment_ratio, trainset_PAD_UFES_20)
+				
+				assert augmented_db_name.name == 'PAD_UFES_20'
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_PAD_UFES_20_augmented, None, validationimages_PAD_UFES_20,
+					trainlabels_binary_PAD_UFES_20_augmented, None, validationlabels_binary_PAD_UFES_20,
 					2), file_bin)
 				file_bin.close()
 
