@@ -48,6 +48,8 @@ class DatasetType(Enum):
 	PH2 = 7
 	_7_point_criteria = 8
 	PAD_UFES_20 = 9
+	MEDNODE = 10
+	KaggleMB = 11
 
 class ClassType(Enum):
 	multi = 1
@@ -74,6 +76,11 @@ class Util:
 		# self.class_names = class_names
 		self.train_ds = ''
 		self.val_ds = ''
+
+		self.classes_melanoma_binary = ['Non-Melanoma', 'Melanoma']
+
+		self.foldersExist = ''
+		self.RGBfolders = ''
 
 		self.common_binary_label = {
 			0.0: 'Non-Melanoma',
@@ -378,7 +385,7 @@ class Util:
 		pd.set_option('display.max_columns', 500)
 
 		# Given lesion types
-		classes_melanoma_binary = ['Non-Melanoma', 'Melanoma']
+		
 
 		# Not required for pickled data
 		# resize() order: (width, height)
@@ -461,7 +468,7 @@ class Util:
 			# df_HAM10000['cell_type_idx'] = pd.Categorical(df_HAM10000.dx).codes
 			df_HAM10000['cell_type_idx'] = pd.CategoricalIndex(df_HAM10000.dx, categories=['bkl', 'nv', 'df', 'mel', 'vasc', 'bcc', 'akiec']).codes
 			# df_HAM10000['cell_type_binary_idx'] = pd.Categorical(df_HAM10000.cell_type_binary).codes
-			df_HAM10000['cell_type_binary_idx'] = pd.CategoricalIndex(df_HAM10000.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_HAM10000['cell_type_binary_idx'] = pd.CategoricalIndex(df_HAM10000.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			logger.debug("Let's add some more columns on top of the original metadata for better readability")
 			logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type', 'cell_type_binary', 'cell_type_idx', 'cell_type_binary_idx'")
 			logger.debug("Now, let's show some of records -> df.sample(5)")
@@ -698,11 +705,11 @@ class Util:
 			df_training_ISIC2016['path'] = df_training_ISIC2016.image_id.map(imageid_path_training_dict_ISIC2016.get)
 			df_training_ISIC2016['cell_type_binary'] = df_training_ISIC2016.label.map(self.lesion_type_binary_dict_training_ISIC2016.get)
 			# Define codes for compatibility among datasets
-			df_training_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2016.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2016.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			df_test_ISIC2016['path'] = df_test_ISIC2016.image_id.map(imageid_path_test_dict_ISIC2016.get)
 			df_test_ISIC2016['cell_type_binary'] = df_test_ISIC2016.label.map(self.lesion_type_binary_dict_test_ISIC2016.get)
 			# Define codes for compatibility among datasets
-			df_test_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2016.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_test_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2016.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			# logger.debug("Let's add some more columns on top of the original metadata for better readability")
 			# logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
 			# logger.debug("Now, let's show some of records -> df.sample(5)")
@@ -905,7 +912,7 @@ class Util:
 			df_training_ISIC2017['cell_type_binary'] = df_training_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
 			df_training_ISIC2017['cell_type_task3_1'] = df_training_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
 			df_training_ISIC2017['cell_type_task3_2'] = df_training_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
-			df_training_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			df_training_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
 			df_training_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_training_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
 
@@ -913,7 +920,7 @@ class Util:
 			df_val_ISIC2017['cell_type_binary'] = df_val_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
 			df_val_ISIC2017['cell_type_task3_1'] = df_val_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
 			df_val_ISIC2017['cell_type_task3_2'] = df_val_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
-			df_val_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_val_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			df_val_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
 			df_val_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_val_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
 
@@ -921,7 +928,7 @@ class Util:
 			df_test_ISIC2017['cell_type_binary'] = df_test_ISIC2017.melanoma.map(self.lesion_type_binary_dict_ISIC2017.get)
 			df_test_ISIC2017['cell_type_task3_1'] = df_test_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_1.get)
 			df_test_ISIC2017['cell_type_task3_2'] = df_test_ISIC2017.melanoma.map(self.lesion_type_dict_ISIC2017_task3_2.get)
-			df_test_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_test_ISIC2017['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_binary, categories=self.classes_melanoma_binary).codes
 			df_test_ISIC2017['cell_type_task3_1_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_task3_1, categories=classes_ISIC2017_task3_1).codes
 			df_test_ISIC2017['cell_type_task3_2_idx'] = pd.CategoricalIndex(df_test_ISIC2017.cell_type_task3_2, categories=classes_ISIC2017_task3_2).codes
 
@@ -1146,15 +1153,15 @@ class Util:
 			# ISIC2018: Creating New Columns for better readability
 			df_training_ISIC2018['path'] = df_training_ISIC2018['image'].map(imageid_path_training_dict_ISIC2018.get)
 			df_training_ISIC2018['cell_type_binary'] = df_training_ISIC2018['MEL'].map(self.common_binary_label.get)
-			df_training_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2018.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2018.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 			df_val_ISIC2018['path'] = df_val_ISIC2018['image'].map(imageid_path_val_dict_ISIC2018.get)
 			df_val_ISIC2018['cell_type_binary'] = df_val_ISIC2018['MEL'].map(self.common_binary_label.get)
-			df_val_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_val_ISIC2018.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_val_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_val_ISIC2018.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 			df_test_ISIC2018['path'] = df_test_ISIC2018['image'].map(imageid_path_test_dict_ISIC2018.get)
 			df_test_ISIC2018['cell_type_binary'] = df_test_ISIC2018['MEL'].map(self.common_binary_label.get)
-			df_test_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2018.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_test_ISIC2018['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2018.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 
@@ -1334,7 +1341,7 @@ class Util:
 			# ISIC2019: Creating New Columns for better readability
 			df_training_ISIC2019['path'] = df_training_ISIC2019['image'].map(imageid_path_training_dict_ISIC2019.get)
 			df_training_ISIC2019['cell_type_binary'] = df_training_ISIC2019['MEL'].map(self.common_binary_label.get)
-			df_training_ISIC2019['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2019.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2019['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2019.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 			logger.debug("Check null data in ISIC2019 training metadata")
@@ -1468,7 +1475,7 @@ class Util:
 			# ISIC2020: Creating New Columns for better readability
 			df_training_ISIC2020['path'] = df_training_ISIC2020['image_name'].map(imageid_path_training_dict_ISIC2020.get)
 			df_training_ISIC2020['cell_type_binary'] = df_training_ISIC2020['benign_malignant'].map(self.lesion_type_binary_dict_training_ISIC2020.get)
-			df_training_ISIC2020['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2020.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_training_ISIC2020['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2020.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 			logger.debug("Check null data in ISIC2020 training metadata")
@@ -1606,7 +1613,7 @@ class Util:
 			# PH2: Creating New Columns for better readability
 			df_PH2['path'] = df_PH2['Image Name'].map(imageid_path_dict_PH2.get)
 			df_PH2['cell_type_binary'] = np.where(df_PH2['Melanoma'] == 'X', 'Melanoma', 'Non-Melanoma')
-			df_PH2['cell_type_binary_idx'] = pd.CategoricalIndex(df_PH2.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_PH2['cell_type_binary_idx'] = pd.CategoricalIndex(df_PH2.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 			logger.debug("Check null data in ISIC2020 training metadata")
@@ -1732,7 +1739,7 @@ class Util:
 			# df_7pointdb['path_clinic'].shape[0] == 1011
 			df_7pointdb['path'].shape[0] == 1011
 			df_7pointdb['cell_type_binary'] = df_7pointdb['diagnosis'].apply(lambda x: 'Melanoma' if 'melanoma' in x else 'Non-Melanoma')
-			df_7pointdb['cell_type_binary_idx'] = pd.CategoricalIndex(df_7pointdb.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_7pointdb['cell_type_binary_idx'] = pd.CategoricalIndex(df_7pointdb.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 			logger.debug("Check null data in 7 point db training metadata")
@@ -1889,7 +1896,7 @@ class Util:
 			# PAD UFES 20: Creating New Columns for better readability
 			df_PAD_UFES_20['path'] = df_PAD_UFES_20['img_id'].map(imageid_path_dict.get)
 			df_PAD_UFES_20['cell_type_binary'] = np.where(df_PAD_UFES_20['diagnostic'] == 'MEL', 'Melanoma', 'Non-Melanoma')
-			df_PAD_UFES_20['cell_type_binary_idx'] = pd.CategoricalIndex(df_PAD_UFES_20.cell_type_binary, categories=classes_melanoma_binary).codes
+			df_PAD_UFES_20['cell_type_binary_idx'] = pd.CategoricalIndex(df_PAD_UFES_20.cell_type_binary, categories=self.classes_melanoma_binary).codes
 
 
 			logger.debug("Check null data in PAD UFES 20 training metadata")
@@ -2003,7 +2010,42 @@ class Util:
 					2), file_bin)
 				file_bin.close()
 
-		
+		if datasettype.value == DatasetType.KaggleMB.value:
+
+			rootpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001'
+			directoryPath = rootpath + '/melanomaDB/Kaggle_malignant_benign_DB'
+
+			labels = os.listdir(directoryPath+'/train')
+
+			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+				for i in labels:
+					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
+			
+			
+
+			path_benign_train = f'{directoryPath}/train/benign'
+			path_malignant_train = f'{directoryPath}/train/malignant'
+			path_benign_val = None
+			path_malignant_val = None
+			path_benign_test = f'{directoryPath}/test/benign'
+			path_malignant_test = f'{directoryPath}/test/malignant'
+
+			debug_paths = {"whole_rgb_folder": whole_rgb_folder, "train_rgb_folder": train_rgb_folder, "val_rgb_folder": val_rgb_folder, "test_rgb_folder": test_rgb_folder}
+
+			new_directory = str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './customDB', f'./{networktype.name}/'))
+			new_filename = f'{datasettype.name}_{img_height}h_{img_width}w.pkl'
+			self.saveDatasetFromDirectory(
+				new_path=new_directory, new_filename=new_filename, networktype=networktype, split_ratio=0.2,
+				debug_paths = debug_paths, path_benign_train=path_benign_train, path_malignant_train=path_malignant_train,
+				path_benign_val=path_benign_val, path_malignant_val=path_malignant_val,
+				path_benign_test=path_benign_test, path_malignant_test=path_malignant_test)
+
+			
+
+			
 
 
 		
@@ -2059,7 +2101,7 @@ class Util:
 		return trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes
 
-	def loadDatasetFromDirectory(self, networktype, path_benign_train, path_malignant_train, path_benign_test, path_malignant_test):
+	def loadDatasetFromDirectory(self, networktype, split_ratio=None, debug_path=None, path_benign=None, path_malignant=None):
 		#Transfer 'jpg' images to an array IMG
 		# def Dataset_loader(imgPath):
 		# 	img_width = self.image_size[1]
@@ -2084,72 +2126,45 @@ class Util:
 		# 	return IMG
 
 		preprocessor = Preprocess(self.image_size)
-		# Load images
-
-
-		if networktype.name == NetworkType.ResNet50.name:
-			benign_train_img = np.array(preprocessor.Dataset_loader_ResNet50(path_benign_train))
-			malignant_train_img = np.array(preprocessor.Dataset_loader_ResNet50(path_malignant_train))
-			benign_test_img = np.array(preprocessor.Dataset_loader_ResNet50(path_benign_test))
-			malignant_test_img = np.array(preprocessor.Dataset_loader_ResNet50(path_malignant_test))
-		elif networktype.name == NetworkType.Xception.name:
-			benign_train_img = np.array(preprocessor.Dataset_loader_Xception(path_benign_train))
-			malignant_train_img = np.array(preprocessor.Dataset_loader_Xception(path_malignant_train))
-			benign_test_img = np.array(preprocessor.Dataset_loader_Xception(path_benign_test))
-			malignant_test_img = np.array(preprocessor.Dataset_loader_Xception(path_malignant_test))
-		elif networktype.name == NetworkType.InceptionV3.name:
-			benign_train_img = np.array(preprocessor.Dataset_loader_inceptionV3(path_benign_train))
-			malignant_train_img = np.array(preprocessor.Dataset_loader_inceptionV3(path_malignant_train))
-			benign_test_img = np.array(preprocessor.Dataset_loader_inceptionV3(path_benign_test))
-			malignant_test_img = np.array(preprocessor.Dataset_loader_inceptionV3(path_malignant_test))
-		elif networktype.name == NetworkType.VGG16.name:
-			benign_train_img = np.array(preprocessor.Dataset_loader_vgg16(path_benign_train))
-			malignant_train_img = np.array(preprocessor.Dataset_loader_vgg16(path_malignant_train))
-			benign_test_img = np.array(preprocessor.Dataset_loader_vgg16(path_benign_test))
-			malignant_test_img = np.array(preprocessor.Dataset_loader_vgg16(path_malignant_test))
-		elif networktype.name == NetworkType.VGG19.name:
-			benign_train_img = np.array(preprocessor.Dataset_loader_vgg19(path_benign_train))
-			malignant_train_img = np.array(preprocessor.Dataset_loader_vgg19(path_malignant_train))
-			benign_test_img = np.array(preprocessor.Dataset_loader_vgg19(path_benign_test))
-			malignant_test_img = np.array(preprocessor.Dataset_loader_vgg19(path_malignant_test))
 		
+
+		# Preprocess images based on a network type
+
+
+		benign_img = np.array(preprocessor.Dataset_loader(path_benign, networktype, debug_path))
+		malignant_img = np.array(preprocessor.Dataset_loader(path_malignant, networktype, debug_path))
 		# Create labels
-		benign_train_label = np.zeros(len(benign_train_img))
-		malignant_train_label = np.ones(len(malignant_train_img))
-		benign_test_label = np.zeros(len(benign_test_img))
-		malignant_test_label = np.ones(len(malignant_test_img))
+		benign_label = np.zeros(len(benign_img))
+		malignant_label = np.ones(len(malignant_img))
+		benign_label_onehot = to_categorical(benign_label, num_classes=2)
+		malignant_label_onehot = to_categorical(malignant_label, num_classes=2)
+		# Concatenate imgs and labels
+		X = np.concatenate((benign_img, malignant_img), axis = 0) # image
+		Y = np.concatenate((benign_label_onehot, malignant_label_onehot), axis = 0) # label
+		
 
-		benign_train_label = to_categorical(benign_train_label, num_classes=2)
-		malignant_train_label = to_categorical(malignant_train_label, num_classes=2)
-		benign_test_label = to_categorical(benign_test_label, num_classes=2)
-		malignant_test_label = to_categorical(malignant_test_label, num_classes=2)
-
-		# Merge data 
-		X_train = np.concatenate((benign_train_img, malignant_train_img), axis = 0)
-		Y_train = np.concatenate((benign_train_label, malignant_train_label), axis = 0)
-		X_test = np.concatenate((benign_test_img, malignant_test_img), axis = 0)
-		Y_test = np.concatenate((benign_test_label, malignant_test_label), axis = 0)
-
-		# Shuffle train data
-		s = np.arange(X_train.shape[0])
+		# Shuffle data
+		s = np.arange(X.shape[0])
 		np.random.shuffle(s)
-		X_train = X_train[s]
-		Y_train = Y_train[s]
+		X_shuffled = X[s]
+		Y_shuffled = Y[s]
 
 		# Split validation data from train data
-		# x_train, x_val, y_train, y_val = train_test_split(X_train,Y_train,test_size=0.33,random_state=42)
-		x_train=X_train[1000:]
-		x_val=X_train[:1000]
-		y_train=Y_train[1000:]
-		y_val=Y_train[:1000]
+		if split_ratio >= 0.0 and split_ratio <= 1.0:
+			x, x_portion, y, y_portion = train_test_split(X_shuffled,Y_shuffled,test_size=split_ratio,random_state=10)
+		elif split_ratio > 900:
+			x=X_shuffled[split_ratio:] # X_shuffled[split_ratio] ~ X_shuffled[end]
+			y=Y_shuffled[split_ratio:]
+			x_portion=X_shuffled[:split_ratio] # x_shuffled[0] ~ x_shuffled[split_ratio-1]
+			y_portion=Y_shuffled[:split_ratio]
+		elif split_ratio is None:
+			x_portion = None
+			y_portion = None
+		else:
+			raise ValueError('split_ratio incorrect')
+		
 
-		# Shuffle test data
-		s = np.arange(X_test.shape[0])
-		np.random.shuffle(s)
-		X_test = X_test[s]
-		Y_test = Y_test[s]
-
-		return x_train, y_train, x_val, y_val, X_test, Y_test
+		return x, y, x_portion, y_portion
 
 	def combineSavedDatasets(self, new_path, new_filename, *args):
 		totalpath = new_path + new_filename
@@ -2239,11 +2254,22 @@ class Util:
 		file.close()
 		print(f'{new_filename} generated')
 		
-	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, path_benign_train, path_malignant_train, path_benign_test, path_malignant_test):
-		totalpath = new_path + new_filename
+	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, split_ratio=None,
+	debug_paths=None, path_benign_train=None, path_malignant_train=None,
+	path_benign_val=None, path_malignant_val=None,
+	path_benign_test=None, path_malignant_test=None):
+		totalpath = new_path +'/' + new_filename
 
-		x_train, y_train, x_val, y_val, X_test, Y_test =\
-			self.loadDatasetFromDirectory(networktype, path_benign_train, path_malignant_train, path_benign_test, path_malignant_test)
+		# preprocessor = Preprocess(self.image_size)
+
+		train_rgb_folder = debug_paths['train_rgb_folder']
+		val_rgb_folder = debug_paths['val_rgb_folder']
+		test_rgb_folder = debug_paths['test_rgb_folder']
+
+		x_train, y_train, x_val, y_val = self.loadDatasetFromDirectory(networktype, split_ratio, train_rgb_folder, path_benign_train, path_malignant_train)
+		X_test, Y_test, _, _ = self.loadDatasetFromDirectory(networktype, split_ratio, test_rgb_folder, path_benign_test, path_malignant_test)
+		
+		# preprocessor.saveCustomDBImagesToFiles(labels, self.foldersExist, self.RGBfolders, trains, vals, tests)
 		
 		with open(totalpath, 'wb') as file:
 				

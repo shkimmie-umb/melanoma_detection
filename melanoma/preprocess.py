@@ -13,6 +13,7 @@ import pathlib
 from tqdm import tqdm
 from PIL import Image
 from enum import Enum
+from glob import glob
 
 from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 
@@ -24,132 +25,47 @@ class Preprocess:
     def __init__(self, image_size):
         self.img_width = image_size[1]
         self.img_height = image_size[0]
-        
 
-    def normalizeImgs_ResNet50(self, imgs):
+        self.preprMethodDict = {
+            # RGB to BGR
+            "ResNet50": tf.keras.applications.resnet.preprocess_input,
+            "Xception": tf.keras.applications.xception.preprocess_input,
+            "InceptionV3": tf.keras.applications.inception_v3.preprocess_input,
+            "VGG16": tf.keras.applications.vgg16.preprocess_input,
+            "VGG19": tf.keras.applications.vgg19.preprocess_input,
+        }
+    
+    def normalizeImgs(self, imgs, networktype):
         imgList = []
         for img in imgs:
             img = np.expand_dims(img, axis=0)
-            transformed_img = tf.keras.applications.resnet.preprocess_input(img) # RGB to BGR
+            transformed_img = self.preprMethodDict[networktype.name](img)
+            # transformed_img = tf.keras.applications.resnet.preprocess_input(img) # RGB to BGR
             # imgList.append(transformed_img/255.)
             imgList.append(transformed_img)
         IMG = np.vstack(imgList)
         return IMG
 
-    def normalizeImgs_Xception(self, imgs):
-        imgList = []
-        for img in imgs:
-            img = np.expand_dims(img, axis=0)
-            transformed_img = tf.keras.applications.xception.preprocess_input(img) # RGB to BGR
-            # imgList.append(transformed_img/255.)
-            imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def normalizeImgs_inceptionV3(self, imgs):
-        imgList = []
-        for img in imgs:
-            img = np.expand_dims(img, axis=0)
-            transformed_img = tf.keras.applications.inception_v3.preprocess_input(img) # RGB to BGR
-            # imgList.append(transformed_img/255.)
-            imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def normalizeImgs_vgg16(self, imgs):
-        imgList = []
-        for img in imgs:
-            img = np.expand_dims(img, axis=0)
-            transformed_img = tf.keras.applications.vgg16.preprocess_input(img) # RGB to BGR
-            # imgList.append(transformed_img/255.)
-            imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def normalizeImgs_vgg19(self, imgs):
-        imgList = []
-        for img in imgs:
-            img = np.expand_dims(img, axis=0)
-            transformed_img = tf.keras.applications.vgg19.preprocess_input(img) # RGB to BGR
-            # imgList.append(transformed_img/255.)
-            imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def Dataset_loader_ResNet50(self, imgPath):
+    def Dataset_loader(self, imgPath, networktype, debug_path=None):
         imgList = []
         read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
+        imgPathList = os.listdir(imgPath)
+        for idx, IMAGE_NAME in enumerate(tqdm(imgPathList)):
             PATH = os.path.join(imgPath,IMAGE_NAME)
             _, ftype = os.path.splitext(PATH)
-            if ftype == ".jpg":
+            
+            label = os.path.basename(os.path.normpath(imgPath)) # Extract label from folder name
+            if ftype.lower() == ".jpg" or ftype.lower() == ".jpeg" or ftype.lower() == ".bmp" or ftype.lower() == ".png":
                 img = read(PATH)
+                img.save(f"{debug_path}/{label}/{IMAGE_NAME}", quality=100, subsampling=0)
                 img = np.expand_dims(img, axis=0)
-                transformed_img = tf.keras.applications.resnet.preprocess_input(img)
+                transformed_img = self.preprMethodDict[networktype.name](img)
+                # transformed_img = tf.keras.applications.resnet.preprocess_input(img)
                 # imgList.append(transformed_img/255.)
                 imgList.append(transformed_img)
         IMG = np.vstack(imgList)
         return IMG
 
-    def Dataset_loader_Xception(self, imgPath):
-        imgList = []
-        read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
-            PATH = os.path.join(imgPath,IMAGE_NAME)
-            _, ftype = os.path.splitext(PATH)
-            if ftype == ".jpg":
-                img = read(PATH)
-                img = np.expand_dims(img, axis=0)
-                transformed_img = tf.keras.applications.xception.preprocess_input(img)
-                # imgList.append(transformed_img/255.)
-                imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def Dataset_loader_inceptionV3(self, imgPath):
-        imgList = []
-        read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
-            PATH = os.path.join(imgPath,IMAGE_NAME)
-            _, ftype = os.path.splitext(PATH)
-            if ftype == ".jpg":
-                img = read(PATH)
-                img = np.expand_dims(img, axis=0)
-                transformed_img = tf.keras.applications.inception_v3.preprocess_input(img)
-                # imgList.append(transformed_img/255.)
-                imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def Dataset_loader_vgg16(self, imgPath):
-        imgList = []
-        read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
-            PATH = os.path.join(imgPath,IMAGE_NAME)
-            _, ftype = os.path.splitext(PATH)
-            if ftype == ".jpg":
-                img = read(PATH)
-                img = np.expand_dims(img, axis=0)
-                transformed_img = tf.keras.applications.vgg16.preprocess_input(img)
-                # imgList.append(transformed_img/255.)
-                imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def Dataset_loader_vgg19(self, imgPath):
-        imgList = []
-        read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        for idx, IMAGE_NAME in enumerate(tqdm(os.listdir(imgPath))):
-            PATH = os.path.join(imgPath,IMAGE_NAME)
-            _, ftype = os.path.splitext(PATH)
-            if ftype == ".jpg":
-                img = read(PATH)
-                img = np.expand_dims(img, axis=0)
-                transformed_img = tf.keras.applications.vgg19.preprocess_input(img)
-                # imgList.append(transformed_img/255.)
-                imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
     
     def augmentation(self, datasettype, networktype, train_rgb_folder, labels, trainimages, trainlabels, augment_ratio, df_trainset):
         
@@ -559,3 +475,49 @@ class Preprocess:
 				df.image[x][0].save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
 			))
 
+    def saveCustomDBImagesToFiles(self, labels, foldersExist, RGBfolders, trains, vals=None, tests=None):
+        
+        
+
+        isWholeRGBExist = foldersExist['isWholeRGBExist']
+        isTrainRGBExist = foldersExist['isTrainRGBExist']
+        isValRGBExist = foldersExist['isValRGBExist']
+        isTestRGBExist = foldersExist['isTestRGBExist']
+
+        whole_rgb_folder = RGBfolders['whole_rgb_folder']
+        train_rgb_folder = RGBfolders['train_rgb_folder']
+        val_rgb_folder = RGBfolders['val_rgb_folder']
+        test_rgb_folder = RGBfolders['test_rgb_folder']
+
+        if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+            for i in labels:
+                os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+                os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+                os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
+                os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
+
+        path_benign_train = trains['path_benign_train']
+        path_malignant_train = trains['path_malignant_train']
+        path_dict_benign_train = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_benign_train, '*.*'))}
+        path_dict_malignant_train = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_malignant_train, '*.*'))}
+
+        if vals is not None:
+            path_benign_val = vals['path_benign_val']
+            path_malignant_val = vals['path_malignant_val']
+            path_dict_benign_val = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_malignant_val, '*.*'))}
+            path_dict_malignant_val = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_malignant_val, '*.*'))}
+
+        if tests is not None:
+            path_benign_test = tests['path_benign_test']
+            path_malignant_test = tests['path_malignant_test']
+            path_dict_malignant_train = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_malignant_train, '*.*'))}
+            path_dict_malignant_train = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(path_malignant_train, '*.*'))}
+        
+
+
+        # map(lambda x: (
+		# 		currentPath_train := pathlib.Path(df.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
+		# 		label := df.cell_type_binary[x],
+		# 		assert_(label == original_df.cell_type_binary[x]),
+		# 		df.image[x][0].save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
+		# 	))
