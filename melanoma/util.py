@@ -2012,10 +2012,52 @@ class Util:
 
 		if datasettype.value == DatasetType.KaggleMB.value:
 
-			rootpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001'
-			directoryPath = rootpath + '/melanomaDB/Kaggle_malignant_benign_DB'
+			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './Kaggle_malignant_benign_DB')
 
-			labels = os.listdir(directoryPath+'/train')
+			num_imgs = len(list(dbpath.glob('t*/*/*.*'))) # counts all Kaggle Malignant Benign training images
+
+			# train: 1440 benign, 1197 malignant; test: 360 benign + 300 malignant
+			assert num_imgs == 1440+1197+360+300
+
+			logger.debug('%s %s', f"Images available in {datasettype.name} dataset:", num_imgs)
+
+			# imageid_path_dict = {os.path.basename(x): x for x in glob(os.path.join(dbpath, 't*/*/*.*'))}
+			paths = glob(os.path.join(dbpath, 't*/*/*.*'))
+			# labels_dict = {os.path.basename(x): x for x in os.path.abspath(os.path.join(os.path.join(imageid_path_dict.values()), os.pardir))}
+			df = pd.DataFrame()
+
+
+			# Kaggle MB: Creating New Columns for better readability
+			df['path'] = paths
+			df['label'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir))))
+			df['portion'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir, os.pardir))))
+			assert df['label'].unique().shape[0] == 2
+			df['cell_type_binary'] = np.where(df['label'] == 'malignant', 'Melanoma', 'Non-Melanoma')
+			df['cell_type_binary_idx'] = pd.CategoricalIndex(df.cell_type_binary, categories=self.classes_melanoma_binary).codes
+
+
+			logger.debug("Check null data in Kaggle MB training metadata")
+			display(df.isnull().sum())
+			
+			df['image'] = df.path.map(
+				lambda x:(
+					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					currentPath := pathlib.Path(x), # [2]: PosixPath
+					
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			df['img_sizes'] = df.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
+			labels = df.cell_type_binary.unique()
 
 			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
 				for i in labels:
@@ -2023,27 +2065,230 @@ class Util:
 					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
 					os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
 					os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
+					
+			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
+				for i in labels:
+					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
+
+			# Dividing Kaggle MB into train/test set
+			df_trainset_temp = df.query('portion == "train"')
+			df_testset = df.query('portion == "test"')
+
+			# Dividing PAD UFES 20 into train/val set
+			df_trainset, df_validationset = train_test_split(df_trainset_temp, test_size=0.2,random_state = 1)
+			
+
+			preprocessor.saveNumpyImagesToFiles(df_trainset, df, train_rgb_folder)
+			preprocessor.saveNumpyImagesToFiles(df_validationset, df, val_rgb_folder)
+			preprocessor.saveNumpyImagesToFiles(df_testset, df, test_rgb_folder)
+
+			# KaggleMB binary images/labels
+			trainpixels = list(map(lambda x:x[1], df_trainset.image)) # Filter out only pixel from the list
+			validationpixels = list(map(lambda x:x[1], df_validationset.image)) # Filter out only pixel from the list
+			testpixels = list(map(lambda x:x[1], df_testset.image)) # Filter out only pixel from the list
+			
+			trainimages = preprocessor.normalizeImgs(trainpixels, networktype)
+			validationimages = preprocessor.normalizeImgs(validationpixels, networktype)
+			testimages = preprocessor.normalizeImgs(testpixels, networktype)
+			
+			
+			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			trainlabels_binary = to_categorical(df_trainset.cell_type_binary_idx, num_classes=2)
+			validationlabels_binary = to_categorical(df_validationset.cell_type_binary_idx, num_classes=2)
+			testlabels_binary = to_categorical(df_testset.cell_type_binary_idx, num_classes=2)
+
+			assert len(trainpixels)+len(validationpixels) == 1440+1197
+			assert len(testpixels) == 360+300
+			assert len(trainpixels) == trainlabels_binary.shape[0]
+			assert len(validationpixels) == validationlabels_binary.shape[0]
+			assert len(testpixels) == testlabels_binary.shape[0]
+			assert trainimages.shape[0] == trainlabels_binary.shape[0]
+			assert validationimages.shape[0] == validationlabels_binary.shape[0]
+			assert testimages.shape[0] == testlabels_binary.shape[0]
+
+			# trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			assert datasettype.name == 'KaggleMB'
+			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages, testimages, validationimages,
+				trainlabels_binary, testlabels_binary, validationlabels_binary,
+				2), file_bin)
+			file_bin.close()
+
+			if augment_ratio is not None and augment_ratio >= 1.0:
+				
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_binary_augmented = \
+					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages, trainlabels_binary, \
+						augment_ratio, df_trainset)
+				
+				assert augmented_db_name.name == 'KaggleMB'
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_augmented, testimages, validationimages,
+					trainlabels_binary_augmented, testlabels_binary, validationlabels_binary,
+					2), file_bin)
+				file_bin.close()
+
+			# rootpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001'
+			# directoryPath = rootpath + '/melanomaDB/Kaggle_malignant_benign_DB'
+
+			# labels = os.listdir(directoryPath+'/train')
+
+			# assert labels == os.listdir(directoryPath+'/test')
+
+			# if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+			# 	for i in labels:
+			# 		os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+			# 		os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+			# 		os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
+			# 		os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
 			
 			
 
-			path_benign_train = f'{directoryPath}/train/benign'
-			path_malignant_train = f'{directoryPath}/train/malignant'
-			path_benign_val = None
-			path_malignant_val = None
-			path_benign_test = f'{directoryPath}/test/benign'
-			path_malignant_test = f'{directoryPath}/test/malignant'
+			# path_benign_train = f'{directoryPath}/train/benign'
+			# path_malignant_train = f'{directoryPath}/train/malignant'
+			# path_benign_val = None
+			# path_malignant_val = None
+			# path_benign_test = f'{directoryPath}/test/benign'
+			# path_malignant_test = f'{directoryPath}/test/malignant'
 
-			debug_paths = {"whole_rgb_folder": whole_rgb_folder, "train_rgb_folder": train_rgb_folder, "val_rgb_folder": val_rgb_folder, "test_rgb_folder": test_rgb_folder}
+			# debug_paths = {"whole_rgb_folder": whole_rgb_folder, "train_rgb_folder": train_rgb_folder, "val_rgb_folder": val_rgb_folder, "test_rgb_folder": test_rgb_folder}
 
-			new_directory = str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './customDB', f'./{networktype.name}/'))
-			new_filename = f'{datasettype.name}_{img_height}h_{img_width}w.pkl'
-			self.saveDatasetFromDirectory(
-				new_path=new_directory, new_filename=new_filename, networktype=networktype, split_ratio=0.2,
-				debug_paths = debug_paths, path_benign_train=path_benign_train, path_malignant_train=path_malignant_train,
-				path_benign_val=path_benign_val, path_malignant_val=path_malignant_val,
-				path_benign_test=path_benign_test, path_malignant_test=path_malignant_test)
+			# new_directory = str(pathlib.Path.joinpath(self.base_dir, './melanomaDB', './customDB', f'./{networktype.name}/'))
+			# new_filename = f'{datasettype.name}_{img_height}h_{img_width}w.pkl'
+			# self.saveDatasetFromDirectory(
+			# 	new_path=new_directory, new_filename=new_filename, networktype=networktype, labels=labels, split_ratio=0.2,
+			# 	debug_paths = debug_paths, path_benign_train=path_benign_train, path_malignant_train=path_malignant_train,
+			# 	path_benign_val=path_benign_val, path_malignant_val=path_malignant_val,
+			# 	path_benign_test=path_benign_test, path_malignant_test=path_malignant_test)
+
+		if datasettype.value == DatasetType.MEDNODE.value:
+			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './complete_mednode_dataset')
+
+			num_imgs = len(list(dbpath.glob('*/*.*'))) # counts all Kaggle Malignant Benign training images
+
+			# train: 70 melanoma, 100 naevus
+			assert num_imgs == 70+100
+
+			logger.debug('%s %s', f"Images available in {datasettype.name} dataset:", num_imgs)
+
+			# imageid_path_dict = {os.path.basename(x): x for x in glob(os.path.join(dbpath, 't*/*/*.*'))}
+			paths = glob(os.path.join(dbpath, '*/*.*'))
+			# labels_dict = {os.path.basename(x): x for x in os.path.abspath(os.path.join(os.path.join(imageid_path_dict.values()), os.pardir))}
+			df = pd.DataFrame()
+
+
+			# Kaggle MB: Creating New Columns for better readability
+			df['path'] = paths
+			df['label'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir))))
+			# df['portion'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir, os.pardir))))
+			# assert df['label'].unique().shape[0] == 2
+			df['cell_type_binary'] = np.where(df['label'] == 'melanoma', 'Melanoma', 'Non-Melanoma')
+			df['cell_type_binary_idx'] = pd.CategoricalIndex(df.cell_type_binary, categories=self.classes_melanoma_binary).codes
+
+
+			logger.debug("Check null data in Kaggle MB training metadata")
+			display(df.isnull().sum())
+			
+			df['image'] = df.path.map(
+				lambda x:(
+					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					currentPath := pathlib.Path(x), # [2]: PosixPath
+					
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			df['img_sizes'] = df.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
+			labels = df.cell_type_binary.unique()
+
+			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
+				for i in labels:
+					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
+					
+			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
+				for i in labels:
+					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
+					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
 
 			
+			# Dividing MEDNODE into train/val set
+			df_trainset, df_validationset = train_test_split(df, test_size=0.2,random_state = 1)
+			
+
+			preprocessor.saveNumpyImagesToFiles(df_trainset, df, train_rgb_folder)
+			preprocessor.saveNumpyImagesToFiles(df_validationset, df, val_rgb_folder)
+			# preprocessor.saveNumpyImagesToFiles(df_testset, df, test_rgb_folder)
+
+			# KaggleMB binary images/labels
+			trainpixels = list(map(lambda x:x[1], df_trainset.image)) # Filter out only pixel from the list
+			validationpixels = list(map(lambda x:x[1], df_validationset.image)) # Filter out only pixel from the list
+			# testpixels = list(map(lambda x:x[1], df_testset.image)) # Filter out only pixel from the list
+			
+			trainimages = preprocessor.normalizeImgs(trainpixels, networktype)
+			validationimages = preprocessor.normalizeImgs(validationpixels, networktype)
+			testimages = None
+			# testimages = preprocessor.normalizeImgs(testpixels, networktype)
+			
+			
+			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
+			trainlabels_binary = to_categorical(df_trainset.cell_type_binary_idx, num_classes=2)
+			validationlabels_binary = to_categorical(df_validationset.cell_type_binary_idx, num_classes=2)
+			testlabels_binary = None
+			# testlabels_binary = to_categorical(df_testset.cell_type_binary_idx, num_classes=2)
+
+			assert len(trainpixels)+len(validationpixels) == 70+100
+			assert len(trainpixels) == trainlabels_binary.shape[0]
+			assert len(validationpixels) == validationlabels_binary.shape[0]
+			assert trainimages.shape[0] == trainlabels_binary.shape[0]
+			assert validationimages.shape[0] == validationlabels_binary.shape[0]
+
+			# trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+
+			assert datasettype.name == 'MEDNODE'
+			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			with open(filename, 'wb') as file_bin:
+				
+				pickle.dump((trainimages, testimages, validationimages,
+				trainlabels_binary, testlabels_binary, validationlabels_binary,
+				2), file_bin)
+			file_bin.close()
+
+			if augment_ratio is not None and augment_ratio >= 1.0:
+				
+				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_binary_augmented = \
+					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages, trainlabels_binary, \
+						augment_ratio, df_trainset)
+				
+				assert augmented_db_name.name == 'MEDNODE'
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_augmented, testimages, validationimages,
+					trainlabels_binary_augmented, testlabels_binary, validationlabels_binary,
+					2), file_bin)
+				file_bin.close()
 
 			
 
@@ -2125,43 +2370,52 @@ class Util:
 		# 			# IMG.append(np.array(img)/255.)
 		# 	return IMG
 
-		preprocessor = Preprocess(self.image_size)
-		
+		x = None
+		y = None
+		x_portion = None
+		y_portion = None
 
-		# Preprocess images based on a network type
+		if path_benign is not None or path_malignant is not None:
+			
+			preprocessor = Preprocess(self.image_size)
+			
+
+			# Preprocess images based on a network type
 
 
-		benign_img = np.array(preprocessor.Dataset_loader(path_benign, networktype, debug_path))
-		malignant_img = np.array(preprocessor.Dataset_loader(path_malignant, networktype, debug_path))
-		# Create labels
-		benign_label = np.zeros(len(benign_img))
-		malignant_label = np.ones(len(malignant_img))
-		benign_label_onehot = to_categorical(benign_label, num_classes=2)
-		malignant_label_onehot = to_categorical(malignant_label, num_classes=2)
-		# Concatenate imgs and labels
-		X = np.concatenate((benign_img, malignant_img), axis = 0) # image
-		Y = np.concatenate((benign_label_onehot, malignant_label_onehot), axis = 0) # label
-		
+			benign_img = np.array(preprocessor.Dataset_loader(path_benign, networktype, debug_path))
+			malignant_img = np.array(preprocessor.Dataset_loader(path_malignant, networktype, debug_path))
+			# Create labels
+			benign_label = np.zeros(len(benign_img))
+			malignant_label = np.ones(len(malignant_img))
+			benign_label_onehot = to_categorical(benign_label, num_classes=2)
+			malignant_label_onehot = to_categorical(malignant_label, num_classes=2)
+			# Concatenate imgs and labels
+			X = np.concatenate((benign_img, malignant_img), axis = 0) # image
+			Y = np.concatenate((benign_label_onehot, malignant_label_onehot), axis = 0) # label
+			
 
-		# Shuffle data
-		s = np.arange(X.shape[0])
-		np.random.shuffle(s)
-		X_shuffled = X[s]
-		Y_shuffled = Y[s]
+			# Shuffle data
+			s = np.arange(X.shape[0])
+			np.random.shuffle(s)
+			X_shuffled = X[s]
+			Y_shuffled = Y[s]
 
-		# Split validation data from train data
-		if split_ratio >= 0.0 and split_ratio <= 1.0:
-			x, x_portion, y, y_portion = train_test_split(X_shuffled,Y_shuffled,test_size=split_ratio,random_state=10)
-		elif split_ratio > 900:
-			x=X_shuffled[split_ratio:] # X_shuffled[split_ratio] ~ X_shuffled[end]
-			y=Y_shuffled[split_ratio:]
-			x_portion=X_shuffled[:split_ratio] # x_shuffled[0] ~ x_shuffled[split_ratio-1]
-			y_portion=Y_shuffled[:split_ratio]
-		elif split_ratio is None:
-			x_portion = None
-			y_portion = None
-		else:
-			raise ValueError('split_ratio incorrect')
+			# Split validation data from train data
+			if split_ratio is None:
+				x = X_shuffled
+				y = Y_shuffled
+				x_portion = None
+				y_portion = None
+			elif split_ratio >= 0.0 and split_ratio <= 1.0:
+				x, x_portion, y, y_portion = train_test_split(X_shuffled,Y_shuffled,test_size=split_ratio,random_state=10)
+			elif split_ratio > 900:
+				x=X_shuffled[split_ratio:] # X_shuffled[split_ratio] ~ X_shuffled[end]
+				y=Y_shuffled[split_ratio:]
+				x_portion=X_shuffled[:split_ratio] # x_shuffled[0] ~ x_shuffled[split_ratio-1]
+				y_portion=Y_shuffled[:split_ratio]
+			else:
+				raise ValueError('split_ratio incorrect')
 		
 
 		return x, y, x_portion, y_portion
@@ -2254,7 +2508,7 @@ class Util:
 		file.close()
 		print(f'{new_filename} generated')
 		
-	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, split_ratio=None,
+	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, labels, split_ratio=None,
 	debug_paths=None, path_benign_train=None, path_malignant_train=None,
 	path_benign_val=None, path_malignant_val=None,
 	path_benign_test=None, path_malignant_test=None):
@@ -2266,8 +2520,9 @@ class Util:
 		val_rgb_folder = debug_paths['val_rgb_folder']
 		test_rgb_folder = debug_paths['test_rgb_folder']
 
+		# split_ratio = None -> x_val = None, y_val = None
 		x_train, y_train, x_val, y_val = self.loadDatasetFromDirectory(networktype, split_ratio, train_rgb_folder, path_benign_train, path_malignant_train)
-		X_test, Y_test, _, _ = self.loadDatasetFromDirectory(networktype, split_ratio, test_rgb_folder, path_benign_test, path_malignant_test)
+		X_test, Y_test, _, _ = self.loadDatasetFromDirectory(networktype, None, test_rgb_folder, path_benign_test, path_malignant_test)
 		
 		# preprocessor.saveCustomDBImagesToFiles(labels, self.foldersExist, self.RGBfolders, trains, vals, tests)
 		
@@ -2275,6 +2530,22 @@ class Util:
 				
 				pickle.dump((x_train, X_test, x_val, y_train, Y_test, y_val, 2), file)
 		file.close()
+
+		# if augment_ratio is not None and augment_ratio >= 1.0:
+				
+		# 	_, df_mel_augmented, df_non_mel_augmented, trainimages_PAD_UFES_20_augmented, trainlabels_binary_PAD_UFES_20_augmented = \
+		# 		preprocessor.augmentation(datasettype=None, networktype, train_rgb_folder, labels, x_train, y_train, \
+		# 			augment_ratio, trainset_PAD_UFES_20)
+			
+			
+		# 	filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+			
+		# 	with open(filename_bin, 'wb') as file_bin:
+				
+		# 		pickle.dump((trainimages_PAD_UFES_20_augmented, None, validationimages_PAD_UFES_20,
+		# 		trainlabels_binary_PAD_UFES_20_augmented, None, validationlabels_binary_PAD_UFES_20,
+		# 		2), file_bin)
+		# 	file_bin.close()
 
 
 	

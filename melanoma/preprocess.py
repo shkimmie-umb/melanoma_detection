@@ -1,5 +1,6 @@
 import tensorflow as tf
 from .model import Model as Base_Model
+from .util import DatasetType
 from melanoma import augmentationStrategy as aug
 # from .util import NetworkType
 import melanoma as mel
@@ -72,23 +73,33 @@ class Preprocess:
         # augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
         augMethod = aug.Augmentation(aug.crop_flip())
 
-        resize_ratio = 0.75
+        # KaggleMB is in 224 X 224
+        resize_ratio = 0
+        if datasettype.value == DatasetType.KaggleMB.value:
+            resize_ratio = 1.0
+        else:
+            resize_ratio = 0.75
 
         # heightsz_weight = -(1-0.75)*((img_height-min_height)/(max_height-min_height))+1
         # widthsz_weight = -(1-0.75)*((img_width-min_width)/(max_width-min_width))+1
 
 
-        df_mel = df_trainset[df_trainset.cell_type_binary=='Melanoma']
+        df_mel_temp = df_trainset[df_trainset.cell_type_binary=='Melanoma']
         # df_mel = df_mel[df_mel.apply(lambda x:x.img_sizes[0] * -(1-0.75)*((x.img_sizes[0]-min_height)/(max_height-min_height))+1 > self.img_height, axis=1)]
-        cnt_mel = df_mel.shape[0]
+        cnt_mel = df_mel_temp.shape[0]
+        
+        df_non_mel_temp = df_trainset[df_trainset.cell_type_binary=='Non-Melanoma']
+        cnt_non_mel = df_non_mel_temp.shape[0]
+        
+
         # Filtering out small images less than cropping size
-        df_mel = df_mel[df_mel.apply(lambda x: x.img_sizes[0] * resize_ratio > self.img_height, axis=1)]
+        # df_mel = df_mel[df_mel.apply(lambda x: x.img_sizes[0] * resize_ratio > self.img_height, axis=1)]
+        df_mel = df_mel_temp[df_mel_temp.apply(lambda x: x.img_sizes == (224, 224) or x.img_sizes[0] * resize_ratio > self.img_height and x.img_sizes[1] * resize_ratio > self.img_width, axis=1)]
+        
         cnt_mel_filt = df_mel.shape[0]
         diff_mel = cnt_mel - cnt_mel_filt
-        df_non_mel = df_trainset[df_trainset.cell_type_binary=='Non-Melanoma']
-        cnt_non_mel = df_non_mel.shape[0]
         # Filtering out small images less than cropping size
-        df_non_mel = df_non_mel[df_non_mel.apply(lambda x: x.img_sizes[1] * resize_ratio > self.img_width, axis=1)]
+        df_non_mel = df_non_mel_temp[df_non_mel_temp.apply(lambda x: x.img_sizes == (224, 224) or x.img_sizes[0] * resize_ratio > self.img_height and x.img_sizes[1] * resize_ratio > self.img_width, axis=1)]
         cnt_non_mel_filt = df_non_mel.shape[0]
         diff_non_mel = cnt_non_mel - cnt_non_mel_filt
 
@@ -196,16 +207,8 @@ class Preprocess:
         trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented.image)) # Filter out only pixel from the list
 
         # new_means, new_stds = getMeanStd(trainpixels_HAM10000_augmented)
-        if networktype.name == mel.NetworkType.ResNet50.name:
-            imgs_augmented = self.normalizeImgs_ResNet50(trainpixels_augmented)
-        elif networktype.name == mel.NetworkType.Xception.name:
-            imgs_augmented = self.normalizeImgs_Xception(trainpixels_augmented)
-        elif networktype.name == mel.NetworkType.InceptionV3.name:
-            imgs_augmented = self.normalizeImgs_inceptionV3(trainpixels_augmented)
-        elif networktype.name == mel.NetworkType.VGG16.name:
-            imgs_augmented = self.normalizeImgs_vgg16(trainpixels_augmented)
-        elif networktype.name == mel.NetworkType.VGG19.name:
-            imgs_augmented = self.normalizeImgs_vgg19(trainpixels_augmented)
+        imgs_augmented = self.normalizeImgs(trainpixels_augmented, networktype)
+
         trainimages_augmented = np.vstack((trainimages, imgs_augmented))
         
         
