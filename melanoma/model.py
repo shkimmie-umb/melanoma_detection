@@ -137,7 +137,8 @@ class Model:
         
         # cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
         cb_checkpointer  = ModelCheckpoint(
-            filepath=f'{snapshot_path}/{model_name}.hdf5',
+            filepath=f'{snapshot_path}/{self.CFG["experiment"]}.hdf5',
+            # filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
             # filepath = 'snapshot/{model_name}_{epochs:-2d}-{val_loss:.2f}.hdf5',
             # filepath = CFG['path_model']+'ResNet50-{epoch:02d}-{val_loss:.2f}.hdf5',

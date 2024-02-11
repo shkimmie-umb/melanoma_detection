@@ -18,8 +18,26 @@ from keras.layers.merge import concatenate
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.resnet import ResNet101, ResNet152
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.xception import Xception
+from tensorflow.keras.applications.efficientnet \
+    import EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3, \
+        EfficientNetB4, EfficientNetB5, EfficientNetB6, EfficientNetB7
+# from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2B0, EfficientNetV2B1, EfficientNetV2B2, \
+#         EfficientNetV2B3, EfficientNetV2S, EfficientNetV2M, EfficientNetV2L
+from tensorflow.keras.applications.resnet_v2 \
+    import ResNet50V2, ResNet101V2, ResNet152V2
+# from tensorflow.keras.applications.resnet_v2 import InceptionResNetV2
+from tensorflow.keras.applications.mobilenet import MobileNet
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+from tensorflow.keras.applications.densenet import DenseNet121, DenseNet169, \
+    DenseNet201
+from tensorflow.keras.applications.nasnet import NASNetMobile, NASNetLarge
+# from tensorflow.keras.applications.convnext import ConvNeXtTiny, ConvNeXtSmall, \
+#     ConvNeXtBase, ConvNeXtLarge, ConvNeXtXLarge
+        
+
 
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -29,8 +47,6 @@ class CNN(Base_Model):
 
     def __init__(self, CFG, train_images=None, train_labels=None, val_images=None, val_labels=None, test_images=None, test_labels=None):
         super().__init__(CFG, train_images, train_labels, val_images, val_labels, test_images, test_labels)
-
-        # self.class_names = class_names
 
          
 
@@ -286,6 +302,37 @@ class CNN(Base_Model):
         )
 
         return data_gen, Resnet50_model
+
+    def transformer(self, network):
+        # Define model with different applications
+        model = Sequential()
+        #vgg-16 , 80% accuracy with 100 epochs
+        # model.add(VGG16(input_shape=(224,224,3),pooling='avg',classes=1000,weights=vgg16_weights_path))
+        #resnet-50 , 87% accuracy with 100 epochs
+        model.add(network(
+                include_top=False,
+                input_tensor=None,
+                input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+                pooling='avg',
+                # classes=self.CFG['num_classes'],
+                weights=self.CFG['pretrained_weights']
+        ))
+        model.add(Flatten())
+        model.add(Dense(512, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.layers[0].trainable = False
+        model.summary()
+
+        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        return model
     
     def trainData(self, train_ds, val_ds, img_height, img_width, class_names, augmentation_type, epochs=20):
         super().__init__(train_ds, val_ds, epochs)

@@ -1,6 +1,6 @@
 import tensorflow as tf
 from .model import Model as Base_Model
-from .util import DatasetType
+# from .util import DatasetType
 from melanoma import augmentationStrategy as aug
 # from .util import NetworkType
 import melanoma as mel
@@ -29,11 +29,35 @@ class Preprocess:
 
         self.preprMethodDict = {
             # RGB to BGR
-            "ResNet50": tf.keras.applications.resnet.preprocess_input,
-            "Xception": tf.keras.applications.xception.preprocess_input,
-            "InceptionV3": tf.keras.applications.inception_v3.preprocess_input,
-            "VGG16": tf.keras.applications.vgg16.preprocess_input,
-            "VGG19": tf.keras.applications.vgg19.preprocess_input,
+            mel.NetworkType.ResNet50.name: tf.keras.applications.resnet.preprocess_input,
+            mel.NetworkType.ResNet101.name: tf.keras.applications.resnet.preprocess_input,
+            mel.NetworkType.ResNet152.name: tf.keras.applications.resnet.preprocess_input,
+            mel.NetworkType.Xception.name: tf.keras.applications.xception.preprocess_input,
+            mel.NetworkType.InceptionV3.name: tf.keras.applications.inception_v3.preprocess_input,
+            mel.NetworkType.VGG16.name: tf.keras.applications.vgg16.preprocess_input,
+            mel.NetworkType.VGG19.name: tf.keras.applications.vgg19.preprocess_input,
+            mel.NetworkType.EfficientNetB0.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB1.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB2.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB3.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB4.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB5.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB6.name: tf.keras.applications.efficientnet.preprocess_input,
+            mel.NetworkType.EfficientNetB7.name: tf.keras.applications.efficientnet.preprocess_input,
+
+            mel.NetworkType.ResNet50V2.name: tf.keras.applications.resnet_v2.preprocess_input,
+            mel.NetworkType.ResNet101V2.name: tf.keras.applications.resnet_v2.preprocess_input,
+            mel.NetworkType.ResNet152V2.name: tf.keras.applications.resnet_v2.preprocess_input,
+
+            mel.NetworkType.MobileNet.name: tf.keras.applications.mobilenet.preprocess_input,
+            mel.NetworkType.MobileNetV2.name: tf.keras.applications.mobilenet_v2.preprocess_input,
+
+            mel.NetworkType.DenseNet121.name: tf.keras.applications.densenet.preprocess_input,
+            mel.NetworkType.DenseNet169.name: tf.keras.applications.densenet.preprocess_input,
+            mel.NetworkType.DenseNet201.name: tf.keras.applications.densenet.preprocess_input,
+
+            mel.NetworkType.NASNetMobile.name: tf.keras.applications.nasnet.preprocess_input,
+            mel.NetworkType.NASNetLarge.name: tf.keras.applications.nasnet.preprocess_input,
         }
     
     def normalizeImgs(self, imgs, networktype):
@@ -75,7 +99,7 @@ class Preprocess:
 
         # KaggleMB is in 224 X 224
         resize_ratio = 0
-        if datasettype.value == DatasetType.KaggleMB.value:
+        if datasettype.value == mel.DatasetType.KaggleMB.value:
             resize_ratio = 1.0
         else:
             resize_ratio = 0.75

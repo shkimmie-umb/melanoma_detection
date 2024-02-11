@@ -21,6 +21,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing.image import img_to_array, load_img
 from .preprocess import Preprocess
 
+import itertools
+from itertools import combinations
 
 import matplotlib.pyplot as plt
 
@@ -33,10 +35,44 @@ import logging
 
 class NetworkType(Enum):
 	ResNet50 = 1
-	Xception = 2
-	InceptionV3 = 3
-	VGG16 = 4
-	VGG19 = 5
+	ResNet101 = 2
+	ResNet152 = 3
+	Xception = 4
+	InceptionV3 = 5
+	VGG16 = 6
+	VGG19 = 7
+	EfficientNetB0 = 8
+	EfficientNetB1 = 9
+	EfficientNetB2 = 10
+	EfficientNetB3 = 11
+	EfficientNetB4 = 12
+	EfficientNetB5 = 13
+	EfficientNetB6 = 14
+	EfficientNetB7 = 15
+	# EfficientNetV2B0 = 16
+	# EfficientNetV2B1 = 17
+	# EfficientNetV2B2 = 18
+	# EfficientNetV2B3 = 19
+	# EfficientNetV2S = 20
+	# EfficientNetV2M = 21
+	# EfficientNetV2L = 22
+	ResNet50V2 = 23
+	ResNet101V2 = 24
+	ResNet152V2 = 25
+	# InceptionResNetV2 = 26
+	MobileNet = 27
+	MobileNetV2 = 28
+	DenseNet121 = 29
+	DenseNet169 = 30
+	DenseNet201 = 31
+	NASNetMobile = 32
+	NASNetLarge = 33
+	# ConvNeXtTiny = 34
+	# ConvNeXtSmall = 35
+	# ConvNeXtBase = 36
+	# ConvNeXtLarge = 37
+	# ConvNeXtXLarge = 38
+	
 
 class DatasetType(Enum):
 	HAM10000 = 1
@@ -562,27 +598,10 @@ class Util:
 			testpixels_HAM10000 = list(map(lambda x:x[1], testset_HAM10000.image))
 			validationpixels_HAM10000 = list(map(lambda x:x[1], validationset_HAM10000.image))
 
-			# means, stds = getMeanStd(trainpixels_HAM10000)
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_HAM10000 = preprocessor.normalizeImgs_ResNet50(trainpixels_HAM10000)
-				testimages_HAM10000 = preprocessor.normalizeImgs_ResNet50(testpixels_HAM10000)
-				validationimages_HAM10000 = preprocessor.normalizeImgs_ResNet50(validationpixels_HAM10000)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_HAM10000 = preprocessor.normalizeImgs_Xception(trainpixels_HAM10000)
-				testimages_HAM10000 = preprocessor.normalizeImgs_Xception(testpixels_HAM10000)
-				validationimages_HAM10000 = preprocessor.normalizeImgs_Xception(validationpixels_HAM10000)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_HAM10000 = preprocessor.normalizeImgs_inceptionV3(trainpixels_HAM10000)
-				testimages_HAM10000 = preprocessor.normalizeImgs_inceptionV3(testpixels_HAM10000)
-				validationimages_HAM10000 = preprocessor.normalizeImgs_inceptionV3(validationpixels_HAM10000)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_HAM10000 = preprocessor.normalizeImgs_vgg16(trainpixels_HAM10000)
-				testimages_HAM10000 = preprocessor.normalizeImgs_vgg16(testpixels_HAM10000)
-				validationimages_HAM10000 = preprocessor.normalizeImgs_vgg16(validationpixels_HAM10000)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_HAM10000 = preprocessor.normalizeImgs_vgg19(trainpixels_HAM10000)
-				testimages_HAM10000 = preprocessor.normalizeImgs_vgg19(testpixels_HAM10000)
-				validationimages_HAM10000 = preprocessor.normalizeImgs_vgg19(validationpixels_HAM10000)
+
+			trainimages_HAM10000 = preprocessor.normalizeImgs(trainpixels_HAM10000, networktype)
+			validationimages_HAM10000 = preprocessor.normalizeImgs(validationpixels_HAM10000, networktype)
+			testimages_HAM10000 = preprocessor.normalizeImgs(testpixels_HAM10000, networktype)
 	
 			
 			trainlabels_multi_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx, dtype='float64')
@@ -634,11 +653,16 @@ class Util:
 			assert datasettype.name == 'HAM10000'
 			filename_bin = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 			filename_multi = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_multiclass.pkl' # height x width
-			with open(filename_bin, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
-				trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2), file_bin)
-			file_bin.close()
+
+			if os.path.exists(filename_bin) is not True:
+
+				with open(filename_bin, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
+					trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping HAM10000")
 
 			# with open(filename_multi, 'wb') as file_multi:
 				
@@ -648,6 +672,8 @@ class Util:
 			# file_multi.close()
 
 			# Augmentation only on training set
+			
+
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_HAM10000_augmented, trainlabels_binary_HAM10000_augmented = \
@@ -655,14 +681,15 @@ class Util:
 						augment_ratio, trainset_HAM10000)
 
 				assert augmented_db_name.name == 'HAM10000'
+				
 				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{img_height}h_{img_width}w_binary.pkl' # height x width
-        
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_HAM10000_augmented, testimages_HAM10000, validationimages_HAM10000,
 					trainlabels_binary_HAM10000_augmented, testlabels_binary_HAM10000, validationlabels_binary_HAM10000,
 					2), file_bin)
 				file_bin.close()
+
 
 
 		
@@ -803,27 +830,9 @@ class Util:
 			testpixels_ISIC2016 = list(map(lambda x:x[1], testset_ISIC2016.image))
 			validationpixels_ISIC2016 = list(map(lambda x:x[1], validationset_ISIC2016.image))
 
-			# means, stds = getMeanStd(trainpixels_ISIC2016)
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_ISIC2016 = preprocessor.normalizeImgs_ResNet50(trainpixels_ISIC2016)
-				testimages_ISIC2016 = preprocessor.normalizeImgs_ResNet50(testpixels_ISIC2016)
-				validationimages_ISIC2016 = preprocessor.normalizeImgs_ResNet50(validationpixels_ISIC2016)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_ISIC2016 = preprocessor.normalizeImgs_Xception(trainpixels_ISIC2016)
-				testimages_ISIC2016 = preprocessor.normalizeImgs_Xception(testpixels_ISIC2016)
-				validationimages_ISIC2016 = preprocessor.normalizeImgs_Xception(validationpixels_ISIC2016)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_ISIC2016 = preprocessor.normalizeImgs_inceptionV3(trainpixels_ISIC2016)
-				testimages_ISIC2016 = preprocessor.normalizeImgs_inceptionV3(testpixels_ISIC2016)
-				validationimages_ISIC2016 = preprocessor.normalizeImgs_inceptionV3(validationpixels_ISIC2016)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_ISIC2016 = preprocessor.normalizeImgs_vgg16(trainpixels_ISIC2016)
-				testimages_ISIC2016 = preprocessor.normalizeImgs_vgg16(testpixels_ISIC2016)
-				validationimages_ISIC2016 = preprocessor.normalizeImgs_vgg16(validationpixels_ISIC2016)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_ISIC2016 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2016)
-				testimages_ISIC2016 = preprocessor.normalizeImgs_vgg19(testpixels_ISIC2016)
-				validationimages_ISIC2016 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2016)
+			trainimages_ISIC2016 = preprocessor.normalizeImgs(trainpixels_ISIC2016, networktype)
+			validationimages_ISIC2016 = preprocessor.normalizeImgs(validationpixels_ISIC2016, networktype)
+			testimages_ISIC2016 = preprocessor.normalizeImgs(testpixels_ISIC2016, networktype)
 			# trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx, dtype='float64')
@@ -843,15 +852,20 @@ class Util:
 			# trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
 
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016,
-				trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
-				2), file_bin)
-			file_bin.close()
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016,
+					trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping ISIC2016")
 
 
 			# Augmentation only on training set
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2016_augmented, trainlabels_binary_ISIC2016_augmented = \
@@ -859,8 +873,8 @@ class Util:
 						augment_ratio, df_training_ISIC2016)
 				
 				assert augmented_db_name.name == 'ISIC2016'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2016_augmented, testimages_ISIC2016, validationimages_ISIC2016,
@@ -1038,26 +1052,9 @@ class Util:
 			validationpixels_ISIC2017 = list(map(lambda x:x[1], validationset_ISIC2017.image)) # Filter out only pixel from the list
 			testpixels_ISIC2017 = list(map(lambda x:x[1], testset_ISIC2017.image)) # Filter out only pixel from the list
 			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_ISIC2017 = preprocessor.normalizeImgs_ResNet50(trainpixels_ISIC2017)
-				testimages_ISIC2017 = preprocessor.normalizeImgs_ResNet50(testpixels_ISIC2017)
-				validationimages_ISIC2017 = preprocessor.normalizeImgs_ResNet50(validationpixels_ISIC2017)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_ISIC2017 = preprocessor.normalizeImgs_Xception(trainpixels_ISIC2017)
-				testimages_ISIC2017 = preprocessor.normalizeImgs_Xception(testpixels_ISIC2017)
-				validationimages_ISIC2017 = preprocessor.normalizeImgs_Xception(validationpixels_ISIC2017)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_ISIC2017 = preprocessor.normalizeImgs_inceptionV3(trainpixels_ISIC2017)
-				testimages_ISIC2017 = preprocessor.normalizeImgs_inceptionV3(testpixels_ISIC2017)
-				validationimages_ISIC2017 = preprocessor.normalizeImgs_inceptionV3(validationpixels_ISIC2017)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_ISIC2017 = preprocessor.normalizeImgs_vgg16(trainpixels_ISIC2017)
-				testimages_ISIC2017 = preprocessor.normalizeImgs_vgg16(testpixels_ISIC2017)
-				validationimages_ISIC2017 = preprocessor.normalizeImgs_vgg16(validationpixels_ISIC2017)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_ISIC2017 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2017)
-				testimages_ISIC2017 = preprocessor.normalizeImgs_vgg19(testpixels_ISIC2017)
-				validationimages_ISIC2017 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2017)
+			trainimages_ISIC2017 = preprocessor.normalizeImgs(trainpixels_ISIC2017, networktype)
+			validationimages_ISIC2017 = preprocessor.normalizeImgs(validationpixels_ISIC2017, networktype)
+			testimages_ISIC2017 = preprocessor.normalizeImgs(testpixels_ISIC2017, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1078,13 +1075,19 @@ class Util:
 
 			assert datasettype.name == 'ISIC2017'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_ISIC2017, testimages_ISIC2017, validationimages_ISIC2017,
-				trainlabels_binary_ISIC2017, testlabels_binary_ISIC2017, validationlabels_binary_ISIC2017,
-				2), file_bin)
-			file_bin.close()
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_ISIC2017, testimages_ISIC2017, validationimages_ISIC2017,
+					trainlabels_binary_ISIC2017, testlabels_binary_ISIC2017, validationlabels_binary_ISIC2017,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping ISIC2017")
 
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2017_augmented, trainlabels_binary_ISIC2017_augmented = \
@@ -1092,14 +1095,15 @@ class Util:
 						augment_ratio, df_training_ISIC2017)
 				
 				assert augmented_db_name.name == 'ISIC2017'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2017_augmented, testimages_ISIC2017, validationimages_ISIC2017,
 					trainlabels_binary_ISIC2017_augmented, testlabels_binary_ISIC2017, validationlabels_binary_ISIC2017,
 					2), file_bin)
 				file_bin.close()
+
 
 
 		if datasettype.value == DatasetType.ISIC2018.value:
@@ -1248,26 +1252,9 @@ class Util:
 			validationpixels_ISIC2018 = list(map(lambda x:x[1], validationset_ISIC2018.image)) # Filter out only pixel from the list
 			testpixels_ISIC2018 = list(map(lambda x:x[1], testset_ISIC2018.image)) # Filter out only pixel from the list
 			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_ISIC2018 = preprocessor.normalizeImgs_ResNet50(trainpixels_ISIC2018)
-				testimages_ISIC2018 = preprocessor.normalizeImgs_ResNet50(testpixels_ISIC2018)
-				validationimages_ISIC2018 = preprocessor.normalizeImgs_ResNet50(validationpixels_ISIC2018)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_ISIC2018 = preprocessor.normalizeImgs_Xception(trainpixels_ISIC2018)
-				testimages_ISIC2018 = preprocessor.normalizeImgs_Xception(testpixels_ISIC2018)
-				validationimages_ISIC2018 = preprocessor.normalizeImgs_Xception(validationpixels_ISIC2018)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_ISIC2018 = preprocessor.normalizeImgs_inceptionV3(trainpixels_ISIC2018)
-				testimages_ISIC2018 = preprocessor.normalizeImgs_inceptionV3(testpixels_ISIC2018)
-				validationimages_ISIC2018 = preprocessor.normalizeImgs_inceptionV3(validationpixels_ISIC2018)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_ISIC2018 = preprocessor.normalizeImgs_vgg16(trainpixels_ISIC2018)
-				testimages_ISIC2018 = preprocessor.normalizeImgs_vgg16(testpixels_ISIC2018)
-				validationimages_ISIC2018 = preprocessor.normalizeImgs_vgg16(validationpixels_ISIC2018)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_ISIC2018 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2018)
-				testimages_ISIC2018 = preprocessor.normalizeImgs_vgg19(testpixels_ISIC2018)
-				validationimages_ISIC2018 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2018)
+			trainimages_ISIC2018 = preprocessor.normalizeImgs(trainpixels_ISIC2018, networktype)
+			validationimages_ISIC2018 = preprocessor.normalizeImgs(validationpixels_ISIC2018, networktype)
+			testimages_ISIC2018 = preprocessor.normalizeImgs(testpixels_ISIC2018, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1288,13 +1275,19 @@ class Util:
 
 			assert datasettype.name == 'ISIC2018'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_ISIC2018, testimages_ISIC2018, validationimages_ISIC2018,
-				trainlabels_binary_ISIC2018, testlabels_binary_ISIC2018, validationlabels_binary_ISIC2018,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_ISIC2018, testimages_ISIC2018, validationimages_ISIC2018,
+					trainlabels_binary_ISIC2018, testlabels_binary_ISIC2018, validationlabels_binary_ISIC2018,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping ISIC2018")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2018_augmented, trainlabels_binary_ISIC2018_augmented = \
@@ -1302,14 +1295,15 @@ class Util:
 						augment_ratio, df_training_ISIC2018)
 				
 				assert augmented_db_name.name == 'ISIC2018'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2018_augmented, testimages_ISIC2018, validationimages_ISIC2018,
 					trainlabels_binary_ISIC2018_augmented, testlabels_binary_ISIC2018, validationlabels_binary_ISIC2018,
 					2), file_bin)
 				file_bin.close()
+			
 
 		if datasettype.value == DatasetType.ISIC2019.value:
 			ISIC2019_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC_2019_Training_Input')
@@ -1393,21 +1387,9 @@ class Util:
 			trainpixels_ISIC2019 = list(map(lambda x:x[1], trainset_ISIC2019.image)) # Filter out only pixel from the list
 			validationpixels_ISIC2019 = list(map(lambda x:x[1], validationset_ISIC2019.image)) # Filter out only pixel from the list
 			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_ISIC2019 = preprocessor.normalizeImgs_ResNet50(trainpixels_ISIC2019)
-				validationimages_ISIC2019 = preprocessor.normalizeImgs_ResNet50(validationpixels_ISIC2019)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_ISIC2019 = preprocessor.normalizeImgs_Xception(trainpixels_ISIC2019)
-				validationimages_ISIC2019 = preprocessor.normalizeImgs_Xception(validationpixels_ISIC2019)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_ISIC2019 = preprocessor.normalizeImgs_inceptionV3(trainpixels_ISIC2019)
-				validationimages_ISIC2019 = preprocessor.normalizeImgs_inceptionV3(validationpixels_ISIC2019)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_ISIC2019 = preprocessor.normalizeImgs_vgg16(trainpixels_ISIC2019)
-				validationimages_ISIC2019 = preprocessor.normalizeImgs_vgg16(validationpixels_ISIC2019)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_ISIC2019 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2019)
-				validationimages_ISIC2019 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2019)
+
+			trainimages_ISIC2019 = preprocessor.normalizeImgs(trainpixels_ISIC2019, networktype)
+			validationimages_ISIC2019 = preprocessor.normalizeImgs(validationpixels_ISIC2019, networktype)
 
 			trainlabels_binary_ISIC2019 = to_categorical(trainset_ISIC2019.cell_type_binary_idx, num_classes=2)
 			validationlabels_binary_ISIC2019 = to_categorical(validationset_ISIC2019.cell_type_binary_idx, num_classes=2)
@@ -1422,13 +1404,19 @@ class Util:
 
 			assert datasettype.name == 'ISIC2019'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_ISIC2019, None, validationimages_ISIC2019,
-				trainlabels_binary_ISIC2019, None, validationlabels_binary_ISIC2019,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_ISIC2019, None, validationimages_ISIC2019,
+					trainlabels_binary_ISIC2019, None, validationlabels_binary_ISIC2019,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping ISIC2019")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2019_augmented, trainlabels_binary_ISIC2019_augmented = \
@@ -1436,14 +1424,15 @@ class Util:
 						augment_ratio, df_training_ISIC2019)
 				
 				assert augmented_db_name.name == 'ISIC2019'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2019_augmented, None, validationimages_ISIC2019,
 					trainlabels_binary_ISIC2019_augmented, None, validationlabels_binary_ISIC2019,
 					2), file_bin)
 				file_bin.close()
+			
 
 		if datasettype.value == DatasetType.ISIC2020.value:
 			ISIC2020_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './train')
@@ -1532,21 +1521,9 @@ class Util:
 			trainpixels_ISIC2020 = list(map(lambda x:x[1], trainset_ISIC2020.image)) # Filter out only pixel from the list
 			validationpixels_ISIC2020 = list(map(lambda x:x[1], validationset_ISIC2020.image)) # Filter out only pixel from the list
 			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_ISIC2020 = preprocessor.normalizeImgs_ResNet50(trainpixels_ISIC2020)
-				validationimages_ISIC2020 = preprocessor.normalizeImgs_ResNet50(validationpixels_ISIC2020)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_ISIC2020 = preprocessor.normalizeImgs_Xception(trainpixels_ISIC2020)
-				validationimages_ISIC2020 = preprocessor.normalizeImgs_Xception(validationpixels_ISIC2020)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_ISIC2020 = preprocessor.normalizeImgs_inceptionV3(trainpixels_ISIC2020)
-				validationimages_ISIC2020 = preprocessor.normalizeImgs_inceptionV3(validationpixels_ISIC2020)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_ISIC2020 = preprocessor.normalizeImgs_vgg16(trainpixels_ISIC2020)
-				validationimages_ISIC2020 = preprocessor.normalizeImgs_vgg16(validationpixels_ISIC2020)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_ISIC2020 = preprocessor.normalizeImgs_vgg19(trainpixels_ISIC2020)
-				validationimages_ISIC2020 = preprocessor.normalizeImgs_vgg19(validationpixels_ISIC2020)
+
+			trainimages_ISIC2020 = preprocessor.normalizeImgs(trainpixels_ISIC2020, networktype)
+			validationimages_ISIC2020 = preprocessor.normalizeImgs(validationpixels_ISIC2020, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1563,13 +1540,20 @@ class Util:
 
 			assert datasettype.name == 'ISIC2020'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_ISIC2020, None, validationimages_ISIC2020,
-				trainlabels_binary_ISIC2020, None, validationlabels_binary_ISIC2020,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_ISIC2020, None, validationimages_ISIC2020,
+					trainlabels_binary_ISIC2020, None, validationlabels_binary_ISIC2020,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping ISIC2020")
+
+			
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2020_augmented, trainlabels_binary_ISIC2020_augmented = \
@@ -1577,14 +1561,15 @@ class Util:
 						augment_ratio, df_training_ISIC2020)
 				
 				assert augmented_db_name.name == 'ISIC2020'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2020_augmented, None, validationimages_ISIC2020,
 					trainlabels_binary_ISIC2020_augmented, None, validationlabels_binary_ISIC2020,
 					2), file_bin)
 				file_bin.close()
+			
 
 		if datasettype.value == DatasetType.PH2.value:
 			PH2path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PH2Dataset')
@@ -1630,6 +1615,12 @@ class Util:
 				)
 			)
 
+			df_PH2['img_sizes'] = df_PH2.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			labels = df_PH2.cell_type_binary.unique()
 
 			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
@@ -1656,17 +1647,7 @@ class Util:
 			# PH2 binary images/labels
 			trainpixels_PH2 = list(map(lambda x:x[1], df_PH2.image)) # Filter out only pixel from the list
 			
-			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_PH2 = preprocessor.normalizeImgs_ResNet50(trainpixels_PH2)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_PH2 = preprocessor.normalizeImgs_Xception(trainpixels_PH2)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_PH2 = preprocessor.normalizeImgs_inceptionV3(trainpixels_PH2)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_PH2 = preprocessor.normalizeImgs_vgg16(trainpixels_PH2)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_PH2 = preprocessor.normalizeImgs_vgg19(trainpixels_PH2)
+			trainimages_PH2 = preprocessor.normalizeImgs(trainpixels_PH2, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1680,13 +1661,20 @@ class Util:
 
 			assert datasettype.name == 'PH2'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_PH2, None, None,
-				trainlabels_binary_PH2, None, None,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_PH2, None, None,
+					trainlabels_binary_PH2, None, None,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping PH2")
+			
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_PH2_augmented, trainlabels_binary_PH2_augmented = \
@@ -1694,14 +1682,15 @@ class Util:
 						augment_ratio, df_PH2)
 				
 				assert augmented_db_name.name == 'PH2'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_PH2_augmented, None, None,
 					trainlabels_binary_PH2_augmented, None, None,
 					2), file_bin)
 				file_bin.close()
+			
 
 
 		if datasettype.value == DatasetType._7_point_criteria.value:
@@ -1766,6 +1755,12 @@ class Util:
 				)
 			)
 
+			df_7pointdb['img_sizes'] = df_7pointdb.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
+
 			labels = df_7pointdb.cell_type_binary.unique()
 
 			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
@@ -1806,27 +1801,9 @@ class Util:
 			validationpixels_7pointdb = list(map(lambda x:x[1], df_validation_7pointdb.image)) # Filter out only pixel from the list
 			testpixels_7pointdb = list(map(lambda x:x[1], df_test_7pointdb.image)) # Filter out only pixel from the list
 			
-			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_7pointdb = preprocessor.normalizeImgs_ResNet50(trainpixels_7pointdb)
-				validationimages_7pointdb = preprocessor.normalizeImgs_ResNet50(validationpixels_7pointdb)
-				testimages_7pointdb = preprocessor.normalizeImgs_ResNet50(testpixels_7pointdb)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_7pointdb = preprocessor.normalizeImgs_Xception(trainpixels_7pointdb)
-				validationimages_7pointdb = preprocessor.normalizeImgs_Xception(validationpixels_7pointdb)
-				testimages_7pointdb = preprocessor.normalizeImgs_Xception(testpixels_7pointdb)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(trainpixels_7pointdb)
-				validationimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(validationpixels_7pointdb)
-				testimages_7pointdb = preprocessor.normalizeImgs_inceptionV3(testpixels_7pointdb)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_7pointdb = preprocessor.normalizeImgs_vgg16(trainpixels_7pointdb)
-				validationimages_7pointdb = preprocessor.normalizeImgs_vgg16(validationpixels_7pointdb)
-				testimages_7pointdb = preprocessor.normalizeImgs_vgg16(testpixels_7pointdb)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_7pointdb = preprocessor.normalizeImgs_vgg19(trainpixels_7pointdb)
-				validationimages_7pointdb = preprocessor.normalizeImgs_vgg19(validationpixels_7pointdb)
-				testimages_7pointdb = preprocessor.normalizeImgs_vgg19(testpixels_7pointdb)
+			trainimages_7pointdb = preprocessor.normalizeImgs(trainpixels_7pointdb, networktype)
+			validationimages_7pointdb = preprocessor.normalizeImgs(validationpixels_7pointdb, networktype)
+			testimages_7pointdb = preprocessor.normalizeImgs(testpixels_7pointdb, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1846,13 +1823,19 @@ class Util:
 
 			assert datasettype.name == '_7_point_criteria'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_7pointdb, testimages_7pointdb, validationimages_7pointdb,
-				trainlabels_binary_7pointdb, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_7pointdb, testimages_7pointdb, validationimages_7pointdb,
+					trainlabels_binary_7pointdb, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping 7 point criteria")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_7pointdb_augmented, trainlabels_binary_7pointdb_augmented = \
@@ -1860,14 +1843,15 @@ class Util:
 						augment_ratio, df_training_7pointdb)
 				
 				assert augmented_db_name.name == '_7_point_criteria'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_7pointdb_augmented, testimages_7pointdb, validationimages_7pointdb,
 					trainlabels_binary_7pointdb_augmented, testlabels_binary_7pointdb, validationlabels_binary_7pointdb,
 					2), file_bin)
 				file_bin.close()
+			
 
 		if datasettype.value == DatasetType.PAD_UFES_20.value:
 			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PAD-UFES-20')
@@ -1955,22 +1939,8 @@ class Util:
 			trainpixels_PAD_UFES_20 = list(map(lambda x:x[1], trainset_PAD_UFES_20.image)) # Filter out only pixel from the list
 			validationpixels_PAD_UFES_20 = list(map(lambda x:x[1], validationset_PAD_UFES_20.image)) # Filter out only pixel from the list
 			
-			
-			if networktype.name == NetworkType.ResNet50.name:
-				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_ResNet50(trainpixels_PAD_UFES_20)
-				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_ResNet50(validationpixels_PAD_UFES_20)
-			elif networktype.name == NetworkType.Xception.name:
-				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_Xception(trainpixels_PAD_UFES_20)
-				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_Xception(validationpixels_PAD_UFES_20)
-			elif networktype.name == NetworkType.InceptionV3.name:
-				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_inceptionV3(trainpixels_PAD_UFES_20)
-				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_inceptionV3(validationpixels_PAD_UFES_20)
-			elif networktype.name == NetworkType.VGG16.name:
-				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg16(trainpixels_PAD_UFES_20)
-				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg16(validationpixels_PAD_UFES_20)
-			elif networktype.name == NetworkType.VGG19.name:
-				trainimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg19(trainpixels_PAD_UFES_20)
-				validationimages_PAD_UFES_20 = preprocessor.normalizeImgs_vgg19(validationpixels_PAD_UFES_20)
+			trainimages_PAD_UFES_20 = preprocessor.normalizeImgs(trainpixels_PAD_UFES_20, networktype)
+			validationimages_PAD_UFES_20 = preprocessor.normalizeImgs(validationpixels_PAD_UFES_20, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
@@ -1987,13 +1957,19 @@ class Util:
 
 			assert datasettype.name == 'PAD_UFES_20'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages_PAD_UFES_20, None, validationimages_PAD_UFES_20,
-				trainlabels_binary_PAD_UFES_20, None, validationlabels_binary_PAD_UFES_20,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages_PAD_UFES_20, None, validationimages_PAD_UFES_20,
+					trainlabels_binary_PAD_UFES_20, None, validationlabels_binary_PAD_UFES_20,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping PAD_UFES_20")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_PAD_UFES_20_augmented, trainlabels_binary_PAD_UFES_20_augmented = \
@@ -2001,14 +1977,15 @@ class Util:
 						augment_ratio, trainset_PAD_UFES_20)
 				
 				assert augmented_db_name.name == 'PAD_UFES_20'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_PAD_UFES_20_augmented, None, validationimages_PAD_UFES_20,
 					trainlabels_binary_PAD_UFES_20_augmented, None, validationlabels_binary_PAD_UFES_20,
 					2), file_bin)
 				file_bin.close()
+			
 
 		if datasettype.value == DatasetType.KaggleMB.value:
 
@@ -2113,13 +2090,19 @@ class Util:
 
 			assert datasettype.name == 'KaggleMB'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages, testimages, validationimages,
-				trainlabels_binary, testlabels_binary, validationlabels_binary,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages, testimages, validationimages,
+					trainlabels_binary, testlabels_binary, validationlabels_binary,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping KaggleMB")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_binary_augmented = \
@@ -2127,14 +2110,15 @@ class Util:
 						augment_ratio, df_trainset)
 				
 				assert augmented_db_name.name == 'KaggleMB'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_augmented, testimages, validationimages,
 					trainlabels_binary_augmented, testlabels_binary, validationlabels_binary,
 					2), file_bin)
 				file_bin.close()
+			
 
 			# rootpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001'
 			# directoryPath = rootpath + '/melanomaDB/Kaggle_malignant_benign_DB'
@@ -2185,7 +2169,7 @@ class Util:
 			df = pd.DataFrame()
 
 
-			# Kaggle MB: Creating New Columns for better readability
+			# MEDNODE: Creating New Columns for better readability
 			df['path'] = paths
 			df['label'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir))))
 			# df['portion'] = df['path'].map(lambda x: os.path.basename(os.path.abspath(os.path.join(x, os.pardir, os.pardir))))
@@ -2267,13 +2251,19 @@ class Util:
 
 			assert datasettype.name == 'MEDNODE'
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			with open(filename, 'wb') as file_bin:
-				
-				pickle.dump((trainimages, testimages, validationimages,
-				trainlabels_binary, testlabels_binary, validationlabels_binary,
-				2), file_bin)
-			file_bin.close()
 
+			if os.path.exists(filename) is not True:
+				with open(filename, 'wb') as file_bin:
+					
+					pickle.dump((trainimages, testimages, validationimages,
+					trainlabels_binary, testlabels_binary, validationlabels_binary,
+					2), file_bin)
+				file_bin.close()
+			else:
+				print("Skipping MEDNODE")
+
+			
+			
 			if augment_ratio is not None and augment_ratio >= 1.0:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_binary_augmented = \
@@ -2281,14 +2271,15 @@ class Util:
 						augment_ratio, df_trainset)
 				
 				assert augmented_db_name.name == 'MEDNODE'
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_augmented, testimages, validationimages,
 					trainlabels_binary_augmented, testlabels_binary, validationlabels_binary,
 					2), file_bin)
 				file_bin.close()
+				
 
 			
 
@@ -2419,8 +2410,68 @@ class Util:
 		
 
 		return x, y, x_portion, y_portion
+	
+	def combineDatasets(self, *args):
 
-	def combineSavedDatasets(self, new_path, new_filename, *args):
+		trainimgs_list = []
+		valimgs_list = []
+		trainlabels_list = []
+		vallabels_list = []
+
+		print('Combining...')
+		for idx, pkl_file in enumerate(args):
+			
+			datum = pickle.load(open(pkl_file, 'rb'))
+			print(f'Combining {idx+1} db out of {len(args)} dbs')
+			# [0]:Trainimgs, [1]:Testimgs, [2]:Valimgs, [3]:trainlabels, [4]:Testlabels, [5]:Vallabels
+			trainimgs_list.append(datum[0])
+			if datum[2] is not None:
+				valimgs_list.append(datum[2])
+			trainlabels_list.append(datum[3])
+			if datum[5] is not None:
+				vallabels_list.append(datum[5])
+			
+
+		
+		
+		assert sum(list(map(lambda v: len(v), trainimgs_list))) == sum(list(map(lambda v: len(v), trainlabels_list)))
+		for idx, file in enumerate(trainimgs_list):
+			assert trainimgs_list[idx].shape[0] == trainlabels_list[idx].shape[0]
+		
+
+		print('Stacking training images')
+		list_size = sum(list(map(lambda v: len(v), trainimgs_list)))
+		trainimgs_list = np.vstack(trainimgs_list)
+		assert trainimgs_list.shape[0] == list_size
+		
+
+		print('Stacking training labels')
+		list_size = sum(list(map(lambda v: len(v), trainlabels_list)))
+		trainlabels_list = np.vstack(trainlabels_list)
+		assert trainlabels_list.shape[0] == list_size
+		
+		
+
+		assert sum(list(map(lambda v: len(v), valimgs_list))) == sum(list(map(lambda v: len(v), vallabels_list)))
+		for idx, file in enumerate(valimgs_list):
+			assert valimgs_list[idx].shape[0] == vallabels_list[idx].shape[0]
+		
+		
+
+		print('Stacking validation images')
+		list_size = sum(list(map(lambda v: len(v), valimgs_list)))
+		valimgs_list = np.vstack(valimgs_list)		
+		assert valimgs_list.shape[0] == list_size
+		
+
+		print('Stacking validation labels')
+		list_size = sum(list(map(lambda v: len(v), vallabels_list)))
+		vallabels_list = np.vstack(vallabels_list)
+		assert vallabels_list.shape[0] == list_size
+
+		return trainimgs_list, None, valimgs_list, trainlabels_list, None, vallabels_list
+
+	def combineSavedDatasetsToFile(self, new_path, new_filename, *args):
 		totalpath = new_path + new_filename
 
 		trainimgs_list = []
@@ -2442,13 +2493,13 @@ class Util:
 			
 			datum = pickle.load(open(pkl_file, 'rb'))
 			print(f'Combining {idx+1} db out of {len(args)} dbs')
-			# [0]:Trainimgs, [1]:Valimgs, [2]:testimgs, [3]:trainlabels, [4]:vallabels, [5]:testlabels
+			# [0]:Trainimgs, [1]:Testimgs, [2]:Valimgs, [3]:trainlabels, [4]:Testlabels, [5]:Vallabels
 			trainimgs_list.append(datum[0])
-			if datum[1] is not None:
-				valimgs_list.append(datum[1])
+			if datum[2] is not None:
+				valimgs_list.append(datum[2])
 			trainlabels_list.append(datum[3])
-			if datum[4] is not None:
-				vallabels_list.append(datum[4])
+			if datum[5] is not None:
+				vallabels_list.append(datum[5])
 			
 
 		
@@ -2547,8 +2598,6 @@ class Util:
 		# 		2), file_bin)
 		# 	file_bin.close()
 
-
-	
 
 
 	def loadCSV(self, mode):
