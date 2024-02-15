@@ -137,7 +137,7 @@ class Model:
         
         # cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
         cb_checkpointer  = ModelCheckpoint(
-            filepath=f'{snapshot_path}/{self.CFG["experiment"]}.hdf5',
+            filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
             # filepath = 'snapshot/{model_name}_{epochs:-2d}-{val_loss:.2f}.hdf5',
@@ -169,6 +169,7 @@ class Model:
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
         print('Testing on Kaggle DB')
+        kaggleMB_path = 
         model, _, _ = self.evaluate_model(kaggle_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
             model = model, model_name = kaggle_mn, trainimages = trainimages, testimages = testimages
@@ -273,6 +274,7 @@ class Model:
         return train_pred, train_pred_classes, test_pred, test_pred_classes
 
     def model_report(self,
+        model_path,
         model_name,
         trainlabels,
         train_pred_classes,
@@ -309,6 +311,8 @@ class Model:
         plt.subplots_adjust(top=0.95)
         plt.title(f'Confusion Matrix for Multiclass Classifcation ({model_name})', fontsize=fontsize)
         plt.show()
+        plt.savefig(f'{model_path}/{model_name}_confusion1.png')
+        pd.crosstab(testlabels_digit, test_pred_classes, rownames=['Label'],colnames=['Predict'])
 
 	
     def trainData(self):

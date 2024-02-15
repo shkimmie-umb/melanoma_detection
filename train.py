@@ -113,7 +113,7 @@ cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
 
 CFG = dict(
 			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  20,   # 5; 10; 20;
+			epochs                =  1,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   1,   # 0; 1
 			fontsize              =  14,
@@ -145,7 +145,8 @@ CFG = dict(
             
       # save
       snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot',
-			experiment = f'{DBname}_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}'
+      experiment_noaug = f'{DBname}_noaug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
+			experiment_aug = f'{DBname}_aug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 		)
 base_model = mel.CNN(CFG=CFG)
 
@@ -221,24 +222,46 @@ CFG.update(del_augmentation)
 ori_pkl = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
 aug_pkl = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_augmentedWith_*Melanoma_*Non-Melanoma_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
 
-
-if len(DB) == 1:
-	trainimages, testimages, validationimages, \
-				trainlabels, testlabels, validationlabels, num_classes\
-					= utilInstance.loadDatasetFromFile(dbpath+'/'+Path(ori_pkl).stem+'.pkl')
-elif len(DB) > 1:
-	trainimages, testimages, validationimages, \
-				trainlabels, testlabels, validationlabels, \
-					= utilInstance.combineDatasets(aug_pkl)
+assert len(ori_pkl) == len(aug_pkl)
 
 
-model_name = CFG['experiment']
+	# trainimages, testimages, validationimages, \
+	# 			trainlabels, testlabels, validationlabels, num_classes\
+	# 				= utilInstance.loadDatasetFromFile(dbpath+'/'+Path(ori_pkl).stem+'.pkl')
+trainimages, testimages, validationimages, \
+      trainlabels, testlabels, validationlabels, \
+        = utilInstance.combineDatasets(ori_pkl)
+
+trainimages_aug, testimages_aug, validationimages_aug, \
+      trainlabels_aug, testlabels_aug, validationlabels_aug, \
+        = utilInstance.combineDatasets(aug_pkl)
+
+assert len(trainimages) == len(trainlabels)
+if validationimages is not None and validationlabels is not None:
+  assert len(validationimages) == len(validationlabels)
+  assert len(validationimages) == len(validationimages_aug)
+  assert len(validationlabels) == len(validationlabels_aug)
+if testimages is not None and testlabels is not None:
+  assert len(testimages) == len(testlabels)
+  assert len(testimages) == len(testimages_aug)
+  assert len(testlabels) == len(testlabels_aug)
+assert len(trainimages_aug) == len(trainlabels_aug)
+if validationimages_aug is not None and validationlabels_aug is not None:
+  assert len(validationimages_aug) == len(validationlabels_aug)
+if testimages_aug is not None and testlabels_aug is not None:
+  assert len(testimages_aug) == len(testlabels_aug)
+
+# Test, Val sets must not be augmented
+
+
+# Original images training (No augmentation)
+model_noaug_name = CFG['experiment_noaug']
 model = base_model.transformer(classifierDict[CLASSIFIER])
 # model = base_model.inceptionV3()
 
-history = base_model.fit_model(
+history_noaug = base_model.fit_model(
     model = model,
-    model_name = model_name,
+    model_name = model_noaug_name,
     trainimages = trainimages,
     trainlabels = trainlabels,
     validationimages = validationimages,
@@ -246,10 +269,57 @@ history = base_model.fit_model(
 )
 
 visualizer = mel.Visualizer()
-visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_name)
+visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_noaug_name)
 
 visualizer.visualize_performance(
-    model_name = model_name,
-    plot_path=plot_path=CFG['snapshot_path'],
-    history = history
+    model_name = model_noaug_name,
+    plot_path=CFG['snapshot_path'],
+    history = history_noaug
+)
+
+
+dbpath_HAM10000 = dbpath + '/' + f'HAM10000_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
+dbpath_KaggleMB = dbpath + '/' + f'KaggleMB_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
+dbpath_ISIC2016 = dbpath + '/' + f'ISIC2016_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
+dbpath_ISIC2017 = dbpath + '/' + f'ISIC2017_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
+dbpath_ISIC2018 = dbpath + '/' + f'ISIC2018_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
+base_model.evaluate_model_onAll(
+  model_name=model_noaug_name,
+  model_path=CFG['snapshot_path'] + '/' + CFG['experiment_noaug'] + '.hdf5',
+  dbpath_KaggleDB=dbpath_KaggleMB,
+  dbpath_HAM10000=dbpath_HAM10000,
+  dbpath_ISIC2016=dbpath_ISIC2016,
+  dbpath_ISIC2017=dbpath_ISIC2017,
+  dbpath_ISIC2018=dbpath_ISIC2018
+)
+
+# Augmented images training (augmentation)
+model_aug_name = CFG['experiment_aug']
+
+history_aug = base_model.fit_model(
+    model = model,
+    model_name = model_aug_name,
+    trainimages = trainimages_aug,
+    trainlabels = trainlabels_aug,
+    validationimages = validationimages,
+    validationlabels = validationlabels,
+)
+
+visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_aug_name)
+
+visualizer.visualize_performance(
+    model_name = model_aug_name,
+    plot_path=CFG['snapshot_path'],
+    history = history_aug
+)
+
+
+base_model.evaluate_model_onAll(
+  model_name=model_aug_name,
+  model_path=CFG['snapshot_path'] + '/' + CFG['experiment_aug'] + '.hdf5',
+  dbpath_KaggleDB=dbpath_KaggleMB,
+  dbpath_HAM10000=dbpath_HAM10000,
+  dbpath_ISIC2016=dbpath_ISIC2016,
+  dbpath_ISIC2017=dbpath_ISIC2017,
+  dbpath_ISIC2018=dbpath_ISIC2018
 )
