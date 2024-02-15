@@ -2412,17 +2412,17 @@ class Util:
 		return x, y, x_portion, y_portion
 	
 	def combineDatasets(self, *args):
-
+		
 		trainimgs_list = []
 		valimgs_list = []
 		trainlabels_list = []
 		vallabels_list = []
 
 		print('Combining...')
-		for idx, pkl_file in enumerate(args):
+		for idx, pkl_file in enumerate(args[0]):
 			
 			datum = pickle.load(open(pkl_file, 'rb'))
-			print(f'Combining {idx+1} db out of {len(args)} dbs')
+			print(f'Combining {idx+1} db out of {len(args[0])} dbs')
 			# [0]:Trainimgs, [1]:Testimgs, [2]:Valimgs, [3]:trainlabels, [4]:Testlabels, [5]:Vallabels
 			trainimgs_list.append(datum[0])
 			if datum[2] is not None:
@@ -2438,7 +2438,7 @@ class Util:
 		for idx, file in enumerate(trainimgs_list):
 			assert trainimgs_list[idx].shape[0] == trainlabels_list[idx].shape[0]
 		
-
+		
 		print('Stacking training images')
 		list_size = sum(list(map(lambda v: len(v), trainimgs_list)))
 		trainimgs_list = np.vstack(trainimgs_list)

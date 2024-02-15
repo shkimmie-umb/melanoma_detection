@@ -85,12 +85,12 @@ class Visualizer:
             for i in range(len(class_names)):
                 print(class_names[i],' - ',len(list(trainDataPath.glob(class_names[i]+'/*.jpg')))+len(list(trainDataPath.glob(class_names[i]+'/*/*.*'))))
 
-    def visualize_model(self, model, model_name):
+    def visualize_model(self, model, plot_path, model_name):
         print(model.summary())
-        return plot_model(model, to_file=f'{model_name}_plot.png', show_shapes=True, show_layer_names=True)
+        return plot_model(model, to_file=f'{plot_path}/{model_name}_modelsummary.png', show_shapes=True, show_layer_names=True)
 
 
-    def visualize_performance(self, model_name, history, fontsize = 14):
+    def visualize_performance(self, plot_path, model_name, history, fontsize = 16):
         acc = history.history['accuracy']
         val_acc = history.history['val_accuracy']
 
@@ -115,5 +115,5 @@ class Visualizer:
 
         plt.suptitle(f'Accuracy & Loss for {model_name} model', fontsize=fontsize)
         plt.show()
-
+        plt.savefig(f'{plot_path}/{model_name}_graph.png')
     
