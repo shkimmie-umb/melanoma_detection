@@ -90,10 +90,7 @@ JOB_INDEX = args.JOB_INDEX
 # CLASSIFIER = sys.argv[3] # 'ResNet50, VGG16'
 # JOB_INDEX = int(sys.argv[4])
 
-if len(DB) == 1:
-	DBname = DB
-elif len(DB) > 1:
-	DBname = '+'.join(DB)
+DBname = '+'.join(DB)
 
 rootpath = '/hpcstor6/scratch01/s/sanghyuk.kim001'
 # img_size = (224, 224) # height, width
@@ -113,7 +110,7 @@ cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
 
 CFG = dict(
 			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  1,   # 5; 10; 20;
+			epochs                =  20,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   1,   # 0; 1
 			fontsize              =  14,
@@ -285,7 +282,7 @@ dbpath_ISIC2017 = dbpath + '/' + f'ISIC2017_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary
 dbpath_ISIC2018 = dbpath + '/' + f'ISIC2018_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_binary.pkl'
 base_model.evaluate_model_onAll(
   model_name=model_noaug_name,
-  model_path=CFG['snapshot_path'] + '/' + CFG['experiment_noaug'] + '.hdf5',
+  model_path=CFG['snapshot_path'],
   dbpath_KaggleDB=dbpath_KaggleMB,
   dbpath_HAM10000=dbpath_HAM10000,
   dbpath_ISIC2016=dbpath_ISIC2016,
@@ -316,7 +313,7 @@ visualizer.visualize_performance(
 
 base_model.evaluate_model_onAll(
   model_name=model_aug_name,
-  model_path=CFG['snapshot_path'] + '/' + CFG['experiment_aug'] + '.hdf5',
+  model_path=CFG['snapshot_path'],
   dbpath_KaggleDB=dbpath_KaggleMB,
   dbpath_HAM10000=dbpath_HAM10000,
   dbpath_ISIC2016=dbpath_ISIC2016,

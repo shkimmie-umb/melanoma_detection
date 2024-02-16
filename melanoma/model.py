@@ -40,6 +40,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+import melanoma as mel
+
 from .callback import Callback as silent_training_callback
 
 
@@ -165,76 +167,138 @@ class Model:
 
     def evaluate_model_onAll(self, model_name, model_path, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018):
 
-        kaggle_mn = 'Testing Kaggle DB on ' + model_name
+        # Kaggle MB Testing
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
         print('Testing on Kaggle DB')
-        kaggleMB_path = 
-        model, _, _ = self.evaluate_model(kaggle_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.KaggleMB.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = kaggle_mn, trainimages = trainimages, testimages = testimages
+            model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
+                trainimages = trainimages, testimages = testimages
         )
         self.model_report(
-            model_name = kaggle_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
-            testlabels = testlabels, test_pred_classes = test_pred_classes
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
+                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
-        HAM10000_mn = 'Testing HAM10000 on ' + model_name
+        # HAM10000 Testing
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_HAM10000, 'rb'))
         print('Testing on HAM10000')
-        model, _, _ = self.evaluate_model(HAM10000_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.HAM10000.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = HAM10000_mn, trainimages = trainimages, testimages = testimages
+            model = model, model_name = model_name, target_db=mel.DatasetType.HAM10000.name, \
+                trainimages = trainimages, testimages = testimages
         )
         self.model_report(
-            model_name = HAM10000_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
-            testlabels = testlabels, test_pred_classes = test_pred_classes
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.HAM10000.name, \
+                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        # ISIC2016 Testing
         ISIC2016_mn = 'Testing ISIC2016 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2016, 'rb'))
         assert testimages.shape[0] == 379
         assert len(testlabels) == 379
         print('Testing on ISIC2016')
-        model, _, _ = self.evaluate_model(ISIC2016_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.ISIC2016.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = ISIC2016_mn, trainimages = trainimages, testimages = testimages
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2016.name, \
+                trainimages = trainimages, testimages = testimages
         )
         self.model_report(
-            model_name = ISIC2016_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
-            testlabels = testlabels, test_pred_classes = test_pred_classes
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2016.name, \
+                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        # ISIC2017 Testing
         ISIC2017_mn = 'Testing ISIC2017 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2017, 'rb'))
         assert testimages.shape[0] == 600
         assert len(testlabels) == 600
         print('Testing on ISIC2017')
-        model, _, _ = self.evaluate_model(ISIC2017_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.ISIC2017.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = ISIC2017_mn, trainimages = trainimages, testimages = testimages
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2017.name, \
+                trainimages = trainimages, testimages = testimages
         )
         self.model_report(
-            model_name = ISIC2017_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
-            testlabels = testlabels, test_pred_classes = test_pred_classes
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2017.name, \
+                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        # ISIC2018 Testing
         ISIC2018_mn = 'Testing ISIC2018 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2018, 'rb'))
         assert testimages.shape[0] == 1512
         assert len(testlabels) == 1512
         print('Testing on ISIC2018')
-        model, _, _ = self.evaluate_model(ISIC2018_mn, model_path, trainimages, trainlabels, validationimages, validationlabels, testimages, testlabels)
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.ISIC2018.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = ISIC2018_mn, trainimages = trainimages, testimages = testimages
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
+                trainimages = trainimages, testimages = testimages
         )
         self.model_report(
-            model_name = ISIC2018_mn, trainlabels = trainlabels, train_pred_classes = train_pred_classes,
-            testlabels = testlabels, test_pred_classes = test_pred_classes
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
+                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
         
@@ -243,6 +307,7 @@ class Model:
     def evaluate_model(self,
     model_name,
     model_path,
+    target_db,
     trainimages,
     trainlabels,
     validationimages,
@@ -250,9 +315,9 @@ class Model:
     testimages,
     testlabels
     ):
-        print(f'Evaluating {model_name} model...\n')
+        print(f'Evaluating {model_name} model on {target_db}...\n')
         # model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
-        model = load_model(model_path)
+        model = load_model(model_path+'/'+model_name+'.hdf5')
 
         print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
 
@@ -263,8 +328,8 @@ class Model:
 
         return (model, test_loss, test_acc)
 	
-    def computing_prediction(self, model, model_name, trainimages, testimages):
-        print(f'Computing predictions for {model_name}...')
+    def computing_prediction(self, model, model_name, target_db, trainimages, testimages):
+        print(f'Computing predictions for {model_name} on {target_db}...')
         train_pred = model.predict(trainimages)
         train_pred_classes = np.argmax(train_pred,axis = 1)
         test_pred = model.predict(testimages)
@@ -276,6 +341,7 @@ class Model:
     def model_report(self,
         model_path,
         model_name,
+        target_db,
         trainlabels,
         train_pred_classes,
         testlabels,
@@ -309,7 +375,7 @@ class Model:
 
         plt.tight_layout()
         plt.subplots_adjust(top=0.95)
-        plt.title(f'Confusion Matrix for Multiclass Classifcation ({model_name})', fontsize=fontsize)
+        plt.title(f'Confusion Matrix of ({model_name}) on {target_db}', fontsize=fontsize)
         plt.show()
         plt.savefig(f'{model_path}/{model_name}_confusion1.png')
         pd.crosstab(testlabels_digit, test_pred_classes, rownames=['Label'],colnames=['Predict'])
