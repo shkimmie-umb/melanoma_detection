@@ -39,6 +39,8 @@ import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import json
+import os
 
 import melanoma as mel
 
@@ -165,13 +167,17 @@ class Model:
         return history
     
 
-    def evaluate_model_onAll(self, model_name, model_path, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018):
+    def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018):
+        
+        DBtypes = [db.name for db in mel.DatasetType]
+        combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
+        assert len(combined_DBs) >= 1
 
         # Kaggle MB Testing
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
         print('Testing on Kaggle DB')
-        model, _, _ = self.evaluate_model(
+        model, test_loss_KMB, test_acc_KMB = self.evaluate_model(
             model_name=model_name,
             model_path=model_path,
             target_db=mel.DatasetType.KaggleMB.name,
@@ -182,15 +188,28 @@ class Model:
             testimages=testimages,
             testlabels=testlabels,
             )
+        target_network = model.layers[0].name
+        
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
             model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
                 trainimages = trainimages, testimages = testimages
         )
-        self.model_report(
+        
+
+        test_report_KaggleMB = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
-                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
+        
+        KaggleMB_perf = {
+            'y_pred': test_pred_classes,
+            'accuracy': test_report_KaggleMB['accuracy'],
+            'precision': test_report_KaggleMB['Malignant']['precision'],
+            'sensitivity': test_report_KaggleMB['Malignant']['recall'],
+            'specificity': test_report_KaggleMB['Benign']['recall'],
+            'f1-score': test_report_KaggleMB['macro avg']['f1-score'],
+        }
 
         # HAM10000 Testing
         trainimages, testimages, validationimages, \
@@ -211,9 +230,9 @@ class Model:
             model = model, model_name = model_name, target_db=mel.DatasetType.HAM10000.name, \
                 trainimages = trainimages, testimages = testimages
         )
-        self.model_report(
+        test_report = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.HAM10000.name, \
-                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
@@ -239,9 +258,9 @@ class Model:
             model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2016.name, \
                 trainimages = trainimages, testimages = testimages
         )
-        self.model_report(
+        test_report = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2016.name, \
-                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
@@ -267,9 +286,9 @@ class Model:
             model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2017.name, \
                 trainimages = trainimages, testimages = testimages
         )
-        self.model_report(
+        test_report = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2017.name, \
-                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
@@ -295,11 +314,26 @@ class Model:
             model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
                 trainimages = trainimages, testimages = testimages
         )
-        self.model_report(
+        test_report = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
-                trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
+
+        
+
+        final_perf = {
+            'dataset': combined_DBs,
+            'classifier': network_name,
+            
+
+        }
+
+        file_json = open(f'{model_path}/performance/{target_network}/{model_name}_confusion1.png', "w")
+  
+        json.dump(final_perf, file_json, indent = 6)
+        
+        file_json.close()
 
         
 
@@ -317,7 +351,7 @@ class Model:
     ):
         print(f'Evaluating {model_name} model on {target_db}...\n')
         # model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
-        model = load_model(model_path+'/'+model_name+'.hdf5')
+        model = load_model(model_path+'/'+model_name + '.hdf5')
 
         print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
 
@@ -342,6 +376,7 @@ class Model:
         model_path,
         model_name,
         target_db,
+        target_network,
         trainlabels,
         train_pred_classes,
         testlabels,
@@ -352,11 +387,16 @@ class Model:
 			0.0: 'Benign',
 			1.0: 'Malignant'
 		}
+        
         trainlabels_digit = np.argmax(trainlabels, axis=1)
         testlabels_digit = np.argmax(testlabels, axis=1)
+
+        train_report = classification_report(trainlabels_digit, train_pred_classes, target_names=label_substitution.values(), output_dict = True)
+        test_report = classification_report(testlabels_digit, test_pred_classes, target_names=label_substitution.values(), output_dict = True)
+
         print(f'Model report for {model_name} model ->\n\n')
-        print("Train Report :\n", classification_report(trainlabels_digit, train_pred_classes, target_names=label_substitution.values()))
-        print("Test Report :\n", classification_report(testlabels_digit, test_pred_classes, target_names=label_substitution.values()))
+        print("Train Report :\n", train_report)
+        print("Test Report :\n", test_report)
 
         cm = confusion_matrix(testlabels_digit, test_pred_classes)
 
@@ -377,8 +417,12 @@ class Model:
         plt.subplots_adjust(top=0.95)
         plt.title(f'Confusion Matrix of ({model_name}) on {target_db}', fontsize=fontsize)
         plt.show()
-        plt.savefig(f'{model_path}/{model_name}_confusion1.png')
+        if not os.path.exists(f'{model_path}/performance/{target_network}'):
+            os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
+        plt.savefig(f'{model_path}/performance/{target_network}/{model_name}_confusion1.png')
         pd.crosstab(testlabels_digit, test_pred_classes, rownames=['Label'],colnames=['Predict'])
+
+        return test_report
 
 	
     def trainData(self):

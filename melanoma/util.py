@@ -31,6 +31,7 @@ from IPython.core.debugger import Pdb
 from IPython.display import display
 
 import logging
+import melanoma as mel
 
 
 class NetworkType(Enum):
@@ -73,19 +74,6 @@ class NetworkType(Enum):
 	# ConvNeXtLarge = 37
 	# ConvNeXtXLarge = 38
 	
-
-class DatasetType(Enum):
-	HAM10000 = 1
-	ISIC2016= 2
-	ISIC2017=3
-	ISIC2018 = 4
-	ISIC2019 = 5
-	ISIC2020 = 6
-	PH2 = 7
-	_7_point_criteria = 8
-	PAD_UFES_20 = 9
-	MEDNODE = 10
-	KaggleMB = 11
 
 class ClassType(Enum):
 	multi = 1
@@ -472,7 +460,7 @@ class Util:
 
 
 		# HAM10000 multi-class images/labels
-		if datasettype.value == DatasetType.HAM10000.value:
+		if datasettype.value == mel.DatasetType.HAM10000.value:
 			HAM10000_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './HAM10000_images_combined')
 			num_train_img_HAM10000 = len(list(HAM10000_path.glob('./*.jpg'))) # counts all HAM10000 images
 
@@ -693,7 +681,7 @@ class Util:
 
 
 		
-		if datasettype.value == DatasetType.ISIC2016.value:
+		if datasettype.value == mel.DatasetType.ISIC2016.value:
 			ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
 			ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
 
@@ -883,7 +871,7 @@ class Util:
 				file_bin.close()
 
 
-		if datasettype.value == DatasetType.ISIC2017.value:
+		if datasettype.value == mel.DatasetType.ISIC2017.value:
 			ISIC2017_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Training_Data')
 			ISIC2017_val_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Validation_Data')
 			ISIC2017_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2017', './ISIC-2017_Test_v2_Data')
@@ -1106,7 +1094,7 @@ class Util:
 
 
 
-		if datasettype.value == DatasetType.ISIC2018.value:
+		if datasettype.value == mel.DatasetType.ISIC2018.value:
 			ISIC2018_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC2018_Task3_Training_Input')
 			ISIC2018_val_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC2018_Task3_Validation_Input')
 			ISIC2018_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC2018_Task3_Test_Input')
@@ -1305,7 +1293,7 @@ class Util:
 				file_bin.close()
 			
 
-		if datasettype.value == DatasetType.ISIC2019.value:
+		if datasettype.value == mel.DatasetType.ISIC2019.value:
 			ISIC2019_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC_2019_Training_Input')
 
 			num_train_img_ISIC2019 = len(list(ISIC2019_training_path.glob('./*.jpg'))) # counts all ISIC2019 training images
@@ -1434,7 +1422,7 @@ class Util:
 				file_bin.close()
 			
 
-		if datasettype.value == DatasetType.ISIC2020.value:
+		if datasettype.value == mel.DatasetType.ISIC2020.value:
 			ISIC2020_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './train')
 
 			num_train_img_ISIC2020 = len(list(ISIC2020_training_path.glob('./*.jpg'))) # counts all ISIC2019 training images
@@ -1571,7 +1559,7 @@ class Util:
 				file_bin.close()
 			
 
-		if datasettype.value == DatasetType.PH2.value:
+		if datasettype.value == mel.DatasetType.PH2.value:
 			PH2path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PH2Dataset')
 
 			img_path =pathlib.Path.joinpath(PH2path, './PH2 Dataset images')
@@ -1693,7 +1681,7 @@ class Util:
 			
 
 
-		if datasettype.value == DatasetType._7_point_criteria.value:
+		if datasettype.value == mel.DatasetType._7_point_criteria.value:
 			_7pointdb_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './release_v0')
 
 			img_path =pathlib.Path.joinpath(_7pointdb_path, './images')
@@ -1853,7 +1841,7 @@ class Util:
 				file_bin.close()
 			
 
-		if datasettype.value == DatasetType.PAD_UFES_20.value:
+		if datasettype.value == mel.DatasetType.PAD_UFES_20.value:
 			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './PAD-UFES-20')
 
 			img_path =pathlib.Path.joinpath(dbpath, './images')
@@ -1987,7 +1975,7 @@ class Util:
 				file_bin.close()
 			
 
-		if datasettype.value == DatasetType.KaggleMB.value:
+		if datasettype.value == mel.DatasetType.KaggleMB.value:
 
 			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './Kaggle_malignant_benign_DB')
 
@@ -2153,7 +2141,7 @@ class Util:
 			# 	path_benign_val=path_benign_val, path_malignant_val=path_malignant_val,
 			# 	path_benign_test=path_benign_test, path_malignant_test=path_malignant_test)
 
-		if datasettype.value == DatasetType.MEDNODE.value:
+		if datasettype.value == mel.DatasetType.MEDNODE.value:
 			dbpath = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './complete_mednode_dataset')
 
 			num_imgs = len(list(dbpath.glob('*/*.*'))) # counts all Kaggle Malignant Benign training images

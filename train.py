@@ -141,7 +141,7 @@ CFG = dict(
 			# run_functions_eagerly = False,
             
       # save
-      snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot',
+      snapshot_path = '/raid/mpsych/MELANOMA/snapshot',
       experiment_noaug = f'{DBname}_noaug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 			experiment_aug = f'{DBname}_aug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 		)
