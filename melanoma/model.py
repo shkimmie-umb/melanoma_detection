@@ -44,8 +44,6 @@ import os
 
 import melanoma as mel
 
-from .callback import Callback as silent_training_callback
-
 
 class Model:
     # img_height, img_width, class_names
@@ -167,11 +165,50 @@ class Model:
         return history
     
 
-    def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018):
+    def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018, \
+        dbpath_7pointcriteria):
         
         DBtypes = [db.name for db in mel.DatasetType]
         combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
         assert len(combined_DBs) >= 1
+
+        # 7 point criteria Testing
+        trainimages, testimages, validationimages, \
+			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_7pointcriteria, 'rb'))
+        assert testimages.shape[0] == 395
+        assert len(testlabels) == 395
+        print('Testing on 7-point-criteria DB')
+        model, _, _ = self.evaluate_model(
+            model_name=model_name,
+            model_path=model_path,
+            target_db=mel.DatasetType.ISIC2018.name,
+            trainimages=trainimages,
+            trainlabels=trainlabels,
+            validationimages=validationimages,
+            validationlabels=validationlabels,
+            testimages=testimages,
+            testlabels=testlabels,
+            )
+        target_network = model.layers[0].name
+
+        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
+                trainimages = trainimages, testimages = testimages
+        )
+        test_report = self.model_report(
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
+                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                    testlabels = testlabels, test_pred_classes = test_pred_classes
+        )
+
+        _7_point_criteria_perf = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
 
         # Kaggle MB Testing
         trainimages, testimages, validationimages, \
@@ -188,7 +225,7 @@ class Model:
             testimages=testimages,
             testlabels=testlabels,
             )
-        target_network = model.layers[0].name
+        
         
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
             model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
@@ -196,19 +233,19 @@ class Model:
         )
         
 
-        test_report_KaggleMB = self.model_report(
+        test_report = self.model_report(
             model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
                 target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
         
         KaggleMB_perf = {
-            'y_pred': test_pred_classes,
-            'accuracy': test_report_KaggleMB['accuracy'],
-            'precision': test_report_KaggleMB['Malignant']['precision'],
-            'sensitivity': test_report_KaggleMB['Malignant']['recall'],
-            'specificity': test_report_KaggleMB['Benign']['recall'],
-            'f1-score': test_report_KaggleMB['macro avg']['f1-score'],
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
         }
 
         # HAM10000 Testing
@@ -236,8 +273,16 @@ class Model:
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        HAM10000_perf = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+
         # ISIC2016 Testing
-        ISIC2016_mn = 'Testing ISIC2016 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2016, 'rb'))
         assert testimages.shape[0] == 379
@@ -264,8 +309,16 @@ class Model:
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        ISIC2016_perf = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+
         # ISIC2017 Testing
-        ISIC2017_mn = 'Testing ISIC2017 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2017, 'rb'))
         assert testimages.shape[0] == 600
@@ -292,8 +345,16 @@ class Model:
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        ISIC2017_perf = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+
         # ISIC2018 Testing
-        ISIC2018_mn = 'Testing ISIC2018 on ' + model_name
         trainimages, testimages, validationimages, \
 			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2018, 'rb'))
         assert testimages.shape[0] == 1512
@@ -320,20 +381,38 @@ class Model:
                     testlabels = testlabels, test_pred_classes = test_pred_classes
         )
 
+        ISIC2018_perf = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['Malignant']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+
         
 
         final_perf = {
             'dataset': combined_DBs,
             'classifier': network_name,
-            
+            'KaggleMB': KaggleMB_perf,
+            'ISIC2016': ISIC2016_perf,
+            'ISIC2017': ISIC2017_perf,
+            'ISIC2018': ISIC2018_perf,
+            '_7_point_criteria': _7_point_criteria_perf,
 
         }
 
-        file_json = open(f'{model_path}/performance/{target_network}/{model_name}_confusion1.png', "w")
+        if not os.path.exists(f'{model_path}/performance/{target_network}'):
+            os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
+        
+        file_json = open(f'{model_path}/performance/{target_network}/{model_name}_metrics.json', "w")
   
         json.dump(final_perf, file_json, indent = 6)
         
         file_json.close()
+
+        return final_perf
 
         
 

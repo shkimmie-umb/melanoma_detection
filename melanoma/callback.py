@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-class Callback(tf.keras.callbacks.Callback):
-    SHOW_NUMBER = 10
+class SilentTrainingCallback(tf.keras.callbacks.Callback):
+    SHOW_NUMBER = 1
     counter = 0
     epoch = 0
 

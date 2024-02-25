@@ -33,5 +33,7 @@ for m in modelnames:
     dbpath_ISIC2016 = dbpath+'/'+f'ISIC2016_{img_size[0]}h_{img_size[1]}w_binary.pkl'
     dbpath_ISIC2017 = dbpath+'/'+f'ISIC2017_{img_size[0]}h_{img_size[1]}w_binary.pkl'
     dbpath_ISIC2018 = dbpath+'/'+f'ISIC2018_{img_size[0]}h_{img_size[1]}w_binary.pkl'
-    base_model.evaluate_model_onAll(model_name=m, model_path=snapshot_path, network_name = netname[0], dbpath_KaggleDB=dbpath_KaggleDB, dbpath_HAM10000=dbpath_HAM10000, \
-        dbpath_ISIC2016=dbpath_ISIC2016, dbpath_ISIC2017=dbpath_ISIC2017, dbpath_ISIC2018=dbpath_ISIC2018)
+    dbpath_7pointcriteria = dbpath+'/'+f'_7_point_criteria_{img_size[0]}h_{img_size[1]}w_binary.pkl'
+    final_perf = base_model.evaluate_model_onAll(model_name=m, model_path=snapshot_path, network_name = netname[0], dbpath_KaggleDB=dbpath_KaggleDB, dbpath_HAM10000=dbpath_HAM10000, \
+        dbpath_ISIC2016=dbpath_ISIC2016, dbpath_ISIC2017=dbpath_ISIC2017, dbpath_ISIC2018=dbpath_ISIC2018, dbpath_7pointcriteria=dbpath_7pointcriteria)
+

@@ -5,6 +5,6 @@ from .visualizer import Visualizer
 from .cnn import CNN
 from .augmentationStrategy import *
 # from .util import NetworkType
-from .callback import Callback
+from .callback import SilentTrainingCallback
 from .preprocess import Preprocess
 from .commondata import *

@@ -4,7 +4,6 @@ from tensorflow.keras import layers, models
 # import Model
 from .model import Model as Base_Model
 from .augmentationStrategy import *
-from .callback import Callback as silent_training_callback
 
 from tensorflow.keras import layers, regularizers
 from tensorflow.keras.models import Model, Sequential, load_model
@@ -37,7 +36,7 @@ from tensorflow.keras.applications.nasnet import NASNetMobile, NASNetLarge
 # from tensorflow.keras.applications.convnext import ConvNeXtTiny, ConvNeXtSmall, \
 #     ConvNeXtBase, ConvNeXtLarge, ConvNeXtXLarge
         
-
+import melanoma as mel
 
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -221,6 +220,6 @@ class CNN(Base_Model):
         history = model.fit(data_gen_X_train.flow(X_train,y_train, batch_size=batch_size),
                                     epochs = epochs, validation_data = data_gen_X_val.flow(X_val, y_val),
                                     verbose = 0, steps_per_epoch=(X_train.shape[0] // batch_size),
-                                    callbacks=[silent_training_callback(), learning_rate_reduction])
+                                    callbacks=[mel.SilentTrainingCallback, learning_rate_reduction])
         return model, history
     
