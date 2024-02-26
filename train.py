@@ -90,8 +90,8 @@ red_lr= ReduceLROnPlateau(monitor='val_accuracy', patience=3 , verbose=1, factor
 cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
 
 CFG = dict(
-			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  20,   # 5; 10; 20;
+			batch_size            =  32,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
+			epochs                =  3,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   0,   # 0; 1
 			fontsize              =  14,
@@ -110,7 +110,8 @@ CFG = dict(
 			VFLIP                 = False, # randomly flip images
 
 			# Model settings
-			pretrained_weights = 'imagenet',
+			# pretrained_weights = 'imagenet',
+      pretrained_weights = None,
 			model_optimizer = optimizer2,
 			# loss='binary_crossentropy',
 			loss='categorical_crossentropy',
@@ -122,7 +123,8 @@ CFG = dict(
 			# run_functions_eagerly = False,
             
       # save
-      snapshot_path = '/raid/mpsych/MELANOMA/snapshot',
+      # snapshot_path = '/raid/mpsych/MELANOMA/snapshot',
+      snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot',
       experiment_noaug = f'{DBname}_noaug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 			experiment_aug = f'{DBname}_aug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 		)
@@ -178,16 +180,15 @@ model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
 modelfiles = list(itertools.chain.from_iterable([glob.glob(f"{CFG['snapshot_path']}/*.hdf5", recursive=True)]))
 modelnames = list(map(lambda x: Path(os.path.basename(x)).stem, modelfiles))
 
-if not any(model_noaug_name in has_model for has_model in modelnames):
 
-  history_noaug = base_model.fit_model(
-      model = model,
-      model_name = model_noaug_name,
-      trainimages = trainimages,
-      trainlabels = trainlabels,
-      validationimages = validationimages,
-      validationlabels = validationlabels,
-  )
+history_noaug = base_model.fit_model(
+    model = model,
+    model_name = model_noaug_name,
+    trainimages = trainimages,
+    trainlabels = trainlabels,
+    validationimages = validationimages,
+    validationlabels = validationlabels,
+)
 
   # visualizer = mel.Visualizer()
   # visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_noaug_name)
@@ -197,8 +198,6 @@ if not any(model_noaug_name in has_model for has_model in modelnames):
   #     plot_path=CFG['snapshot_path'],
   #     history = history_noaug
   # )
-else:
-  print(f"Model {model_noaug_name} already exists")
 
 
 
@@ -208,16 +207,15 @@ model_aug_name = CFG['experiment_aug']
 
 base_model.CFG.update({'callbacks': [mel.SilentTrainingCallback()]})
 
-if not any(model_aug_name in has_model for has_model in modelnames):
 
-  history_aug = base_model.fit_model(
-      model = model,
-      model_name = model_aug_name,
-      trainimages = trainimages_aug,
-      trainlabels = trainlabels_aug,
-      validationimages = validationimages,
-      validationlabels = validationlabels,
-  )
+history_aug = base_model.fit_model(
+    model = model,
+    model_name = model_aug_name,
+    trainimages = trainimages_aug,
+    trainlabels = trainlabels_aug,
+    validationimages = validationimages,
+    validationlabels = validationlabels,
+)
 
   # visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_aug_name)
 
@@ -226,5 +224,8 @@ if not any(model_aug_name in has_model for has_model in modelnames):
   #     plot_path=CFG['snapshot_path'],
   #     history = history_aug
   # )
-else:
-  print(f"Model {model_noaug_name} already exists")
+
+# if not any(model_aug_name in has_model for has_model in modelnames):
+
+# else:
+#   print(f"Model {model_noaug_name} already exists")
