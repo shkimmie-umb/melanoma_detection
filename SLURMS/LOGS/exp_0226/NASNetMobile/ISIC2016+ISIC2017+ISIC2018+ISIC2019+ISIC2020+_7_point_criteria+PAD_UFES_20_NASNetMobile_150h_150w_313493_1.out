@@ -1,0 +1,102 @@
+Mon 26 Feb 2024 09:11:27 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', '_7_point_criteria', 'PAD_UFES_20']
+IMG_SIZE: [150, 150]
+CLASSIFIER: NASNetMobile
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 7 dbs
+Combining 2 db out of 7 dbs
+Combining 3 db out of 7 dbs
+Combining 4 db out of 7 dbs
+Combining 5 db out of 7 dbs
+Combining 6 db out of 7 dbs
+Combining 7 db out of 7 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 7 dbs
+Combining 2 db out of 7 dbs
+Combining 3 db out of 7 dbs
+Combining 4 db out of 7 dbs
+Combining 5 db out of 7 dbs
+Combining 6 db out of 7 dbs
+Combining 7 db out of 7 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+NASNet (Functional)          (None, 1056)              4269716   
+_________________________________________________________________
+dense (Dense)                (None, 512)               541184    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 4,945,814
+Trainable params: 674,562
+Non-trainable params: 4,271,252
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+_7_point_criteria+PAD_UFES_20_noaug_NASNetMobile_150h_150w_1 model...
+Epoch: 1 loss: 0.4441 accuracy: 0.8171 val_loss: 0.2486 val_accuracy: 0.9057
+Epoch: 2 loss: 0.3057 accuracy: 0.8929 val_loss: 0.2456 val_accuracy: 0.9106
+Epoch: 3 loss: 0.2895 accuracy: 0.8981 val_loss: 0.2407 val_accuracy: 0.9140
+Epoch: 4 loss: 0.2804 accuracy: 0.9005 val_loss: 0.2454 val_accuracy: 0.9131
+Epoch: 5 loss: 0.2749 accuracy: 0.9011 val_loss: 0.2389 val_accuracy: 0.9126
+Epoch: 6 loss: 0.2687 accuracy: 0.9030 val_loss: 0.2423 val_accuracy: 0.9133
+Epoch: 7 loss: 0.2654 accuracy: 0.9035 val_loss: 0.2374 val_accuracy: 0.9131
+Epoch: 8 loss: 0.2618 accuracy: 0.9041 val_loss: 0.2346 val_accuracy: 0.9126
+Epoch: 9 loss: 0.2604 accuracy: 0.9041 val_loss: 0.2322 val_accuracy: 0.9131
+Epoch: 10 loss: 0.2582 accuracy: 0.9044 val_loss: 0.2400 val_accuracy: 0.9127
+Epoch: 11 loss: 0.2590 accuracy: 0.9046 val_loss: 0.2370 val_accuracy: 0.9137
+Epoch: 12 loss: 0.2571 accuracy: 0.9046 val_loss: 0.2327 val_accuracy: 0.9137
+Epoch: 13 loss: 0.2580 accuracy: 0.9049 val_loss: 0.2352 val_accuracy: 0.9130
+Epoch: 14 loss: 0.2545 accuracy: 0.9050 val_loss: 0.2353 val_accuracy: 0.9127
+Epoch: 15 loss: 0.2591 accuracy: 0.9046 val_loss: 0.2336 val_accuracy: 0.9128
+Epoch: 16 loss: 0.2561 accuracy: 0.9044 val_loss: 0.2372 val_accuracy: 0.9127
+Epoch: 17 loss: 0.2573 accuracy: 0.9049 val_loss: 0.2430 val_accuracy: 0.9126
+Epoch: 18 loss: 0.2572 accuracy: 0.9045 val_loss: 0.2371 val_accuracy: 0.9126
+Epoch: 19 loss: 0.2548 accuracy: 0.9045 val_loss: 0.2332 val_accuracy: 0.9148
+Epoch: 20 loss: 0.2553 accuracy: 0.9042 val_loss: 0.2468 val_accuracy: 0.9126
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+_7_point_criteria+PAD_UFES_20_aug_NASNetMobile_150h_150w_1 model...
+Epoch: 1 loss: 0.4942 accuracy: 0.7509 val_loss: 0.2953 val_accuracy: 0.8939
+Epoch: 2 loss: 0.4644 accuracy: 0.7682 val_loss: 0.3516 val_accuracy: 0.8757
+Epoch: 3 loss: 0.4565 accuracy: 0.7729 val_loss: 0.3613 val_accuracy: 0.8701
+Epoch: 4 loss: 0.4558 accuracy: 0.7717 val_loss: 0.3415 val_accuracy: 0.8637
+Epoch: 5 loss: 0.4524 accuracy: 0.7734 val_loss: 0.3335 val_accuracy: 0.8810
+Epoch: 6 loss: 0.4561 accuracy: 0.7711 val_loss: 0.3843 val_accuracy: 0.8564
+Epoch: 7 loss: 0.4539 accuracy: 0.7725 val_loss: 0.3386 val_accuracy: 0.8795
+Epoch: 8 loss: 0.4499 accuracy: 0.7759 val_loss: 0.3504 val_accuracy: 0.8492
+Epoch: 9 loss: 0.4500 accuracy: 0.7751 val_loss: 0.4029 val_accuracy: 0.8291
+Epoch: 10 loss: 0.4591 accuracy: 0.7717 val_loss: 0.2955 val_accuracy: 0.8961
+Epoch: 11 loss: 0.4547 accuracy: 0.7749 val_loss: 0.3306 val_accuracy: 0.8777
+Epoch: 12 loss: 0.4502 accuracy: 0.7788 val_loss: 0.2715 val_accuracy: 0.9051
+Epoch: 13 loss: 0.4507 accuracy: 0.7764 val_loss: 0.2999 val_accuracy: 0.8951
+Epoch: 14 loss: 0.4604 accuracy: 0.7606 val_loss: 0.3275 val_accuracy: 0.8901
+Epoch: 15 loss: 0.4615 accuracy: 0.7571 val_loss: 0.2955 val_accuracy: 0.9038
+Epoch: 16 loss: 0.4593 accuracy: 0.7603 val_loss: 0.2976 val_accuracy: 0.8915
+Epoch: 17 loss: 0.4588 accuracy: 0.7576 val_loss: 0.3044 val_accuracy: 0.9036
+Epoch: 18 loss: 0.4566 accuracy: 0.7607 val_loss: 0.3538 val_accuracy: 0.8865
+Epoch: 19 loss: 0.4554 accuracy: 0.7621 val_loss: 0.2998 val_accuracy: 0.9088
+Epoch: 20 loss: 0.4543 accuracy: 0.7631 val_loss: 0.2978 val_accuracy: 0.8921
+Job ended!

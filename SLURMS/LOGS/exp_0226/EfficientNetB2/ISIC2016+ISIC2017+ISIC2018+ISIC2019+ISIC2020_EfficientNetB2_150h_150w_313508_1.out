@@ -1,0 +1,98 @@
+Mon 26 Feb 2024 11:11:24 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB2
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 5 dbs
+Combining 2 db out of 5 dbs
+Combining 3 db out of 5 dbs
+Combining 4 db out of 5 dbs
+Combining 5 db out of 5 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 5 dbs
+Combining 2 db out of 5 dbs
+Combining 3 db out of 5 dbs
+Combining 4 db out of 5 dbs
+Combining 5 db out of 5 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb2 (Functional)  (None, 1408)              7768569   
+_________________________________________________________________
+dense (Dense)                (None, 512)               721408    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 8,624,891
+Trainable params: 854,786
+Non-trainable params: 7,770,105
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020_noaug_EfficientNetB2_150h_150w_1 model...
+Epoch: 1 loss: 0.3621 accuracy: 0.8903 val_loss: 0.2950 val_accuracy: 0.9136
+Epoch: 2 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2954 val_accuracy: 0.9136
+Epoch: 3 loss: 0.3183 accuracy: 0.9031 val_loss: 0.2949 val_accuracy: 0.9136
+Epoch: 4 loss: 0.3181 accuracy: 0.9032 val_loss: 0.2941 val_accuracy: 0.9136
+Epoch: 5 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2951 val_accuracy: 0.9136
+Epoch: 6 loss: 0.3182 accuracy: 0.9031 val_loss: 0.2942 val_accuracy: 0.9136
+Epoch: 7 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2948 val_accuracy: 0.9136
+Epoch: 8 loss: 0.3182 accuracy: 0.9031 val_loss: 0.2943 val_accuracy: 0.9136
+Epoch: 9 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2944 val_accuracy: 0.9136
+Epoch: 10 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2947 val_accuracy: 0.9136
+Epoch: 11 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2954 val_accuracy: 0.9136
+Epoch: 12 loss: 0.3182 accuracy: 0.9031 val_loss: 0.2950 val_accuracy: 0.9136
+Epoch: 13 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2944 val_accuracy: 0.9136
+Epoch: 14 loss: 0.3182 accuracy: 0.9031 val_loss: 0.2959 val_accuracy: 0.9136
+Epoch: 15 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2947 val_accuracy: 0.9136
+Epoch: 16 loss: 0.3181 accuracy: 0.9032 val_loss: 0.2941 val_accuracy: 0.9136
+Epoch: 17 loss: 0.3182 accuracy: 0.9032 val_loss: 0.2946 val_accuracy: 0.9136
+Epoch: 18 loss: 0.3181 accuracy: 0.9032 val_loss: 0.2941 val_accuracy: 0.9136
+Epoch: 19 loss: 0.3182 accuracy: 0.9031 val_loss: 0.2949 val_accuracy: 0.9136
+Epoch: 20 loss: 0.3179 accuracy: 0.9032 val_loss: 0.2947 val_accuracy: 0.9136
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020_aug_EfficientNetB2_150h_150w_1 model...
+Epoch: 1 loss: 0.5913 accuracy: 0.7237 val_loss: 0.4068 val_accuracy: 0.9136
+Epoch: 2 loss: 0.5896 accuracy: 0.7237 val_loss: 0.4041 val_accuracy: 0.9136
+Epoch: 3 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4090 val_accuracy: 0.9136
+Epoch: 4 loss: 0.5896 accuracy: 0.7236 val_loss: 0.4039 val_accuracy: 0.9136
+Epoch: 5 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4069 val_accuracy: 0.9136
+Epoch: 6 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4024 val_accuracy: 0.9136
+Epoch: 7 loss: 0.5896 accuracy: 0.7237 val_loss: 0.4126 val_accuracy: 0.9136
+Epoch: 8 loss: 0.5896 accuracy: 0.7236 val_loss: 0.4116 val_accuracy: 0.9136
+Epoch: 9 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4038 val_accuracy: 0.9136
+Epoch: 10 loss: 0.5896 accuracy: 0.7237 val_loss: 0.4007 val_accuracy: 0.9136
+Epoch: 11 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4076 val_accuracy: 0.9136
+Epoch: 12 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4060 val_accuracy: 0.9136
+Epoch: 13 loss: 0.5895 accuracy: 0.7237 val_loss: 0.3972 val_accuracy: 0.9136
+Epoch: 14 loss: 0.5895 accuracy: 0.7237 val_loss: 0.4106 val_accuracy: 0.9136
+Epoch: 15 loss: 0.5896 accuracy: 0.7236 val_loss: 0.4027 val_accuracy: 0.9136
+Epoch: 16 loss: 0.5896 accuracy: 0.7236 val_loss: 0.4119 val_accuracy: 0.9136
+Epoch: 17 loss: 0.5896 accuracy: 0.7236 val_loss: 0.4141 val_accuracy: 0.9136
+Epoch: 18 loss: 0.5895 accuracy: 0.7237 val_loss: 0.3945 val_accuracy: 0.9136
+Epoch: 19 loss: 0.5895 accuracy: 0.7237 val_loss: 0.3986 val_accuracy: 0.9136
+Epoch: 20 loss: 0.5896 accuracy: 0.7237 val_loss: 0.4055 val_accuracy: 0.9136
+Job ended!

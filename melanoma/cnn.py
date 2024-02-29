@@ -162,6 +162,7 @@ class CNN(Base_Model):
 
     def transformer(self, network):
         # Define model with different applications
+        tf.keras.backend.clear_session()
         model = Sequential()
         #vgg-16 , 80% accuracy with 100 epochs
         # model.add(VGG16(input_shape=(224,224,3),pooling='avg',classes=1000,weights=vgg16_weights_path))
@@ -189,7 +190,88 @@ class CNN(Base_Model):
 
         model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
 
+        
+
         return model
+
+    
+
+    def meshnet(self, network=None):
+        # base_model = ResNet50(include_top=False, input_shape=(
+        #     self.CFG['img_height'], self.CFG['img_width'], 3), pooling='avg', weights=self.CFG['pretrained_weights'])
+
+        # Define model with different applications
+        model = Sequential()
+        model.add(Input(shape=(150, 150, 3)))
+        # model.add(base_model)
+        
+        # image = Input(shape=(150, 150, 3))
+        # x = Conv2D(3, kernel_size=(3,3), padding='same', activation='relu')
+
+        # MeshNet-inspired layers adapted for 2D, including dilation
+        # model.add(Dense(512, activation='relu'))
+
+        # model.add(layers.Conv2D(2048,(3,3),padding='same',activation='relu'))
+        # model.add(layers.Conv2D(1024,(3,3),padding='same',activation='relu'))
+        # model.add(layers.Conv2D(512,(3,3),padding='same',activation='relu'))
+        # Layer 1: Convolutional + Relu + BatchNorm + Dropout
+        
+        model.add(layers.Conv2D(128,(3,3),padding='same',activation='relu'))
+        # model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.3))
+        model.add(BatchNormalization())
+        # model.add(Dropout(0.3))
+
+        # Layers 2-6: Repetition of Convolutional + Relu + BatchNorm + Dropout with increasing dilation rates
+        """
+        Our architecture entirely consists of what [7] used as a context module but we modified it to use 3D dilated convolutions.
+        https://arxiv.org/pdf/1612.00940.pdf (MeshNet Section)
+        """
+        dilation_rates = [(1, 1), (2, 2), (4, 4), (8, 8), (16, 16)]
+        for rate in dilation_rates:
+            model.add(Conv2D(filters=64, kernel_size=(3, 3),
+                    padding='same', dilation_rate=rate))
+            model.add(Activation('relu'))
+            model.add(BatchNormalization())
+            model.add(Dropout(0.3))
+
+        # Layer 7: Convolutional + BatchNorm + Activation + Dropout
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+
+        # Current Pipeline layers
+        # model.add(Flatten())
+        # model.add(Dense(512, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(BatchNormalization())
+        # model.add(Dense(256, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(BatchNormalization())
+        # model.add(Dense(1, activation='sigmoid'))
+
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
+
+        model.add(GlobalAveragePooling2D())
+
+        # model.add(Flatten())
+        # model.add(Dense(512, activation='relu'))
+
+        
+
+        model.add(Dense(2, activation='softmax'))
+
+        # model.layers[0].trainable = False
+
+        model.compile(optimizer=self.CFG['model_optimizer'],
+                    loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+
+        model.summary()
+
+        return model
+
     
     def trainData(self, train_ds, val_ds, img_height, img_width, class_names, augmentation_type, epochs=20):
         super().__init__(train_ds, val_ds, epochs)

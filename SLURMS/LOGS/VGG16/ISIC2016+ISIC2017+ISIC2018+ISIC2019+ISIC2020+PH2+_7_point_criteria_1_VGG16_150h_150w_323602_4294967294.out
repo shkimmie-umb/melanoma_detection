@@ -1,0 +1,71 @@
+Wed 28 Feb 2024 09:36:21 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria']
+IMG_SIZE: [150, 150]
+CLASSIFIER: VGG16
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 7 dbs
+Combining 2 db out of 7 dbs
+Combining 3 db out of 7 dbs
+Combining 4 db out of 7 dbs
+Combining 5 db out of 7 dbs
+Combining 6 db out of 7 dbs
+Combining 7 db out of 7 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg16 (Functional)           (None, 512)               14714688  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 15,112,258
+Trainable params: 396,034
+Non-trainable params: 14,716,224
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria_aug_VGG16_150h_150w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria_aug_VGG16_150h_150w_None
+Epoch: 1 loss: 0.5793 accuracy: 0.7108 val_loss: 0.3358 val_accuracy: 0.8818
+Epoch: 2 loss: 0.4968 accuracy: 0.7501 val_loss: 0.3709 val_accuracy: 0.8588
+Epoch: 3 loss: 0.4644 accuracy: 0.7638 val_loss: 0.3258 val_accuracy: 0.8400
+Epoch: 4 loss: 0.4582 accuracy: 0.7711 val_loss: 0.3777 val_accuracy: 0.8912
+Epoch: 5 loss: 0.4478 accuracy: 0.7777 val_loss: 0.2988 val_accuracy: 0.9022
+Epoch: 6 loss: 0.4401 accuracy: 0.7815 val_loss: 0.3233 val_accuracy: 0.8632
+Epoch: 7 loss: 0.4329 accuracy: 0.7867 val_loss: 0.3301 val_accuracy: 0.8596
+Epoch: 8 loss: 0.4311 accuracy: 0.7888 val_loss: 0.2712 val_accuracy: 0.9044
+Epoch: 9 loss: 0.4272 accuracy: 0.7922 val_loss: 0.2900 val_accuracy: 0.8931
+Epoch: 10 loss: 0.4228 accuracy: 0.7938 val_loss: 0.2570 val_accuracy: 0.9060
+Epoch: 11 loss: 0.4213 accuracy: 0.7951 val_loss: 0.3483 val_accuracy: 0.8366
+Epoch: 12 loss: 0.4191 accuracy: 0.7970 val_loss: 0.3437 val_accuracy: 0.8079
+Epoch: 13 loss: 0.4180 accuracy: 0.7978 val_loss: 0.2998 val_accuracy: 0.8696
+Epoch: 14 loss: 0.4159 accuracy: 0.7988 val_loss: 0.2696 val_accuracy: 0.8960
+Epoch: 15 loss: 0.4197 accuracy: 0.7961 val_loss: 0.2663 val_accuracy: 0.9020
+Epoch: 16 loss: 0.4133 accuracy: 0.8003 val_loss: 0.2711 val_accuracy: 0.8971
+Epoch: 17 loss: 0.4165 accuracy: 0.8000 val_loss: 0.2667 val_accuracy: 0.9032
+Epoch: 18 loss: 0.4153 accuracy: 0.7998 val_loss: 0.3517 val_accuracy: 0.8483
+Epoch: 19 loss: 0.4143 accuracy: 0.8007 val_loss: 0.2646 val_accuracy: 0.8973
+Epoch: 20 loss: 0.4135 accuracy: 0.8013 val_loss: 0.2870 val_accuracy: 0.9022
+Job ended!

@@ -1,0 +1,65 @@
+Wed 28 Feb 2024 10:14:45 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['_7_point_criteria']
+IMG_SIZE: [150, 150]
+CLASSIFIER: VGG19
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg19 (Functional)           (None, 512)               20024384  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 20,421,954
+Trainable params: 396,034
+Non-trainable params: 20,025,920
+_________________________________________________________________
+Fitting _7_point_criteria_aug_VGG19_150h_150w_None model...
+model_name: _7_point_criteria_aug_VGG19_150h_150w_None
+Epoch: 1 loss: 0.8726 accuracy: 0.5907 val_loss: 0.6708 val_accuracy: 0.6946
+Epoch: 2 loss: 0.8580 accuracy: 0.5874 val_loss: 0.6762 val_accuracy: 0.6897
+Epoch: 3 loss: 0.8463 accuracy: 0.6156 val_loss: 0.6792 val_accuracy: 0.6158
+Epoch: 4 loss: 0.8303 accuracy: 0.6007 val_loss: 0.6936 val_accuracy: 0.5468
+Epoch: 5 loss: 0.7683 accuracy: 0.6223 val_loss: 0.7004 val_accuracy: 0.4581
+Epoch: 6 loss: 0.7782 accuracy: 0.6290 val_loss: 0.7056 val_accuracy: 0.3793
+Epoch: 7 loss: 0.7460 accuracy: 0.6290 val_loss: 0.6969 val_accuracy: 0.5468
+Epoch: 8 loss: 0.7696 accuracy: 0.5973 val_loss: 0.6941 val_accuracy: 0.5714
+Epoch: 9 loss: 0.7993 accuracy: 0.6156 val_loss: 0.6972 val_accuracy: 0.5517
+Epoch: 10 loss: 0.7431 accuracy: 0.6290 val_loss: 0.7292 val_accuracy: 0.3153
+Epoch: 11 loss: 0.7609 accuracy: 0.6389 val_loss: 0.7316 val_accuracy: 0.3300
+Epoch: 12 loss: 0.6747 accuracy: 0.6489 val_loss: 0.7309 val_accuracy: 0.3103
+Epoch: 13 loss: 0.7548 accuracy: 0.6223 val_loss: 0.7214 val_accuracy: 0.3892
+Epoch: 14 loss: 0.6613 accuracy: 0.6439 val_loss: 0.7294 val_accuracy: 0.3399
+Epoch: 15 loss: 0.6986 accuracy: 0.6556 val_loss: 0.7284 val_accuracy: 0.3251
+Epoch: 16 loss: 0.7057 accuracy: 0.6755 val_loss: 0.7315 val_accuracy: 0.3202
+Epoch: 17 loss: 0.6968 accuracy: 0.6439 val_loss: 0.7146 val_accuracy: 0.4433
+Epoch: 18 loss: 0.6443 accuracy: 0.6755 val_loss: 0.6695 val_accuracy: 0.6010
+Epoch: 19 loss: 0.7041 accuracy: 0.6522 val_loss: 0.6799 val_accuracy: 0.5961
+Epoch: 20 loss: 0.7041 accuracy: 0.6506 val_loss: 0.7018 val_accuracy: 0.5222
+Job ended!

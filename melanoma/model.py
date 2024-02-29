@@ -41,6 +41,7 @@ import pandas as pd
 import seaborn as sns
 import json
 import os
+import dataframe_image as dfi
 
 import melanoma as mel
 
@@ -138,6 +139,7 @@ class Model:
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
         
         # cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
+        print("model_name: " + f"{model_name}")
         cb_checkpointer  = ModelCheckpoint(
             filepath=f'{snapshot_path}/{model_name}.hdf5',
             # filepath=f'{snapshot_path}/{model_name}.hdf5',
@@ -167,6 +169,8 @@ class Model:
 
     def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018, \
         dbpath_7pointcriteria):
+
+        commondata = mel.CommonData()
         
         DBtypes = [db.name for db in mel.DatasetType]
         combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
@@ -403,6 +407,7 @@ class Model:
 
         }
 
+        # Into snapshot_path
         if not os.path.exists(f'{model_path}/performance/{target_network}'):
             os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
         
@@ -495,11 +500,14 @@ class Model:
         plt.tight_layout()
         plt.subplots_adjust(top=0.95)
         plt.title(f'Confusion Matrix of ({model_name}) on {target_db}', fontsize=fontsize)
-        plt.show()
+        # plt.show()
         if not os.path.exists(f'{model_path}/performance/{target_network}'):
             os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
         plt.savefig(f'{model_path}/performance/{target_network}/{model_name}_confusion1.png')
-        pd.crosstab(testlabels_digit, test_pred_classes, rownames=['Label'],colnames=['Predict'])
+        conf_mat_df = pd.crosstab(testlabels_digit, test_pred_classes, rownames=['GT Label'],colnames=['Predict'])
+        df_styled = conf_mat_df.style.background_gradient()
+        dfi.export(df_styled, f"{model_path}/performance/{model_name}_confusion2.png", table_conversion="matplotlib")
+        # conf_mat_df.dfi.export(f"{model_path}/performance/{model_name}_confusion2.png")
 
         return test_report
 

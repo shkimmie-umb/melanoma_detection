@@ -1,0 +1,96 @@
+Mon 26 Feb 2024 01:42:36 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['ISIC2016', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: VGG19
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 4 dbs
+Combining 2 db out of 4 dbs
+Combining 3 db out of 4 dbs
+Combining 4 db out of 4 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 4 dbs
+Combining 2 db out of 4 dbs
+Combining 3 db out of 4 dbs
+Combining 4 db out of 4 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg19 (Functional)           (None, 512)               20024384  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 20,421,954
+Trainable params: 396,034
+Non-trainable params: 20,025,920
+_________________________________________________________________
+Fitting ISIC2016+_7_point_criteria+PAD_UFES_20+MEDNODE_noaug_VGG19_150h_150w_1 model...
+Epoch: 1 loss: 0.8792 accuracy: 0.5418 val_loss: 0.5106 val_accuracy: 0.8632
+Epoch: 2 loss: 0.7410 accuracy: 0.6124 val_loss: 0.4240 val_accuracy: 0.8632
+Epoch: 3 loss: 0.6371 accuracy: 0.6693 val_loss: 0.3944 val_accuracy: 0.8632
+Epoch: 4 loss: 0.5920 accuracy: 0.7096 val_loss: 0.3774 val_accuracy: 0.8632
+Epoch: 5 loss: 0.5407 accuracy: 0.7431 val_loss: 0.3803 val_accuracy: 0.8632
+Epoch: 6 loss: 0.4734 accuracy: 0.7828 val_loss: 0.3746 val_accuracy: 0.8632
+Epoch: 7 loss: 0.4522 accuracy: 0.8137 val_loss: 0.3784 val_accuracy: 0.8632
+Epoch: 8 loss: 0.4431 accuracy: 0.8215 val_loss: 0.3632 val_accuracy: 0.8632
+Epoch: 9 loss: 0.4048 accuracy: 0.8520 val_loss: 0.3676 val_accuracy: 0.8632
+Epoch: 10 loss: 0.4096 accuracy: 0.8491 val_loss: 0.3762 val_accuracy: 0.8643
+Epoch: 11 loss: 0.3950 accuracy: 0.8520 val_loss: 0.3659 val_accuracy: 0.8643
+Epoch: 12 loss: 0.3821 accuracy: 0.8608 val_loss: 0.3661 val_accuracy: 0.8655
+Epoch: 13 loss: 0.3682 accuracy: 0.8680 val_loss: 0.3434 val_accuracy: 0.8700
+Epoch: 14 loss: 0.3641 accuracy: 0.8761 val_loss: 0.4360 val_accuracy: 0.8632
+Epoch: 15 loss: 0.3619 accuracy: 0.8745 val_loss: 0.3553 val_accuracy: 0.8677
+Epoch: 16 loss: 0.3644 accuracy: 0.8800 val_loss: 0.3649 val_accuracy: 0.8666
+Epoch: 17 loss: 0.3464 accuracy: 0.8771 val_loss: 0.3789 val_accuracy: 0.8677
+Epoch: 18 loss: 0.3418 accuracy: 0.8784 val_loss: 0.4441 val_accuracy: 0.8643
+Epoch: 19 loss: 0.3573 accuracy: 0.8764 val_loss: 0.3597 val_accuracy: 0.8712
+Epoch: 20 loss: 0.3387 accuracy: 0.8823 val_loss: 0.4150 val_accuracy: 0.8632
+Fitting ISIC2016+_7_point_criteria+PAD_UFES_20+MEDNODE_aug_VGG19_150h_150w_1 model...
+Epoch: 1 loss: 0.6912 accuracy: 0.7267 val_loss: 0.3907 val_accuracy: 0.8666
+Epoch: 2 loss: 0.6325 accuracy: 0.7285 val_loss: 0.3946 val_accuracy: 0.8552
+Epoch: 3 loss: 0.6023 accuracy: 0.7311 val_loss: 0.3965 val_accuracy: 0.8643
+Epoch: 4 loss: 0.5796 accuracy: 0.7263 val_loss: 0.3580 val_accuracy: 0.8689
+Epoch: 5 loss: 0.5782 accuracy: 0.7261 val_loss: 0.3830 val_accuracy: 0.8655
+Epoch: 6 loss: 0.5672 accuracy: 0.7228 val_loss: 0.4233 val_accuracy: 0.8632
+Epoch: 7 loss: 0.5537 accuracy: 0.7348 val_loss: 0.3590 val_accuracy: 0.8666
+Epoch: 8 loss: 0.5538 accuracy: 0.7348 val_loss: 0.4064 val_accuracy: 0.8597
+Epoch: 9 loss: 0.5524 accuracy: 0.7276 val_loss: 0.4249 val_accuracy: 0.8187
+Epoch: 10 loss: 0.5550 accuracy: 0.7285 val_loss: 0.3946 val_accuracy: 0.8529
+Epoch: 11 loss: 0.5341 accuracy: 0.7417 val_loss: 0.4395 val_accuracy: 0.8084
+Epoch: 12 loss: 0.5436 accuracy: 0.7374 val_loss: 0.3752 val_accuracy: 0.8483
+Epoch: 13 loss: 0.5457 accuracy: 0.7339 val_loss: 0.3651 val_accuracy: 0.8712
+Epoch: 14 loss: 0.5307 accuracy: 0.7434 val_loss: 0.3535 val_accuracy: 0.8700
+Epoch: 15 loss: 0.5370 accuracy: 0.7365 val_loss: 0.4652 val_accuracy: 0.7902
+Epoch: 16 loss: 0.5232 accuracy: 0.7512 val_loss: 0.3671 val_accuracy: 0.8677
+Epoch: 17 loss: 0.5249 accuracy: 0.7467 val_loss: 0.4261 val_accuracy: 0.8176
+Epoch: 18 loss: 0.5293 accuracy: 0.7404 val_loss: 0.3970 val_accuracy: 0.8472
+Epoch: 19 loss: 0.5210 accuracy: 0.7413 val_loss: 0.3568 val_accuracy: 0.8655
+Epoch: 20 loss: 0.5214 accuracy: 0.7395 val_loss: 0.3663 val_accuracy: 0.8620
+Job ended!

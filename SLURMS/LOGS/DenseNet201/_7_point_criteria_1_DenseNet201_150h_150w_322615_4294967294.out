@@ -1,0 +1,65 @@
+Tue 27 Feb 2024 01:47:36 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['_7_point_criteria']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet201
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet201 (Functional)     (None, 1920)              18321984  
+_________________________________________________________________
+dense (Dense)                (None, 512)               983552    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 19,440,450
+Trainable params: 1,116,930
+Non-trainable params: 18,323,520
+_________________________________________________________________
+Fitting _7_point_criteria_aug_DenseNet201_150h_150w_None model...
+model_name: _7_point_criteria_aug_DenseNet201_150h_150w_None
+Epoch: 1 loss: 0.9319 accuracy: 0.5907 val_loss: 0.6945 val_accuracy: 0.4138
+Epoch: 2 loss: 0.8571 accuracy: 0.5840 val_loss: 0.6921 val_accuracy: 0.4778
+Epoch: 3 loss: 0.7783 accuracy: 0.6106 val_loss: 0.6957 val_accuracy: 0.3645
+Epoch: 4 loss: 0.7781 accuracy: 0.6086 val_loss: 0.6899 val_accuracy: 0.5468
+Epoch: 5 loss: 0.7298 accuracy: 0.6522 val_loss: 0.6908 val_accuracy: 0.5271
+Epoch: 6 loss: 0.7263 accuracy: 0.6206 val_loss: 0.6929 val_accuracy: 0.4926
+Epoch: 7 loss: 0.7336 accuracy: 0.6373 val_loss: 0.6875 val_accuracy: 0.5567
+Epoch: 8 loss: 0.7119 accuracy: 0.6489 val_loss: 0.6793 val_accuracy: 0.5961
+Epoch: 9 loss: 0.6746 accuracy: 0.6539 val_loss: 0.6842 val_accuracy: 0.5567
+Epoch: 10 loss: 0.6557 accuracy: 0.6522 val_loss: 0.7050 val_accuracy: 0.3990
+Epoch: 11 loss: 0.6822 accuracy: 0.6656 val_loss: 0.6924 val_accuracy: 0.5025
+Epoch: 12 loss: 0.7202 accuracy: 0.6456 val_loss: 0.7064 val_accuracy: 0.3744
+Epoch: 13 loss: 0.7021 accuracy: 0.6373 val_loss: 0.6933 val_accuracy: 0.5025
+Epoch: 14 loss: 0.6712 accuracy: 0.6506 val_loss: 0.6827 val_accuracy: 0.5616
+Epoch: 15 loss: 0.6381 accuracy: 0.6522 val_loss: 0.6740 val_accuracy: 0.6108
+Epoch: 16 loss: 0.6575 accuracy: 0.6889 val_loss: 0.6316 val_accuracy: 0.6749
+Epoch: 17 loss: 0.6068 accuracy: 0.7005 val_loss: 0.6425 val_accuracy: 0.6256
+Epoch: 18 loss: 0.6191 accuracy: 0.7188 val_loss: 0.6430 val_accuracy: 0.6552
+Epoch: 19 loss: 0.6478 accuracy: 0.6789 val_loss: 0.6581 val_accuracy: 0.6158
+Epoch: 20 loss: 0.6457 accuracy: 0.6656 val_loss: 0.6637 val_accuracy: 0.6404
+Job ended!

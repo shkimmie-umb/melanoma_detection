@@ -1,0 +1,5 @@
+2024-02-26 15:06:13.457933: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+Traceback (most recent call last):
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/train.py", line 178, in <module>
+    model = transformer(commondata.classifierDict[CLASSIFIER], CFG)
+NameError: name 'transformer' is not defined

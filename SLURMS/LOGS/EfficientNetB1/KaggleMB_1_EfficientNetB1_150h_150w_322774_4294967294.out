@@ -1,0 +1,65 @@
+Tue 27 Feb 2024 07:02:09 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB1
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb1 (Functional)  (None, 1280)              6575239   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,366,025
+Trainable params: 789,250
+Non-trainable params: 6,576,775
+_________________________________________________________________
+Fitting KaggleMB_aug_EfficientNetB1_150h_150w_None model...
+model_name: KaggleMB_aug_EfficientNetB1_150h_150w_None
+Epoch: 1 loss: 0.6888 accuracy: 0.5335 val_loss: 0.7147 val_accuracy: 0.4337
+Epoch: 2 loss: 0.6737 accuracy: 0.5935 val_loss: 0.7333 val_accuracy: 0.4337
+Epoch: 3 loss: 0.6700 accuracy: 0.6023 val_loss: 0.7451 val_accuracy: 0.4337
+Epoch: 4 loss: 0.6672 accuracy: 0.6100 val_loss: 0.7581 val_accuracy: 0.4337
+Epoch: 5 loss: 0.6580 accuracy: 0.6135 val_loss: 0.7656 val_accuracy: 0.4337
+Epoch: 6 loss: 0.6538 accuracy: 0.6178 val_loss: 0.7194 val_accuracy: 0.4337
+Epoch: 7 loss: 0.6493 accuracy: 0.6252 val_loss: 0.7152 val_accuracy: 0.4337
+Epoch: 8 loss: 0.6396 accuracy: 0.6352 val_loss: 0.6889 val_accuracy: 0.4678
+Epoch: 9 loss: 0.6393 accuracy: 0.6395 val_loss: 0.6825 val_accuracy: 0.4981
+Epoch: 10 loss: 0.6361 accuracy: 0.6452 val_loss: 0.6612 val_accuracy: 0.5947
+Epoch: 11 loss: 0.6342 accuracy: 0.6420 val_loss: 0.6659 val_accuracy: 0.5795
+Epoch: 12 loss: 0.6259 accuracy: 0.6569 val_loss: 0.6522 val_accuracy: 0.6117
+Epoch: 13 loss: 0.6198 accuracy: 0.6591 val_loss: 0.6568 val_accuracy: 0.5947
+Epoch: 14 loss: 0.6256 accuracy: 0.6586 val_loss: 0.6853 val_accuracy: 0.5170
+Epoch: 15 loss: 0.6251 accuracy: 0.6503 val_loss: 0.7263 val_accuracy: 0.4716
+Epoch: 16 loss: 0.6167 accuracy: 0.6666 val_loss: 0.6511 val_accuracy: 0.6117
+Epoch: 17 loss: 0.6287 accuracy: 0.6477 val_loss: 0.7009 val_accuracy: 0.4697
+Epoch: 18 loss: 0.6275 accuracy: 0.6543 val_loss: 0.6348 val_accuracy: 0.6477
+Epoch: 19 loss: 0.6203 accuracy: 0.6666 val_loss: 0.7948 val_accuracy: 0.4337
+Epoch: 20 loss: 0.6226 accuracy: 0.6674 val_loss: 0.6720 val_accuracy: 0.5720
+Job ended!

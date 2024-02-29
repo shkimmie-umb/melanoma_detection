@@ -1,0 +1,67 @@
+Tue 27 Feb 2024 11:37:12 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', '_7_point_criteria', 'PAD_UFES_20']
+IMG_SIZE: [150, 150]
+CLASSIFIER: ResNet101
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 3 dbs
+Combining 2 db out of 3 dbs
+Combining 3 db out of 3 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet101 (Functional)       (None, 2048)              42658176  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 43,842,178
+Trainable params: 1,182,466
+Non-trainable params: 42,659,712
+_________________________________________________________________
+Fitting ISIC2016+_7_point_criteria+PAD_UFES_20_aug_ResNet101_150h_150w_None model...
+model_name: ISIC2016+_7_point_criteria+PAD_UFES_20_aug_ResNet101_150h_150w_None
+Epoch: 1 loss: 0.8798 accuracy: 0.5467 val_loss: 0.9476 val_accuracy: 0.4496
+Epoch: 2 loss: 0.7511 accuracy: 0.5964 val_loss: 0.5044 val_accuracy: 0.8470
+Epoch: 3 loss: 0.7143 accuracy: 0.6258 val_loss: 0.3835 val_accuracy: 0.8743
+Epoch: 4 loss: 0.6914 accuracy: 0.6571 val_loss: 0.6125 val_accuracy: 0.7070
+Epoch: 5 loss: 0.6867 accuracy: 0.6575 val_loss: 0.5530 val_accuracy: 0.8541
+Epoch: 6 loss: 0.6760 accuracy: 0.6765 val_loss: 0.4880 val_accuracy: 0.8743
+Epoch: 7 loss: 0.6603 accuracy: 0.6799 val_loss: 0.5863 val_accuracy: 0.7687
+Epoch: 8 loss: 0.6456 accuracy: 0.7007 val_loss: 0.9408 val_accuracy: 0.2764
+Epoch: 9 loss: 0.6560 accuracy: 0.6890 val_loss: 0.4828 val_accuracy: 0.8316
+Epoch: 10 loss: 0.6342 accuracy: 0.7052 val_loss: 0.4634 val_accuracy: 0.8731
+Epoch: 11 loss: 0.6519 accuracy: 0.6968 val_loss: 0.5866 val_accuracy: 0.7058
+Epoch: 12 loss: 0.6365 accuracy: 0.7002 val_loss: 0.4454 val_accuracy: 0.8743
+Epoch: 13 loss: 0.6433 accuracy: 0.7034 val_loss: 0.4653 val_accuracy: 0.8743
+Epoch: 14 loss: 0.6373 accuracy: 0.7011 val_loss: 0.5977 val_accuracy: 0.6785
+Epoch: 15 loss: 0.6316 accuracy: 0.7029 val_loss: 0.5896 val_accuracy: 0.8766
+Epoch: 16 loss: 0.6158 accuracy: 0.7141 val_loss: 0.4255 val_accuracy: 0.8743
+Epoch: 17 loss: 0.6145 accuracy: 0.7130 val_loss: 0.4293 val_accuracy: 0.8743
+Epoch: 18 loss: 0.6175 accuracy: 0.7207 val_loss: 0.4208 val_accuracy: 0.8743
+Epoch: 19 loss: 0.6155 accuracy: 0.7112 val_loss: 0.4799 val_accuracy: 0.8743
+Epoch: 20 loss: 0.6016 accuracy: 0.7148 val_loss: 0.5230 val_accuracy: 0.8743
+Job ended!

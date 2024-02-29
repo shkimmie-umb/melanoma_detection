@@ -1,0 +1,100 @@
+Mon 26 Feb 2024 03:17:58 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', '_7_point_criteria', 'PAD_UFES_20']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet201
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 6 dbs
+Combining 2 db out of 6 dbs
+Combining 3 db out of 6 dbs
+Combining 4 db out of 6 dbs
+Combining 5 db out of 6 dbs
+Combining 6 db out of 6 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 6 dbs
+Combining 2 db out of 6 dbs
+Combining 3 db out of 6 dbs
+Combining 4 db out of 6 dbs
+Combining 5 db out of 6 dbs
+Combining 6 db out of 6 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet201 (Functional)     (None, 1920)              18321984  
+_________________________________________________________________
+dense (Dense)                (None, 512)               983552    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 19,440,450
+Trainable params: 1,116,930
+Non-trainable params: 18,323,520
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+_7_point_criteria+PAD_UFES_20_noaug_DenseNet201_150h_150w_1 model...
+Epoch: 1 loss: 0.5871 accuracy: 0.7186 val_loss: 0.4212 val_accuracy: 0.8383
+Epoch: 2 loss: 0.4443 accuracy: 0.8239 val_loss: 0.4069 val_accuracy: 0.8367
+Epoch: 3 loss: 0.4198 accuracy: 0.8335 val_loss: 0.4058 val_accuracy: 0.8434
+Epoch: 4 loss: 0.3975 accuracy: 0.8408 val_loss: 0.3861 val_accuracy: 0.8446
+Epoch: 5 loss: 0.3851 accuracy: 0.8452 val_loss: 0.3821 val_accuracy: 0.8442
+Epoch: 6 loss: 0.3745 accuracy: 0.8503 val_loss: 0.3785 val_accuracy: 0.8462
+Epoch: 7 loss: 0.3671 accuracy: 0.8513 val_loss: 0.3933 val_accuracy: 0.8406
+Epoch: 8 loss: 0.3634 accuracy: 0.8531 val_loss: 0.3741 val_accuracy: 0.8482
+Epoch: 9 loss: 0.3622 accuracy: 0.8539 val_loss: 0.3784 val_accuracy: 0.8471
+Epoch: 10 loss: 0.3580 accuracy: 0.8562 val_loss: 0.3733 val_accuracy: 0.8458
+Epoch: 11 loss: 0.3555 accuracy: 0.8566 val_loss: 0.3878 val_accuracy: 0.8351
+Epoch: 12 loss: 0.3602 accuracy: 0.8550 val_loss: 0.4213 val_accuracy: 0.8399
+Epoch: 13 loss: 0.3535 accuracy: 0.8578 val_loss: 0.3798 val_accuracy: 0.8474
+Epoch: 14 loss: 0.3523 accuracy: 0.8569 val_loss: 0.4010 val_accuracy: 0.8417
+Epoch: 15 loss: 0.3559 accuracy: 0.8564 val_loss: 0.4124 val_accuracy: 0.8401
+Epoch: 16 loss: 0.3531 accuracy: 0.8569 val_loss: 0.4032 val_accuracy: 0.8402
+Epoch: 17 loss: 0.3528 accuracy: 0.8575 val_loss: 0.3638 val_accuracy: 0.8506
+Epoch: 18 loss: 0.3514 accuracy: 0.8572 val_loss: 0.3622 val_accuracy: 0.8486
+Epoch: 19 loss: 0.3497 accuracy: 0.8584 val_loss: 0.3626 val_accuracy: 0.8500
+Epoch: 20 loss: 0.3518 accuracy: 0.8579 val_loss: 0.3667 val_accuracy: 0.8502
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+_7_point_criteria+PAD_UFES_20_aug_DenseNet201_150h_150w_1 model...
+Epoch: 1 loss: 0.5661 accuracy: 0.7116 val_loss: 0.4367 val_accuracy: 0.8207
+Epoch: 2 loss: 0.5099 accuracy: 0.7477 val_loss: 0.4216 val_accuracy: 0.8358
+Epoch: 3 loss: 0.4961 accuracy: 0.7593 val_loss: 0.3935 val_accuracy: 0.8463
+Epoch: 4 loss: 0.4871 accuracy: 0.7641 val_loss: 0.4279 val_accuracy: 0.8409
+Epoch: 5 loss: 0.4842 accuracy: 0.7694 val_loss: 0.4174 val_accuracy: 0.8385
+Epoch: 6 loss: 0.4795 accuracy: 0.7720 val_loss: 0.3968 val_accuracy: 0.8468
+Epoch: 7 loss: 0.4767 accuracy: 0.7732 val_loss: 0.3932 val_accuracy: 0.8446
+Epoch: 8 loss: 0.4750 accuracy: 0.7743 val_loss: 0.3892 val_accuracy: 0.8439
+Epoch: 9 loss: 0.4714 accuracy: 0.7770 val_loss: 0.3779 val_accuracy: 0.8486
+Epoch: 10 loss: 0.4702 accuracy: 0.7785 val_loss: 0.3782 val_accuracy: 0.8489
+Epoch: 11 loss: 0.4708 accuracy: 0.7775 val_loss: 0.3902 val_accuracy: 0.8446
+Epoch: 12 loss: 0.4678 accuracy: 0.7799 val_loss: 0.4039 val_accuracy: 0.8425
+Epoch: 13 loss: 0.4658 accuracy: 0.7802 val_loss: 0.3933 val_accuracy: 0.8479
+Epoch: 14 loss: 0.4643 accuracy: 0.7821 val_loss: 0.4143 val_accuracy: 0.8354
+Epoch: 15 loss: 0.4648 accuracy: 0.7816 val_loss: 0.3958 val_accuracy: 0.8468
+Epoch: 16 loss: 0.4616 accuracy: 0.7847 val_loss: 0.3746 val_accuracy: 0.8510
+Epoch: 17 loss: 0.4616 accuracy: 0.7836 val_loss: 0.3777 val_accuracy: 0.8478
+Epoch: 18 loss: 0.4605 accuracy: 0.7850 val_loss: 0.3766 val_accuracy: 0.8489
+Epoch: 19 loss: 0.4585 accuracy: 0.7854 val_loss: 0.3788 val_accuracy: 0.8557
+Epoch: 20 loss: 0.4581 accuracy: 0.7868 val_loss: 0.4176 val_accuracy: 0.8367
+Job ended!

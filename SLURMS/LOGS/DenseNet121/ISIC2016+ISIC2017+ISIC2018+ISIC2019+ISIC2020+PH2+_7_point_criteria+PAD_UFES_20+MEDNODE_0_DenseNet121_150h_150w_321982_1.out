@@ -1,0 +1,87 @@
+Mon 26 Feb 2024 06:39:03 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet121
+SELF_AUG: 0
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 9 dbs
+Combining 2 db out of 9 dbs
+Combining 3 db out of 9 dbs
+Combining 4 db out of 9 dbs
+Combining 5 db out of 9 dbs
+Combining 6 db out of 9 dbs
+Combining 7 db out of 9 dbs
+Combining 8 db out of 9 dbs
+Combining 9 db out of 9 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 9 dbs
+Combining 2 db out of 9 dbs
+Combining 3 db out of 9 dbs
+Combining 4 db out of 9 dbs
+Combining 5 db out of 9 dbs
+Combining 6 db out of 9 dbs
+Combining 7 db out of 9 dbs
+Combining 8 db out of 9 dbs
+Combining 9 db out of 9 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet121 (Functional)     (None, 1024)              7037504   
+_________________________________________________________________
+dense (Dense)                (None, 512)               524800    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,697,218
+Trainable params: 658,178
+Non-trainable params: 7,039,040
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE_noaug_DenseNet121_150h_150w_1 model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE_noaug_DenseNet121_150h_150w_1
+Epoch: 1 loss: 0.4319 accuracy: 0.8124 val_loss: 0.2451 val_accuracy: 0.9073
+Epoch: 2 loss: 0.2937 accuracy: 0.8970 val_loss: 0.2637 val_accuracy: 0.9111
+Epoch: 3 loss: 0.2817 accuracy: 0.8998 val_loss: 0.2501 val_accuracy: 0.9121
+Epoch: 4 loss: 0.2715 accuracy: 0.9026 val_loss: 0.2371 val_accuracy: 0.9130
+Epoch: 5 loss: 0.2630 accuracy: 0.9044 val_loss: 0.2370 val_accuracy: 0.9149
+Epoch: 6 loss: 0.2597 accuracy: 0.9052 val_loss: 0.2302 val_accuracy: 0.9144
+Epoch: 7 loss: 0.2556 accuracy: 0.9059 val_loss: 0.2324 val_accuracy: 0.9164
+Epoch: 8 loss: 0.2531 accuracy: 0.9058 val_loss: 0.2385 val_accuracy: 0.9144
+Epoch: 9 loss: 0.2503 accuracy: 0.9066 val_loss: 0.2218 val_accuracy: 0.9177
+Epoch: 10 loss: 0.2490 accuracy: 0.9074 val_loss: 0.2330 val_accuracy: 0.9151
+Epoch: 11 loss: 0.2476 accuracy: 0.9077 val_loss: 0.2265 val_accuracy: 0.9161
+Epoch: 12 loss: 0.2462 accuracy: 0.9073 val_loss: 0.2253 val_accuracy: 0.9171
+Epoch: 13 loss: 0.2460 accuracy: 0.9080 val_loss: 0.2370 val_accuracy: 0.9174
+Epoch: 14 loss: 0.2438 accuracy: 0.9091 val_loss: 0.2347 val_accuracy: 0.9156
+Epoch: 15 loss: 0.2436 accuracy: 0.9081 val_loss: 0.2254 val_accuracy: 0.9172
+Epoch: 16 loss: 0.2433 accuracy: 0.9090 val_loss: 0.2233 val_accuracy: 0.9171
+Epoch: 17 loss: 0.2425 accuracy: 0.9086 val_loss: 0.2302 val_accuracy: 0.9159
+Epoch: 18 loss: 0.2419 accuracy: 0.9088 val_loss: 0.2276 val_accuracy: 0.9178
+Epoch: 19 loss: 0.2408 accuracy: 0.9091 val_loss: 0.2231 val_accuracy: 0.9165
+Epoch: 20 loss: 0.2397 accuracy: 0.9097 val_loss: 0.2217 val_accuracy: 0.9168
+Job ended!

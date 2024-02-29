@@ -1,0 +1,10 @@
+2024-02-26 17:40:21.250637: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+Traceback (most recent call last):
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/train.py", line 189, in <module>
+    model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
+TypeError: transformer() takes 1 positional argument but 2 were given
+2024-02-26 17:40:28.033432: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+Traceback (most recent call last):
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/train.py", line 218, in <module>
+    model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
+TypeError: transformer() takes 1 positional argument but 2 were given

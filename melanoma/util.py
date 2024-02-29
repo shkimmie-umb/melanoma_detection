@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from keras.preprocessing.image import img_to_array, load_img
+from keras.preprocessing.image import img_to_array, load_img, array_to_img
 from .preprocess import Preprocess
 
 import itertools
@@ -33,47 +33,6 @@ from IPython.display import display
 import logging
 import melanoma as mel
 
-
-class NetworkType(Enum):
-	ResNet50 = 1
-	ResNet101 = 2
-	ResNet152 = 3
-	Xception = 4
-	InceptionV3 = 5
-	VGG16 = 6
-	VGG19 = 7
-	EfficientNetB0 = 8
-	EfficientNetB1 = 9
-	EfficientNetB2 = 10
-	EfficientNetB3 = 11
-	EfficientNetB4 = 12
-	EfficientNetB5 = 13
-	EfficientNetB6 = 14
-	EfficientNetB7 = 15
-	# EfficientNetV2B0 = 16
-	# EfficientNetV2B1 = 17
-	# EfficientNetV2B2 = 18
-	# EfficientNetV2B3 = 19
-	# EfficientNetV2S = 20
-	# EfficientNetV2M = 21
-	# EfficientNetV2L = 22
-	ResNet50V2 = 23
-	ResNet101V2 = 24
-	ResNet152V2 = 25
-	# InceptionResNetV2 = 26
-	MobileNet = 27
-	MobileNetV2 = 28
-	DenseNet121 = 29
-	DenseNet169 = 30
-	DenseNet201 = 31
-	NASNetMobile = 32
-	NASNetLarge = 33
-	# ConvNeXtTiny = 34
-	# ConvNeXtSmall = 35
-	# ConvNeXtBase = 36
-	# ConvNeXtLarge = 37
-	# ConvNeXtXLarge = 38
-	
 
 class ClassType(Enum):
 	multi = 1
@@ -634,6 +593,15 @@ class Util:
 			# 	img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
 				
 
+			for idx, order in enumerate(testset_HAM10000.index):
+				img = array_to_img(testimages_HAM10000[idx])
+				label = testset_HAM10000.cell_type_binary[order]
+				assert label == df_HAM10000.cell_type_binary[order]
+				img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
+
+			
+
+
 			
 
 			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
@@ -838,6 +806,14 @@ class Util:
 			assert testimages_ISIC2016.shape[0] == testlabels_binary_ISIC2016.shape[0]
 
 			# trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
+
+			# Feature saving
+			for idx, order in enumerate(testset_ISIC2016.index):
+				img = array_to_img(testimages_ISIC2016[idx])
+				label = testset_ISIC2016.cell_type_binary[order]
+				assert label == df_test_ISIC2016.cell_type_binary[order]
+				img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
+
 
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 			if os.path.exists(filename) is not True:

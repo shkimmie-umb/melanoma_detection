@@ -1,0 +1,71 @@
+Mon 26 Feb 2024 06:25:50 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['PAD_UFES_20']
+IMG_SIZE: [150, 150]
+CLASSIFIER: Xception
+SELF_AUG: 0
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting PAD_UFES_20_noaug_Xception_150h_150w_1 model...
+model_name: PAD_UFES_20_noaug_Xception_150h_150w_1
+Epoch: 1 loss: 0.6573 accuracy: 0.6894 val_loss: 0.6170 val_accuracy: 0.9804
+Epoch: 2 loss: 0.5779 accuracy: 0.9673 val_loss: 0.5317 val_accuracy: 0.9804
+Epoch: 3 loss: 0.4908 accuracy: 0.9773 val_loss: 0.4419 val_accuracy: 0.9804
+Epoch: 4 loss: 0.4023 accuracy: 0.9773 val_loss: 0.3544 val_accuracy: 0.9804
+Epoch: 5 loss: 0.3249 accuracy: 0.9767 val_loss: 0.2861 val_accuracy: 0.9804
+Epoch: 6 loss: 0.2624 accuracy: 0.9762 val_loss: 0.2328 val_accuracy: 0.9804
+Epoch: 7 loss: 0.2143 accuracy: 0.9773 val_loss: 0.1897 val_accuracy: 0.9804
+Epoch: 8 loss: 0.1811 accuracy: 0.9773 val_loss: 0.1611 val_accuracy: 0.9804
+Epoch: 9 loss: 0.1597 accuracy: 0.9767 val_loss: 0.1424 val_accuracy: 0.9804
+Epoch: 10 loss: 0.1455 accuracy: 0.9762 val_loss: 0.1299 val_accuracy: 0.9804
+Epoch: 11 loss: 0.1340 accuracy: 0.9767 val_loss: 0.1212 val_accuracy: 0.9804
+Epoch: 12 loss: 0.1280 accuracy: 0.9762 val_loss: 0.1136 val_accuracy: 0.9804
+Epoch: 13 loss: 0.1214 accuracy: 0.9767 val_loss: 0.1083 val_accuracy: 0.9804
+Epoch: 14 loss: 0.1197 accuracy: 0.9762 val_loss: 0.1054 val_accuracy: 0.9804
+Epoch: 15 loss: 0.1163 accuracy: 0.9767 val_loss: 0.1040 val_accuracy: 0.9804
+Epoch: 16 loss: 0.1157 accuracy: 0.9762 val_loss: 0.1034 val_accuracy: 0.9804
+Epoch: 17 loss: 0.1150 accuracy: 0.9762 val_loss: 0.1017 val_accuracy: 0.9804
+Epoch: 18 loss: 0.1141 accuracy: 0.9762 val_loss: 0.1011 val_accuracy: 0.9804
+Epoch: 19 loss: 0.1079 accuracy: 0.9779 val_loss: 0.0995 val_accuracy: 0.9804
+Epoch: 20 loss: 0.1131 accuracy: 0.9762 val_loss: 0.0985 val_accuracy: 0.9804
+Job ended!

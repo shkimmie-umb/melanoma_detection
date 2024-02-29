@@ -1,0 +1,73 @@
+Wed 28 Feb 2024 09:39:26 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: VGG16
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 9 dbs
+Combining 2 db out of 9 dbs
+Combining 3 db out of 9 dbs
+Combining 4 db out of 9 dbs
+Combining 5 db out of 9 dbs
+Combining 6 db out of 9 dbs
+Combining 7 db out of 9 dbs
+Combining 8 db out of 9 dbs
+Combining 9 db out of 9 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg16 (Functional)           (None, 512)               14714688  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 15,112,258
+Trainable params: 396,034
+Non-trainable params: 14,716,224
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_VGG16_150h_150w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_VGG16_150h_150w_None
+Epoch: 1 loss: 0.5997 accuracy: 0.7049 val_loss: 0.3816 val_accuracy: 0.8366
+Epoch: 2 loss: 0.5176 accuracy: 0.7382 val_loss: 0.3904 val_accuracy: 0.8091
+Epoch: 3 loss: 0.4864 accuracy: 0.7491 val_loss: 0.4314 val_accuracy: 0.7886
+Epoch: 4 loss: 0.4658 accuracy: 0.7624 val_loss: 0.3477 val_accuracy: 0.8821
+Epoch: 5 loss: 0.4575 accuracy: 0.7713 val_loss: 0.2969 val_accuracy: 0.8909
+Epoch: 6 loss: 0.4525 accuracy: 0.7740 val_loss: 0.4131 val_accuracy: 0.7986
+Epoch: 7 loss: 0.4462 accuracy: 0.7780 val_loss: 0.2964 val_accuracy: 0.8924
+Epoch: 8 loss: 0.4437 accuracy: 0.7805 val_loss: 0.3493 val_accuracy: 0.8889
+Epoch: 9 loss: 0.4398 accuracy: 0.7832 val_loss: 0.2783 val_accuracy: 0.8942
+Epoch: 10 loss: 0.4385 accuracy: 0.7836 val_loss: 0.2818 val_accuracy: 0.8950
+Epoch: 11 loss: 0.4360 accuracy: 0.7847 val_loss: 0.2750 val_accuracy: 0.8951
+Epoch: 12 loss: 0.4368 accuracy: 0.7824 val_loss: 0.2787 val_accuracy: 0.8917
+Epoch: 13 loss: 0.4323 accuracy: 0.7878 val_loss: 0.3254 val_accuracy: 0.8777
+Epoch: 14 loss: 0.4311 accuracy: 0.7891 val_loss: 0.2759 val_accuracy: 0.8876
+Epoch: 15 loss: 0.4294 accuracy: 0.7910 val_loss: 0.2767 val_accuracy: 0.8953
+Epoch: 16 loss: 0.4293 accuracy: 0.7889 val_loss: 0.3340 val_accuracy: 0.8529
+Epoch: 17 loss: 0.4285 accuracy: 0.7898 val_loss: 0.2967 val_accuracy: 0.8889
+Epoch: 18 loss: 0.4258 accuracy: 0.7917 val_loss: 0.2993 val_accuracy: 0.8847
+Epoch: 19 loss: 0.4259 accuracy: 0.7897 val_loss: 0.3760 val_accuracy: 0.8220
+Epoch: 20 loss: 0.4243 accuracy: 0.7936 val_loss: 0.3258 val_accuracy: 0.8660
+Job ended!

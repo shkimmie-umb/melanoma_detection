@@ -1,0 +1,96 @@
+Mon 26 Feb 2024 03:46:10 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID:  1
+DB: ['PAD_UFES_20']
+IMG_SIZE: [150, 150]
+CLASSIFIER: Xception
+JOB_INDEX: 1
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting PAD_UFES_20_noaug_Xception_150h_150w_1 model...
+model_name: PAD_UFES_20_noaug_Xception_150h_150w_1
+Epoch: 1 loss: 0.6587 accuracy: 0.7087 val_loss: 0.6177 val_accuracy: 0.9804
+Epoch: 2 loss: 0.5807 accuracy: 0.9718 val_loss: 0.5351 val_accuracy: 0.9804
+Epoch: 3 loss: 0.4933 accuracy: 0.9767 val_loss: 0.4459 val_accuracy: 0.9804
+Epoch: 4 loss: 0.4058 accuracy: 0.9767 val_loss: 0.3622 val_accuracy: 0.9804
+Epoch: 5 loss: 0.3276 accuracy: 0.9762 val_loss: 0.2889 val_accuracy: 0.9804
+Epoch: 6 loss: 0.2629 accuracy: 0.9767 val_loss: 0.2332 val_accuracy: 0.9804
+Epoch: 7 loss: 0.2159 accuracy: 0.9767 val_loss: 0.1897 val_accuracy: 0.9804
+Epoch: 8 loss: 0.1829 accuracy: 0.9767 val_loss: 0.1617 val_accuracy: 0.9804
+Epoch: 9 loss: 0.1615 accuracy: 0.9762 val_loss: 0.1428 val_accuracy: 0.9804
+Epoch: 10 loss: 0.1464 accuracy: 0.9762 val_loss: 0.1289 val_accuracy: 0.9804
+Epoch: 11 loss: 0.1353 accuracy: 0.9762 val_loss: 0.1224 val_accuracy: 0.9804
+Epoch: 12 loss: 0.1281 accuracy: 0.9762 val_loss: 0.1179 val_accuracy: 0.9804
+Epoch: 13 loss: 0.1229 accuracy: 0.9762 val_loss: 0.1127 val_accuracy: 0.9804
+Epoch: 14 loss: 0.1172 accuracy: 0.9773 val_loss: 0.1052 val_accuracy: 0.9804
+Epoch: 15 loss: 0.1160 accuracy: 0.9767 val_loss: 0.1022 val_accuracy: 0.9804
+Epoch: 16 loss: 0.1159 accuracy: 0.9762 val_loss: 0.1006 val_accuracy: 0.9804
+Epoch: 17 loss: 0.1149 accuracy: 0.9762 val_loss: 0.1000 val_accuracy: 0.9804
+Epoch: 18 loss: 0.1105 accuracy: 0.9773 val_loss: 0.0988 val_accuracy: 0.9804
+Epoch: 19 loss: 0.1117 accuracy: 0.9767 val_loss: 0.0978 val_accuracy: 0.9804
+Epoch: 20 loss: 0.1111 accuracy: 0.9767 val_loss: 0.0980 val_accuracy: 0.9804
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting PAD_UFES_20_aug_Xception_150h_150w_1 model...
+model_name: PAD_UFES_20_aug_Xception_150h_150w_1
+Job ended!
