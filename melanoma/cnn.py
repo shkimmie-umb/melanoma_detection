@@ -501,84 +501,105 @@ class CNN(Base_Model):
                     loss=self.CFG['loss'], metrics=self.CFG['metrics'])
 
         return model
-        def meshnet_test(self, network=None):
-            # base_model = ResNet50(include_top=False, input_shape=(
-            #     self.CFG['img_height'], self.CFG['img_width'], 3), pooling='avg', weights=self.CFG['pretrained_weights'])
+    def meshnet_test(self, network=None):
+        # base_model = ResNet50(include_top=False, input_shape=(
+        #     self.CFG['img_height'], self.CFG['img_width'], 3), pooling='avg', weights=self.CFG['pretrained_weights'])
 
-            # Define model with different applications
-            model = Sequential()
-            model.add(Input(shape=(150, 150, 3)))
-            # model.add(base_model)
-            
-            # image = Input(shape=(150, 150, 3))
-            # x = Conv2D(3, kernel_size=(3,3), padding='same', activation='relu')
+        # Define model with different applications
+        model = Sequential()
+        model.add(Input(shape=(150, 150, 3)))
+        # model.add(base_model)
+        
+        # image = Input(shape=(150, 150, 3))
+        # x = Conv2D(3, kernel_size=(3,3), padding='same', activation='relu')
 
-            # MeshNet-inspired layers adapted for 2D, including dilation
-            # model.add(Dense(512, activation='relu'))
+        # MeshNet-inspired layers adapted for 2D, including dilation
+        # model.add(Dense(512, activation='relu'))
 
-            # model.add(layers.Conv2D(2048,(3,3),padding='same',activation='relu'))
-            # model.add(layers.Conv2D(1024,(3,3),padding='same',activation='relu'))
-            # model.add(layers.Conv2D(512,(3,3),padding='same',activation='relu'))
-            # Layer 1: Convolutional + Relu + BatchNorm + Dropout
-            
-            model.add(layers.Conv2D(128,(3,3),padding='same',activation='relu'))
-            # model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
-            model.add(Activation('relu'))
-            model.add(Dropout(0.3))
-            model.add(BatchNormalization())
-            # model.add(Dropout(0.3))
+        # model.add(layers.Conv2D(2048,(3,3),padding='same',activation='relu'))
+        # model.add(layers.Conv2D(1024,(3,3),padding='same',activation='relu'))
+        # model.add(layers.Conv2D(512,(3,3),padding='same',activation='relu'))
+        # Layer 1: Convolutional + Relu + BatchNorm + Dropout
+        
+        model.add(layers.Conv2D(64,(3,3),padding='same',activation='relu'))
+        # model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.3))
+        model.add(BatchNormalization())
+        # model.add(Dropout(0.3))
 
-            # Layers 2-6: Repetition of Convolutional + Relu + BatchNorm + Dropout with increasing dilation rates
-            """
-            Our architecture entirely consists of what [7] used as a context module but we modified it to use 3D dilated convolutions.
-            https://arxiv.org/pdf/1612.00940.pdf (MeshNet Section)
-            """
-            dilation_rates = [(1, 1), (2, 2), (4, 4), (8, 8), (16, 16)]
-            for rate in dilation_rates:
-                model.add(Conv2D(filters=64, kernel_size=(3, 3),
-                        padding='same', dilation_rate=rate))
-                model.add(Activation('relu'))
-                model.add(BatchNormalization())
-                model.add(Dropout(0.3))
+        # Layers 2-6: Repetition of Convolutional + Relu + BatchNorm + Dropout with increasing dilation rates
+        """
+        Our architecture entirely consists of what [7] used as a context module but we modified it to use 3D dilated convolutions.
+        https://arxiv.org/pdf/1612.00940.pdf (MeshNet Section)
+        """
+        # Layer 2
+        model.add(Conv2D(filters=128, kernel_size=(3, 3),
+                    padding='same', dilation_rate=(1, 1)))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+        # Layer 3
+        model.add(Conv2D(filters=256, kernel_size=(3, 3),
+                    padding='same', dilation_rate=(2, 2)))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+        # Layer 4
+        model.add(Conv2D(filters=512, kernel_size=(3, 3),
+                    padding='same', dilation_rate=(4, 4)))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+        # Layer 5
+        model.add(Conv2D(filters=512, kernel_size=(3, 3),
+                    padding='same', dilation_rate=(8, 8)))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+        # Layer 6
+        model.add(Conv2D(filters=512, kernel_size=(3, 3),
+                    padding='same', dilation_rate=(16, 16)))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
 
-            # Layer 7: Convolutional + BatchNorm + Activation + Dropout
-            model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
+        # dilation_rates = [(1, 1), (2, 2), (4, 4), (8, 8), (16, 16)]
+        # for rate in dilation_rates:
+        #     model.add(Conv2D(filters=64, kernel_size=(3, 3),
+        #             padding='same', dilation_rate=rate))
+        #     model.add(Activation('relu'))
+        #     model.add(BatchNormalization())
+        #     model.add(Dropout(0.3))
 
-            # Current Pipeline layers
-            # model.add(Flatten())
-            # model.add(Dense(512, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
-            # model.add(Dense(256, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
-            # model.add(Dense(1, activation='sigmoid'))
+        # Layer 7: Convolutional + BatchNorm + Activation + Dropout
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same'))
+        model.add(Activation('relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
 
-            model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
 
-            # model.add(GlobalMaxPooling2D())
+        # model.add(GlobalMaxPooling2D())
 
-            # model.add(Dense(512, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
-            # model.add(Dense(256, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
+        # model.add(Dense(512, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(BatchNormalization())
+        # model.add(Dense(256, activation='relu'))
+        # model.add(Dropout(0.2))
+        # model.add(BatchNormalization())
 
-            model.add(GlobalMaxPooling2D())
-            
+        model.add(GlobalMaxPooling2D())
+        
 
-            model.add(Dense(2, activation='softmax'))
+        model.add(Dense(2, activation='softmax'))
 
-            # model.layers[0].trainable = False
+        # model.layers[0].trainable = False
 
-            model.compile(optimizer=self.CFG['model_optimizer'],
-                        loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+        model.compile(optimizer=self.CFG['model_optimizer'],
+                    loss=self.CFG['loss'], metrics=self.CFG['metrics'])
 
-            model.summary()
+        model.summary()
 
         return model
 
