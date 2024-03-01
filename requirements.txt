@@ -1,6 +1,7 @@
 absl-py==0.15.0
 aiofiles @ file:///croot/aiofiles_1683773582346/work
 aiosqlite @ file:///croot/aiosqlite_1683773899903/work
+albumentations==1.3.1
 anyio @ file:///tmp/build/80754af9/anyio_1644463572971/work/dist
 argon2-cffi @ file:///opt/conda/conda-bld/argon2-cffi_1645000214183/work
 argon2-cffi-bindings @ file:///tmp/build/80754af9/argon2-cffi-bindings_1644569679365/work
@@ -21,8 +22,10 @@ charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654
 comm @ file:///croot/comm_1671231121260/work
 contourpy==1.1.1
 cryptography @ file:///croot/cryptography_1694444244250/work
+cssutils==2.9.0
 cycler==0.11.0
 Cython==0.29.14
+dataframe-image==0.2.3
 debugpy @ file:///croot/debugpy_1690905042057/work
 decorator @ file:///opt/conda/conda-bld/decorator_1643638310831/work
 defusedxml @ file:///tmp/build/80754af9/defusedxml_1615228127516/work
@@ -44,7 +47,7 @@ idna @ file:///croot/idna_1666125576474/work
 imageio==2.32.0
 importlib-metadata @ file:///croot/importlib-metadata_1678997070253/work
 importlib-resources==6.1.0
-ipykernel @ file:///croot/ipykernel_1691121631942/work
+ipykernel==6.29.0
 ipympl==0.5.0
 ipython @ file:///croot/ipython_1694181358621/work
 ipython-genutils @ file:///tmp/build/80754af9/ipython_genutils_1606773439826/work
@@ -88,6 +91,8 @@ notebook @ file:///croot/notebook_1690984815942/work
 notebook_shim @ file:///croot/notebook-shim_1668160579331/work
 numpy==1.19.4
 oauthlib==3.2.2
+opencv-python-headless==4.8.1.78
+openpyxl==3.1.2
 opt-einsum==3.3.0
 packaging @ file:///croot/packaging_1693575174725/work
 pandas==1.2.0
@@ -127,6 +132,7 @@ PyYAML @ file:///croot/pyyaml_1670514731622/work
 pyzmq @ file:///opt/conda/conda-bld/pyzmq_1657724186960/work
 qtconsole @ file:///croot/qtconsole_1681394213385/work
 QtPy @ file:///opt/conda/conda-bld/qtpy_1662014892439/work
+qudida==0.0.4
 requests @ file:///croot/requests_1690400202158/work
 requests-oauthlib==1.3.1
 rfc3339-validator @ file:///croot/rfc3339-validator_1683077044675/work
@@ -150,6 +156,7 @@ tensorflow-estimator==2.5.0
 termcolor==1.1.0
 terminado @ file:///croot/terminado_1671751832461/work
 threadpoolctl==3.2.0
+tifffile==2020.9.29
 tinycss2 @ file:///croot/tinycss2_1668168815555/work
 toml @ file:///tmp/build/80754af9/toml_1616166611790/work
 tomli @ file:///opt/conda/conda-bld/tomli_1657175507142/work
@@ -168,6 +175,7 @@ websocket-client @ file:///tmp/build/80754af9/websocket-client_1614803975924/wor
 Werkzeug==2.3.7
 widgetsnbextension @ file:///croot/widgetsnbextension_1679313860248/work
 wrapt==1.12.1
+xlrd==2.0.1
 y-py @ file:///croot/y-py_1683555143488/work
 ypy-websocket @ file:///croot/ypy-websocket_1684171737040/work
 zipp @ file:///croot/zipp_1672387121353/work
