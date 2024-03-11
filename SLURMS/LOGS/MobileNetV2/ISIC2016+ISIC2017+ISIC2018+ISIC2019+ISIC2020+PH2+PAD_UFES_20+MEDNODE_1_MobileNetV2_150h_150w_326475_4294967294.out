@@ -1,0 +1,72 @@
+Fri 01 Mar 2024 06:09:00 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: MobileNetV2
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 8 dbs
+Combining 2 db out of 8 dbs
+Combining 3 db out of 8 dbs
+Combining 4 db out of 8 dbs
+Combining 5 db out of 8 dbs
+Combining 6 db out of 8 dbs
+Combining 7 db out of 8 dbs
+Combining 8 db out of 8 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+mobilenetv2_1.00_224 (Functi (None, 1280)              2257984   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 3,048,770
+Trainable params: 789,250
+Non-trainable params: 2,259,520
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+PAD_UFES_20+MEDNODE_aug_MobileNetV2_150h_150w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+PAD_UFES_20+MEDNODE_aug_MobileNetV2_150h_150w_None
+Epoch: 1 loss: 0.4714 accuracy: 0.7821 val_loss: 0.2192 val_accuracy: 0.9240
+Epoch: 2 loss: 0.3837 accuracy: 0.8218 val_loss: 0.2121 val_accuracy: 0.9271
+Epoch: 3 loss: 0.3637 accuracy: 0.8318 val_loss: 0.2041 val_accuracy: 0.9282
+Epoch: 4 loss: 0.3481 accuracy: 0.8393 val_loss: 0.1967 val_accuracy: 0.9284
+Epoch: 5 loss: 0.3395 accuracy: 0.8436 val_loss: 0.1942 val_accuracy: 0.9292
+Epoch: 6 loss: 0.3302 accuracy: 0.8476 val_loss: 0.1932 val_accuracy: 0.9303
+Epoch: 7 loss: 0.3223 accuracy: 0.8521 val_loss: 0.1879 val_accuracy: 0.9312
+Epoch: 8 loss: 0.3172 accuracy: 0.8550 val_loss: 0.1880 val_accuracy: 0.9317
+Epoch: 9 loss: 0.3094 accuracy: 0.8581 val_loss: 0.1860 val_accuracy: 0.9327
+Epoch: 10 loss: 0.3029 accuracy: 0.8618 val_loss: 0.1916 val_accuracy: 0.9346
+Epoch: 11 loss: 0.2991 accuracy: 0.8636 val_loss: 0.1876 val_accuracy: 0.9338
+Epoch: 12 loss: 0.2940 accuracy: 0.8663 val_loss: 0.1889 val_accuracy: 0.9312
+Epoch: 13 loss: 0.2883 accuracy: 0.8664 val_loss: 0.1907 val_accuracy: 0.9326
+Epoch: 14 loss: 0.2824 accuracy: 0.8706 val_loss: 0.1900 val_accuracy: 0.9370
+Epoch: 15 loss: 0.2794 accuracy: 0.8735 val_loss: 0.1872 val_accuracy: 0.9362
+Epoch: 16 loss: 0.2730 accuracy: 0.8757 val_loss: 0.1907 val_accuracy: 0.9348
+Epoch: 17 loss: 0.2691 accuracy: 0.8783 val_loss: 0.1913 val_accuracy: 0.9314
+Epoch: 18 loss: 0.2673 accuracy: 0.8784 val_loss: 0.1928 val_accuracy: 0.9373
+Epoch: 19 loss: 0.2612 accuracy: 0.8818 val_loss: 0.1912 val_accuracy: 0.9382
+Epoch: 20 loss: 0.2584 accuracy: 0.8836 val_loss: 0.1907 val_accuracy: 0.9362
+Job ended!

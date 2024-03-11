@@ -141,4 +141,6 @@ class CommonData:
 
         mel.NetworkType.NASNetMobile.name: mel.NetworkType.NASNetMobile.name,
         mel.NetworkType.NASNetLarge.name: mel.NetworkType.NASNetMobile.name,
+
+        mel.NetworkType.MeshNet.name: mel.NetworkType.VGG16.name,
       }

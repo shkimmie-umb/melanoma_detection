@@ -1,0 +1,73 @@
+Fri 01 Mar 2024 11:47:10 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: VGG19
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 9 dbs
+Combining 2 db out of 9 dbs
+Combining 3 db out of 9 dbs
+Combining 4 db out of 9 dbs
+Combining 5 db out of 9 dbs
+Combining 6 db out of 9 dbs
+Combining 7 db out of 9 dbs
+Combining 8 db out of 9 dbs
+Combining 9 db out of 9 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg19 (Functional)           (None, 512)               20024384  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 20,421,954
+Trainable params: 396,034
+Non-trainable params: 20,025,920
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_VGG19_150h_150w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_VGG19_150h_150w_None
+Epoch: 1 loss: 0.4883 accuracy: 0.7716 val_loss: 0.2507 val_accuracy: 0.9022
+Epoch: 2 loss: 0.4017 accuracy: 0.8098 val_loss: 0.2415 val_accuracy: 0.9055
+Epoch: 3 loss: 0.3802 accuracy: 0.8194 val_loss: 0.2323 val_accuracy: 0.9093
+Epoch: 4 loss: 0.3666 accuracy: 0.8285 val_loss: 0.2263 val_accuracy: 0.9121
+Epoch: 5 loss: 0.3548 accuracy: 0.8348 val_loss: 0.2234 val_accuracy: 0.9134
+Epoch: 6 loss: 0.3454 accuracy: 0.8400 val_loss: 0.2188 val_accuracy: 0.9173
+Epoch: 7 loss: 0.3367 accuracy: 0.8436 val_loss: 0.2185 val_accuracy: 0.9156
+Epoch: 8 loss: 0.3284 accuracy: 0.8477 val_loss: 0.2211 val_accuracy: 0.9172
+Epoch: 9 loss: 0.3184 accuracy: 0.8542 val_loss: 0.2119 val_accuracy: 0.9213
+Epoch: 10 loss: 0.3132 accuracy: 0.8567 val_loss: 0.2119 val_accuracy: 0.9203
+Epoch: 11 loss: 0.3033 accuracy: 0.8619 val_loss: 0.2139 val_accuracy: 0.9191
+Epoch: 12 loss: 0.2981 accuracy: 0.8637 val_loss: 0.2146 val_accuracy: 0.9200
+Epoch: 13 loss: 0.2916 accuracy: 0.8667 val_loss: 0.2117 val_accuracy: 0.9210
+Epoch: 14 loss: 0.2850 accuracy: 0.8725 val_loss: 0.2087 val_accuracy: 0.9244
+Epoch: 15 loss: 0.2780 accuracy: 0.8738 val_loss: 0.2068 val_accuracy: 0.9265
+Epoch: 16 loss: 0.2702 accuracy: 0.8776 val_loss: 0.2124 val_accuracy: 0.9278
+Epoch: 17 loss: 0.2663 accuracy: 0.8801 val_loss: 0.2142 val_accuracy: 0.9263
+Epoch: 18 loss: 0.2613 accuracy: 0.8829 val_loss: 0.2147 val_accuracy: 0.9280
+Epoch: 19 loss: 0.2553 accuracy: 0.8845 val_loss: 0.2202 val_accuracy: 0.9269
+Epoch: 20 loss: 0.2512 accuracy: 0.8876 val_loss: 0.2194 val_accuracy: 0.9311
+Job ended!

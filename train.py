@@ -5,6 +5,7 @@ import melanoma as mel
 import logging
 import sys
 import os
+os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 from pathlib import Path
 import itertools
 import glob
@@ -123,8 +124,8 @@ CFG = dict(
 			VFLIP                 = False, # randomly flip images
 
 			# Model settings
-			# pretrained_weights = 'imagenet',
-      pretrained_weights = None,
+			pretrained_weights = 'imagenet',
+      # pretrained_weights = None,
 			model_optimizer = optimizer2,
 			# loss='binary_crossentropy',
 			loss='categorical_crossentropy',
@@ -231,7 +232,8 @@ if SELF_AUG == 0:
 elif SELF_AUG == 1:
   # Augmented images training (augmentation)
   model_aug_name = CFG['experiment_aug']
-  model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
+  # model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
+  model = base_model.meshnet_test()
 
   history = base_model.fit_model(
       model = model,

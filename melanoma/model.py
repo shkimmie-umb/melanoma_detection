@@ -185,7 +185,7 @@ class Model:
         model, _, _ = self.evaluate_model(
             model_name=model_name,
             model_path=model_path,
-            target_db=mel.DatasetType.ISIC2018.name,
+            target_db=mel.DatasetType._7_point_criteria.name,
             trainimages=trainimages,
             trainlabels=trainlabels,
             validationimages=validationimages,
@@ -196,7 +196,7 @@ class Model:
         target_network = model.layers[0].name
 
         train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
+            model = model, model_name = model_name, target_db=mel.DatasetType._7_point_criteria.name, \
                 trainimages = trainimages, testimages = testimages
         )
         test_report = self.model_report(
@@ -208,7 +208,7 @@ class Model:
         _7_point_criteria_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -246,7 +246,7 @@ class Model:
         KaggleMB_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -280,7 +280,7 @@ class Model:
         HAM10000_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -316,7 +316,7 @@ class Model:
         ISIC2016_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -352,7 +352,7 @@ class Model:
         ISIC2017_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -388,7 +388,7 @@ class Model:
         ISIC2018_perf = {
             'y_pred': test_pred_classes.tolist(),
             'accuracy': test_report['accuracy'],
-            'precision': test_report['Malignant']['precision'],
+            'precision': test_report['macro avg']['precision'],
             'sensitivity': test_report['Malignant']['recall'],
             'specificity': test_report['Benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
@@ -399,11 +399,14 @@ class Model:
         final_perf = {
             'dataset': combined_DBs,
             'classifier': network_name,
+            'Parameters': model.count_params(),
+            'HAM10000': HAM10000_perf,
             'KaggleMB': KaggleMB_perf,
             'ISIC2016': ISIC2016_perf,
             'ISIC2017': ISIC2017_perf,
             'ISIC2018': ISIC2018_perf,
             '_7_point_criteria': _7_point_criteria_perf,
+            'Filesize': int(os.stat(model_path+'/'+model_name + '.hdf5').st_size / (1024 * 1024)),
 
         }
 
@@ -437,9 +440,9 @@ class Model:
         # model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
         model = load_model(model_path+'/'+model_name + '.hdf5')
 
-        print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
+        # print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
 
-        print("Validation loss = {}  ;  Validation accuracy = {:.2%}\n".format(*model.evaluate(validationimages, validationlabels, verbose = self.CFG['verbose'])))
+        # print("Validation loss = {}  ;  Validation accuracy = {:.2%}\n".format(*model.evaluate(validationimages, validationlabels, verbose = self.CFG['verbose'])))
 
         test_loss, test_acc = model.evaluate(testimages, testlabels, verbose = self.CFG['verbose'])
         print(f"Test loss = {test_loss}  ;  Test accuracy = {test_acc:.2%}")
@@ -448,8 +451,10 @@ class Model:
 	
     def computing_prediction(self, model, model_name, target_db, trainimages, testimages):
         print(f'Computing predictions for {model_name} on {target_db}...')
-        train_pred = model.predict(trainimages)
-        train_pred_classes = np.argmax(train_pred,axis = 1)
+        # train_pred = model.predict(trainimages)
+        # train_pred_classes = np.argmax(train_pred,axis = 1)
+        train_pred = 0
+        train_pred_classes = 0
         test_pred = model.predict(testimages)
         # Convert predictions classes to one hot vectors
         test_pred_classes = np.argmax(test_pred,axis = 1)
@@ -472,18 +477,19 @@ class Model:
 			1.0: 'Malignant'
 		}
         
-        trainlabels_digit = np.argmax(trainlabels, axis=1)
+        # trainlabels_digit = np.argmax(trainlabels, axis=1)
         testlabels_digit = np.argmax(testlabels, axis=1)
 
-        train_report = classification_report(trainlabels_digit, train_pred_classes, target_names=label_substitution.values(), output_dict = True)
+        # train_report = classification_report(trainlabels_digit, train_pred_classes, target_names=label_substitution.values(), output_dict = True)
         test_report = classification_report(testlabels_digit, test_pred_classes, target_names=label_substitution.values(), output_dict = True)
 
         print(f'Model report for {model_name} model ->\n\n')
-        print("Train Report :\n", train_report)
+        # print("Train Report :\n", train_report)
         print("Test Report :\n", test_report)
 
         cm = confusion_matrix(testlabels_digit, test_pred_classes)
-
+        
+        plt.ioff()
         fig = plt.figure(figsize=(12, 8))
         df_cm = pd.DataFrame(cm, index=label_substitution.values(), columns=label_substitution.values())
 
@@ -506,7 +512,7 @@ class Model:
         plt.savefig(f'{model_path}/performance/{target_network}/{model_name}_confusion1.png')
         conf_mat_df = pd.crosstab(testlabels_digit, test_pred_classes, rownames=['GT Label'],colnames=['Predict'])
         df_styled = conf_mat_df.style.background_gradient()
-        dfi.export(df_styled, f"{model_path}/performance/{model_name}_confusion2.png", table_conversion="matplotlib")
+        dfi.export(df_styled, f"{model_path}/performance/{target_network}/{model_name}_confusion2.png", table_conversion="matplotlib")
         # conf_mat_df.dfi.export(f"{model_path}/performance/{model_name}_confusion2.png")
 
         return test_report

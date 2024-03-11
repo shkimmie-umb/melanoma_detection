@@ -1,0 +1,67 @@
+Thu 29 Feb 2024 01:22:08 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet121
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 3 dbs
+Combining 2 db out of 3 dbs
+Combining 3 db out of 3 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet121 (Functional)     (None, 1024)              7037504   
+_________________________________________________________________
+dense (Dense)                (None, 512)               524800    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,697,218
+Trainable params: 658,178
+Non-trainable params: 7,039,040
+_________________________________________________________________
+Fitting ISIC2016+PAD_UFES_20+MEDNODE_aug_DenseNet121_150h_150w_None model...
+model_name: ISIC2016+PAD_UFES_20+MEDNODE_aug_DenseNet121_150h_150w_None
+Epoch: 1 loss: 0.7806 accuracy: 0.6580 val_loss: 0.3323 val_accuracy: 0.8858
+Epoch: 2 loss: 0.5741 accuracy: 0.7484 val_loss: 0.3256 val_accuracy: 0.8872
+Epoch: 3 loss: 0.4957 accuracy: 0.7811 val_loss: 0.3108 val_accuracy: 0.8754
+Epoch: 4 loss: 0.4219 accuracy: 0.8191 val_loss: 0.2723 val_accuracy: 0.9050
+Epoch: 5 loss: 0.3739 accuracy: 0.8432 val_loss: 0.2390 val_accuracy: 0.9139
+Epoch: 6 loss: 0.3352 accuracy: 0.8553 val_loss: 0.2386 val_accuracy: 0.9184
+Epoch: 7 loss: 0.3181 accuracy: 0.8669 val_loss: 0.2523 val_accuracy: 0.9110
+Epoch: 8 loss: 0.2926 accuracy: 0.8822 val_loss: 0.2173 val_accuracy: 0.9199
+Epoch: 9 loss: 0.2749 accuracy: 0.8802 val_loss: 0.2186 val_accuracy: 0.9243
+Epoch: 10 loss: 0.2555 accuracy: 0.8938 val_loss: 0.2276 val_accuracy: 0.9169
+Epoch: 11 loss: 0.2384 accuracy: 0.9004 val_loss: 0.2239 val_accuracy: 0.9228
+Epoch: 12 loss: 0.2227 accuracy: 0.9097 val_loss: 0.2170 val_accuracy: 0.9258
+Epoch: 13 loss: 0.2069 accuracy: 0.9152 val_loss: 0.2164 val_accuracy: 0.9347
+Epoch: 14 loss: 0.2008 accuracy: 0.9167 val_loss: 0.2400 val_accuracy: 0.9125
+Epoch: 15 loss: 0.1929 accuracy: 0.9182 val_loss: 0.2358 val_accuracy: 0.9199
+Epoch: 16 loss: 0.1820 accuracy: 0.9240 val_loss: 0.2349 val_accuracy: 0.9184
+Epoch: 17 loss: 0.1648 accuracy: 0.9321 val_loss: 0.2148 val_accuracy: 0.9318
+Epoch: 18 loss: 0.1605 accuracy: 0.9376 val_loss: 0.2277 val_accuracy: 0.9318
+Epoch: 19 loss: 0.1489 accuracy: 0.9409 val_loss: 0.2310 val_accuracy: 0.9318
+Epoch: 20 loss: 0.1418 accuracy: 0.9454 val_loss: 0.2349 val_accuracy: 0.9273
+Job ended!

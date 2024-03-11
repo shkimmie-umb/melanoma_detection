@@ -1,0 +1,65 @@
+Fri 01 Mar 2024 07:05:17 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB4
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb4 (Functional)  (None, 1792)              17673823  
+_________________________________________________________________
+dense (Dense)                (None, 512)               918016    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 18,726,753
+Trainable params: 1,051,394
+Non-trainable params: 17,675,359
+_________________________________________________________________
+Fitting ISIC2016_aug_EfficientNetB4_150h_150w_None model...
+model_name: ISIC2016_aug_EfficientNetB4_150h_150w_None
+Epoch: 1 loss: 0.8575 accuracy: 0.6123 val_loss: 0.5792 val_accuracy: 0.7667
+Epoch: 2 loss: 0.6683 accuracy: 0.7060 val_loss: 0.5919 val_accuracy: 0.6889
+Epoch: 3 loss: 0.6116 accuracy: 0.7181 val_loss: 0.5869 val_accuracy: 0.6833
+Epoch: 4 loss: 0.5190 accuracy: 0.7702 val_loss: 0.5772 val_accuracy: 0.6833
+Epoch: 5 loss: 0.5093 accuracy: 0.7589 val_loss: 0.5803 val_accuracy: 0.6722
+Epoch: 6 loss: 0.4903 accuracy: 0.7728 val_loss: 0.5633 val_accuracy: 0.7000
+Epoch: 7 loss: 0.4269 accuracy: 0.8083 val_loss: 0.5620 val_accuracy: 0.6944
+Epoch: 8 loss: 0.4455 accuracy: 0.7866 val_loss: 0.5513 val_accuracy: 0.7167
+Epoch: 9 loss: 0.4119 accuracy: 0.8205 val_loss: 0.5561 val_accuracy: 0.7167
+Epoch: 10 loss: 0.4009 accuracy: 0.8265 val_loss: 0.5544 val_accuracy: 0.7222
+Epoch: 11 loss: 0.3913 accuracy: 0.8265 val_loss: 0.5188 val_accuracy: 0.7500
+Epoch: 12 loss: 0.3893 accuracy: 0.8300 val_loss: 0.5219 val_accuracy: 0.7556
+Epoch: 13 loss: 0.3687 accuracy: 0.8317 val_loss: 0.5365 val_accuracy: 0.7444
+Epoch: 14 loss: 0.3520 accuracy: 0.8491 val_loss: 0.5049 val_accuracy: 0.7556
+Epoch: 15 loss: 0.3117 accuracy: 0.8569 val_loss: 0.4911 val_accuracy: 0.7556
+Epoch: 16 loss: 0.3514 accuracy: 0.8500 val_loss: 0.5397 val_accuracy: 0.7556
+Epoch: 17 loss: 0.3250 accuracy: 0.8604 val_loss: 0.5421 val_accuracy: 0.7556
+Epoch: 18 loss: 0.3071 accuracy: 0.8560 val_loss: 0.5138 val_accuracy: 0.7556
+Epoch: 19 loss: 0.3041 accuracy: 0.8751 val_loss: 0.5354 val_accuracy: 0.7722
+Epoch: 20 loss: 0.2629 accuracy: 0.8959 val_loss: 0.5841 val_accuracy: 0.7611
+Job ended!

@@ -1,0 +1,66 @@
+Thu 29 Feb 2024 01:17:24 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet121
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 2 dbs
+Combining 2 db out of 2 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet121 (Functional)     (None, 1024)              7037504   
+_________________________________________________________________
+dense (Dense)                (None, 512)               524800    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,697,218
+Trainable params: 658,178
+Non-trainable params: 7,039,040
+_________________________________________________________________
+Fitting ISIC2016+KaggleMB_aug_DenseNet121_150h_150w_None model...
+model_name: ISIC2016+KaggleMB_aug_DenseNet121_150h_150w_None
+Epoch: 1 loss: 0.6874 accuracy: 0.6962 val_loss: 0.4449 val_accuracy: 0.8051
+Epoch: 2 loss: 0.5314 accuracy: 0.7722 val_loss: 0.4211 val_accuracy: 0.8192
+Epoch: 3 loss: 0.4757 accuracy: 0.7961 val_loss: 0.4137 val_accuracy: 0.8291
+Epoch: 4 loss: 0.4364 accuracy: 0.8099 val_loss: 0.4127 val_accuracy: 0.8277
+Epoch: 5 loss: 0.4032 accuracy: 0.8283 val_loss: 0.3955 val_accuracy: 0.8333
+Epoch: 6 loss: 0.3841 accuracy: 0.8279 val_loss: 0.3868 val_accuracy: 0.8206
+Epoch: 7 loss: 0.3557 accuracy: 0.8417 val_loss: 0.4020 val_accuracy: 0.8263
+Epoch: 8 loss: 0.3353 accuracy: 0.8556 val_loss: 0.4129 val_accuracy: 0.8206
+Epoch: 9 loss: 0.3172 accuracy: 0.8594 val_loss: 0.3963 val_accuracy: 0.8319
+Epoch: 10 loss: 0.2998 accuracy: 0.8690 val_loss: 0.3974 val_accuracy: 0.8404
+Epoch: 11 loss: 0.2756 accuracy: 0.8816 val_loss: 0.3708 val_accuracy: 0.8531
+Epoch: 12 loss: 0.2658 accuracy: 0.8867 val_loss: 0.3885 val_accuracy: 0.8432
+Epoch: 13 loss: 0.2429 accuracy: 0.8940 val_loss: 0.4020 val_accuracy: 0.8446
+Epoch: 14 loss: 0.2413 accuracy: 0.8936 val_loss: 0.4013 val_accuracy: 0.8347
+Epoch: 15 loss: 0.2171 accuracy: 0.9081 val_loss: 0.3812 val_accuracy: 0.8517
+Epoch: 16 loss: 0.2269 accuracy: 0.9057 val_loss: 0.3940 val_accuracy: 0.8418
+Epoch: 17 loss: 0.2035 accuracy: 0.9121 val_loss: 0.4047 val_accuracy: 0.8418
+Epoch: 18 loss: 0.1845 accuracy: 0.9219 val_loss: 0.3957 val_accuracy: 0.8418
+Epoch: 19 loss: 0.1840 accuracy: 0.9258 val_loss: 0.4283 val_accuracy: 0.8291
+Epoch: 20 loss: 0.1735 accuracy: 0.9273 val_loss: 0.4290 val_accuracy: 0.8390
+Job ended!

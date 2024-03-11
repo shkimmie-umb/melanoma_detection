@@ -1,0 +1,65 @@
+Fri 01 Mar 2024 12:35:43 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2017']
+IMG_SIZE: [150, 150]
+CLASSIFIER: DenseNet169
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet169 (Functional)     (None, 1664)              12642880  
+_________________________________________________________________
+dense (Dense)                (None, 512)               852480    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 13,630,274
+Trainable params: 985,858
+Non-trainable params: 12,644,416
+_________________________________________________________________
+Fitting ISIC2017_aug_DenseNet169_150h_150w_None model...
+model_name: ISIC2017_aug_DenseNet169_150h_150w_None
+Epoch: 1 loss: 0.7801 accuracy: 0.6486 val_loss: 0.4653 val_accuracy: 0.7867
+Epoch: 2 loss: 0.6233 accuracy: 0.7164 val_loss: 0.4942 val_accuracy: 0.7667
+Epoch: 3 loss: 0.5621 accuracy: 0.7401 val_loss: 0.4656 val_accuracy: 0.7933
+Epoch: 4 loss: 0.4973 accuracy: 0.7739 val_loss: 0.4640 val_accuracy: 0.7867
+Epoch: 5 loss: 0.4588 accuracy: 0.7886 val_loss: 0.5057 val_accuracy: 0.8000
+Epoch: 6 loss: 0.4339 accuracy: 0.7956 val_loss: 0.4964 val_accuracy: 0.8067
+Epoch: 7 loss: 0.4143 accuracy: 0.8106 val_loss: 0.4877 val_accuracy: 0.8067
+Epoch: 8 loss: 0.3795 accuracy: 0.8317 val_loss: 0.4372 val_accuracy: 0.8000
+Epoch: 9 loss: 0.3481 accuracy: 0.8490 val_loss: 0.4843 val_accuracy: 0.8067
+Epoch: 10 loss: 0.3352 accuracy: 0.8454 val_loss: 0.4613 val_accuracy: 0.8067
+Epoch: 11 loss: 0.3041 accuracy: 0.8704 val_loss: 0.5039 val_accuracy: 0.7733
+Epoch: 12 loss: 0.2931 accuracy: 0.8721 val_loss: 0.5074 val_accuracy: 0.7933
+Epoch: 13 loss: 0.2696 accuracy: 0.8891 val_loss: 0.4865 val_accuracy: 0.8067
+Epoch: 14 loss: 0.2544 accuracy: 0.8958 val_loss: 0.4811 val_accuracy: 0.8133
+Epoch: 15 loss: 0.2349 accuracy: 0.9048 val_loss: 0.5196 val_accuracy: 0.8133
+Epoch: 16 loss: 0.2249 accuracy: 0.9088 val_loss: 0.5581 val_accuracy: 0.7867
+Epoch: 17 loss: 0.2164 accuracy: 0.9085 val_loss: 0.5765 val_accuracy: 0.8200
+Epoch: 18 loss: 0.2151 accuracy: 0.9098 val_loss: 0.5880 val_accuracy: 0.8000
+Epoch: 19 loss: 0.1746 accuracy: 0.9299 val_loss: 0.5764 val_accuracy: 0.8000
+Epoch: 20 loss: 0.1738 accuracy: 0.9315 val_loss: 0.5853 val_accuracy: 0.8067
+Job ended!

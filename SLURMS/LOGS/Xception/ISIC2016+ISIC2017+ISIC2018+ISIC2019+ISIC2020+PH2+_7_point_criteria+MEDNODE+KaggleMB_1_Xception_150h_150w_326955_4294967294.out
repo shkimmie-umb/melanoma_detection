@@ -1,0 +1,73 @@
+Sat 02 Mar 2024 12:27:43 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: Xception
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 9 dbs
+Combining 2 db out of 9 dbs
+Combining 3 db out of 9 dbs
+Combining 4 db out of 9 dbs
+Combining 5 db out of 9 dbs
+Combining 6 db out of 9 dbs
+Combining 7 db out of 9 dbs
+Combining 8 db out of 9 dbs
+Combining 9 db out of 9 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_Xception_150h_150w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB_aug_Xception_150h_150w_None
+Epoch: 1 loss: 0.5006 accuracy: 0.7616 val_loss: 0.2584 val_accuracy: 0.9021
+Epoch: 2 loss: 0.4132 accuracy: 0.8010 val_loss: 0.2531 val_accuracy: 0.8971
+Epoch: 3 loss: 0.3888 accuracy: 0.8157 val_loss: 0.2432 val_accuracy: 0.9065
+Epoch: 4 loss: 0.3719 accuracy: 0.8249 val_loss: 0.2378 val_accuracy: 0.9057
+Epoch: 5 loss: 0.3591 accuracy: 0.8334 val_loss: 0.2349 val_accuracy: 0.9094
+Epoch: 6 loss: 0.3500 accuracy: 0.8363 val_loss: 0.2310 val_accuracy: 0.9087
+Epoch: 7 loss: 0.3374 accuracy: 0.8440 val_loss: 0.2324 val_accuracy: 0.9093
+Epoch: 8 loss: 0.3273 accuracy: 0.8488 val_loss: 0.2253 val_accuracy: 0.9151
+Epoch: 9 loss: 0.3156 accuracy: 0.8559 val_loss: 0.2246 val_accuracy: 0.9124
+Epoch: 10 loss: 0.3080 accuracy: 0.8607 val_loss: 0.2235 val_accuracy: 0.9161
+Epoch: 11 loss: 0.2972 accuracy: 0.8663 val_loss: 0.2364 val_accuracy: 0.9088
+Epoch: 12 loss: 0.2857 accuracy: 0.8723 val_loss: 0.2199 val_accuracy: 0.9153
+Epoch: 13 loss: 0.2735 accuracy: 0.8785 val_loss: 0.2208 val_accuracy: 0.9163
+Epoch: 14 loss: 0.2654 accuracy: 0.8834 val_loss: 0.2162 val_accuracy: 0.9205
+Epoch: 15 loss: 0.2571 accuracy: 0.8877 val_loss: 0.2294 val_accuracy: 0.9166
+Epoch: 16 loss: 0.2487 accuracy: 0.8920 val_loss: 0.2351 val_accuracy: 0.9171
+Epoch: 17 loss: 0.2413 accuracy: 0.8963 val_loss: 0.2345 val_accuracy: 0.9168
+Epoch: 18 loss: 0.2298 accuracy: 0.9016 val_loss: 0.2331 val_accuracy: 0.9194
+Epoch: 19 loss: 0.2268 accuracy: 0.9030 val_loss: 0.2289 val_accuracy: 0.9188
+Epoch: 20 loss: 0.2149 accuracy: 0.9084 val_loss: 0.2329 val_accuracy: 0.9179
+Job ended!

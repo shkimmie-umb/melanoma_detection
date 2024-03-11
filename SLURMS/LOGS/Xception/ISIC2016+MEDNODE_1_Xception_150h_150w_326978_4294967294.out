@@ -1,0 +1,66 @@
+Sat 02 Mar 2024 01:06:09 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: Xception
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 2 dbs
+Combining 2 db out of 2 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting ISIC2016+MEDNODE_aug_Xception_150h_150w_None model...
+model_name: ISIC2016+MEDNODE_aug_Xception_150h_150w_None
+Epoch: 1 loss: 0.7803 accuracy: 0.6521 val_loss: 0.4646 val_accuracy: 0.7850
+Epoch: 2 loss: 0.6116 accuracy: 0.7139 val_loss: 0.4373 val_accuracy: 0.8458
+Epoch: 3 loss: 0.5265 accuracy: 0.7603 val_loss: 0.4290 val_accuracy: 0.8224
+Epoch: 4 loss: 0.4277 accuracy: 0.8017 val_loss: 0.4326 val_accuracy: 0.8271
+Epoch: 5 loss: 0.3985 accuracy: 0.8105 val_loss: 0.4294 val_accuracy: 0.8084
+Epoch: 6 loss: 0.3417 accuracy: 0.8504 val_loss: 0.4597 val_accuracy: 0.8178
+Epoch: 7 loss: 0.3041 accuracy: 0.8627 val_loss: 0.4399 val_accuracy: 0.8037
+Epoch: 8 loss: 0.2809 accuracy: 0.8758 val_loss: 0.4600 val_accuracy: 0.8224
+Epoch: 9 loss: 0.2628 accuracy: 0.8947 val_loss: 0.4741 val_accuracy: 0.8131
+Epoch: 10 loss: 0.2329 accuracy: 0.9041 val_loss: 0.4884 val_accuracy: 0.8131
+Epoch: 11 loss: 0.2022 accuracy: 0.9259 val_loss: 0.5512 val_accuracy: 0.7617
+Epoch: 12 loss: 0.2040 accuracy: 0.9216 val_loss: 0.5238 val_accuracy: 0.8037
+Epoch: 13 loss: 0.1686 accuracy: 0.9426 val_loss: 0.5544 val_accuracy: 0.7991
+Epoch: 14 loss: 0.1772 accuracy: 0.9303 val_loss: 0.5589 val_accuracy: 0.7897
+Epoch: 15 loss: 0.1535 accuracy: 0.9397 val_loss: 0.5784 val_accuracy: 0.8224
+Epoch: 16 loss: 0.1330 accuracy: 0.9506 val_loss: 0.5428 val_accuracy: 0.8084
+Epoch: 17 loss: 0.1322 accuracy: 0.9528 val_loss: 0.5751 val_accuracy: 0.8131
+Epoch: 18 loss: 0.1221 accuracy: 0.9528 val_loss: 0.5355 val_accuracy: 0.8037
+Epoch: 19 loss: 0.1019 accuracy: 0.9666 val_loss: 0.5949 val_accuracy: 0.8037
+Epoch: 20 loss: 0.0991 accuracy: 0.9666 val_loss: 0.6426 val_accuracy: 0.8131
+Job ended!

@@ -1,0 +1,68 @@
+Fri 01 Mar 2024 05:33:55 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB3
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 4 dbs
+Combining 2 db out of 4 dbs
+Combining 3 db out of 4 dbs
+Combining 4 db out of 4 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb3 (Functional)  (None, 1536)              10783535  
+_________________________________________________________________
+dense (Dense)                (None, 512)               786944    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 11,705,393
+Trainable params: 920,322
+Non-trainable params: 10,785,071
+_________________________________________________________________
+Fitting ISIC2016+_7_point_criteria+PAD_UFES_20+MEDNODE_aug_EfficientNetB3_150h_150w_None model...
+model_name: ISIC2016+_7_point_criteria+PAD_UFES_20+MEDNODE_aug_EfficientNetB3_150h_150w_None
+Epoch: 1 loss: 0.7620 accuracy: 0.6521 val_loss: 0.5215 val_accuracy: 0.7788
+Epoch: 2 loss: 0.5613 accuracy: 0.7441 val_loss: 0.3944 val_accuracy: 0.8369
+Epoch: 3 loss: 0.4916 accuracy: 0.7782 val_loss: 0.3608 val_accuracy: 0.8483
+Epoch: 4 loss: 0.4274 accuracy: 0.8112 val_loss: 0.3464 val_accuracy: 0.8552
+Epoch: 5 loss: 0.3931 accuracy: 0.8283 val_loss: 0.3303 val_accuracy: 0.8540
+Epoch: 6 loss: 0.3806 accuracy: 0.8348 val_loss: 0.3236 val_accuracy: 0.8632
+Epoch: 7 loss: 0.3404 accuracy: 0.8550 val_loss: 0.3130 val_accuracy: 0.8655
+Epoch: 8 loss: 0.3295 accuracy: 0.8578 val_loss: 0.3085 val_accuracy: 0.8757
+Epoch: 9 loss: 0.3077 accuracy: 0.8687 val_loss: 0.3121 val_accuracy: 0.8609
+Epoch: 10 loss: 0.2867 accuracy: 0.8732 val_loss: 0.3090 val_accuracy: 0.8655
+Epoch: 11 loss: 0.2810 accuracy: 0.8811 val_loss: 0.3177 val_accuracy: 0.8563
+Epoch: 12 loss: 0.2688 accuracy: 0.8806 val_loss: 0.3085 val_accuracy: 0.8700
+Epoch: 13 loss: 0.2556 accuracy: 0.8895 val_loss: 0.3192 val_accuracy: 0.8757
+Epoch: 14 loss: 0.2438 accuracy: 0.8949 val_loss: 0.3081 val_accuracy: 0.8700
+Epoch: 15 loss: 0.2446 accuracy: 0.8952 val_loss: 0.3173 val_accuracy: 0.8734
+Epoch: 16 loss: 0.2226 accuracy: 0.9121 val_loss: 0.3221 val_accuracy: 0.8677
+Epoch: 17 loss: 0.2176 accuracy: 0.9119 val_loss: 0.3118 val_accuracy: 0.8712
+Epoch: 18 loss: 0.2218 accuracy: 0.9045 val_loss: 0.3339 val_accuracy: 0.8723
+Epoch: 19 loss: 0.1953 accuracy: 0.9184 val_loss: 0.3297 val_accuracy: 0.8655
+Epoch: 20 loss: 0.2059 accuracy: 0.9206 val_loss: 0.3249 val_accuracy: 0.8757
+Job ended!

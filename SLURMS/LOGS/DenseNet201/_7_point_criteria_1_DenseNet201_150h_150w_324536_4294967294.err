@@ -1,0 +1,2 @@
+2024-02-29 11:28:05.687896: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+slurmstepd: error: *** JOB 324536 ON chimera12 CANCELLED AT 2024-02-29T11:28:11 ***

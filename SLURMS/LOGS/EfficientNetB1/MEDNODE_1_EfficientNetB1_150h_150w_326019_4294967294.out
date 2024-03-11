@@ -1,0 +1,65 @@
+Fri 01 Mar 2024 04:07:51 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['MEDNODE']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB1
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb1 (Functional)  (None, 1280)              6575239   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,366,025
+Trainable params: 789,250
+Non-trainable params: 6,576,775
+_________________________________________________________________
+Fitting MEDNODE_aug_EfficientNetB1_150h_150w_None model...
+model_name: MEDNODE_aug_EfficientNetB1_150h_150w_None
+Epoch: 1 loss: 1.0219 accuracy: 0.5357 val_loss: 0.7395 val_accuracy: 0.5882
+Epoch: 2 loss: 0.7773 accuracy: 0.6250 val_loss: 0.6754 val_accuracy: 0.5882
+Epoch: 3 loss: 0.6085 accuracy: 0.6786 val_loss: 0.6238 val_accuracy: 0.6176
+Epoch: 4 loss: 0.5072 accuracy: 0.7634 val_loss: 0.5899 val_accuracy: 0.6176
+Epoch: 5 loss: 0.4218 accuracy: 0.7857 val_loss: 0.5561 val_accuracy: 0.6176
+Epoch: 6 loss: 0.4075 accuracy: 0.8125 val_loss: 0.5259 val_accuracy: 0.7353
+Epoch: 7 loss: 0.4378 accuracy: 0.8125 val_loss: 0.5058 val_accuracy: 0.8235
+Epoch: 8 loss: 0.4269 accuracy: 0.7946 val_loss: 0.4955 val_accuracy: 0.8235
+Epoch: 9 loss: 0.3463 accuracy: 0.8616 val_loss: 0.4850 val_accuracy: 0.8235
+Epoch: 10 loss: 0.2672 accuracy: 0.8929 val_loss: 0.4724 val_accuracy: 0.7941
+Epoch: 11 loss: 0.3109 accuracy: 0.8527 val_loss: 0.4606 val_accuracy: 0.7941
+Epoch: 12 loss: 0.2562 accuracy: 0.9062 val_loss: 0.4475 val_accuracy: 0.8235
+Epoch: 13 loss: 0.2837 accuracy: 0.8705 val_loss: 0.4395 val_accuracy: 0.8529
+Epoch: 14 loss: 0.2729 accuracy: 0.8973 val_loss: 0.4324 val_accuracy: 0.8529
+Epoch: 15 loss: 0.2466 accuracy: 0.8973 val_loss: 0.4251 val_accuracy: 0.8235
+Epoch: 16 loss: 0.1980 accuracy: 0.9464 val_loss: 0.4189 val_accuracy: 0.8529
+Epoch: 17 loss: 0.2594 accuracy: 0.8884 val_loss: 0.4073 val_accuracy: 0.8529
+Epoch: 18 loss: 0.2517 accuracy: 0.8795 val_loss: 0.4034 val_accuracy: 0.8529
+Epoch: 19 loss: 0.2145 accuracy: 0.9196 val_loss: 0.3929 val_accuracy: 0.8824
+Epoch: 20 loss: 0.2210 accuracy: 0.9062 val_loss: 0.3838 val_accuracy: 0.8529
+Job ended!

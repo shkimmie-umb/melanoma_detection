@@ -1,0 +1,67 @@
+Fri 01 Mar 2024 03:58:55 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB1
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 3 dbs
+Combining 2 db out of 3 dbs
+Combining 3 db out of 3 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb1 (Functional)  (None, 1280)              6575239   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,366,025
+Trainable params: 789,250
+Non-trainable params: 6,576,775
+_________________________________________________________________
+Fitting ISIC2016+MEDNODE+KaggleMB_aug_EfficientNetB1_150h_150w_None model...
+model_name: ISIC2016+MEDNODE+KaggleMB_aug_EfficientNetB1_150h_150w_None
+Epoch: 1 loss: 0.6686 accuracy: 0.6906 val_loss: 0.4638 val_accuracy: 0.8046
+Epoch: 2 loss: 0.5390 accuracy: 0.7606 val_loss: 0.4267 val_accuracy: 0.7951
+Epoch: 3 loss: 0.4873 accuracy: 0.7891 val_loss: 0.4162 val_accuracy: 0.8073
+Epoch: 4 loss: 0.4520 accuracy: 0.7911 val_loss: 0.4045 val_accuracy: 0.8073
+Epoch: 5 loss: 0.4444 accuracy: 0.7989 val_loss: 0.3910 val_accuracy: 0.8261
+Epoch: 6 loss: 0.4242 accuracy: 0.8133 val_loss: 0.4013 val_accuracy: 0.8100
+Epoch: 7 loss: 0.4163 accuracy: 0.8107 val_loss: 0.4002 val_accuracy: 0.8248
+Epoch: 8 loss: 0.3877 accuracy: 0.8282 val_loss: 0.4163 val_accuracy: 0.8167
+Epoch: 9 loss: 0.3755 accuracy: 0.8300 val_loss: 0.3968 val_accuracy: 0.8181
+Epoch: 10 loss: 0.3649 accuracy: 0.8390 val_loss: 0.4038 val_accuracy: 0.8275
+Epoch: 11 loss: 0.3581 accuracy: 0.8496 val_loss: 0.3951 val_accuracy: 0.8181
+Epoch: 12 loss: 0.3397 accuracy: 0.8493 val_loss: 0.3816 val_accuracy: 0.8221
+Epoch: 13 loss: 0.3330 accuracy: 0.8520 val_loss: 0.3973 val_accuracy: 0.8208
+Epoch: 14 loss: 0.3202 accuracy: 0.8581 val_loss: 0.4169 val_accuracy: 0.8140
+Epoch: 15 loss: 0.3156 accuracy: 0.8648 val_loss: 0.4058 val_accuracy: 0.8235
+Epoch: 16 loss: 0.3164 accuracy: 0.8632 val_loss: 0.3954 val_accuracy: 0.8342
+Epoch: 17 loss: 0.3029 accuracy: 0.8709 val_loss: 0.3813 val_accuracy: 0.8423
+Epoch: 18 loss: 0.3074 accuracy: 0.8644 val_loss: 0.3928 val_accuracy: 0.8288
+Epoch: 19 loss: 0.2938 accuracy: 0.8740 val_loss: 0.3933 val_accuracy: 0.8356
+Epoch: 20 loss: 0.2881 accuracy: 0.8762 val_loss: 0.4022 val_accuracy: 0.8248
+Job ended!

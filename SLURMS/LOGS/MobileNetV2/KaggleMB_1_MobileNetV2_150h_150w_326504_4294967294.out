@@ -1,0 +1,65 @@
+Fri 01 Mar 2024 06:28:13 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['KaggleMB']
+IMG_SIZE: [150, 150]
+CLASSIFIER: MobileNetV2
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 1 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+mobilenetv2_1.00_224 (Functi (None, 1280)              2257984   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 3,048,770
+Trainable params: 789,250
+Non-trainable params: 2,259,520
+_________________________________________________________________
+Fitting KaggleMB_aug_MobileNetV2_150h_150w_None model...
+model_name: KaggleMB_aug_MobileNetV2_150h_150w_None
+Epoch: 1 loss: 0.6264 accuracy: 0.7254 val_loss: 0.3998 val_accuracy: 0.8277
+Epoch: 2 loss: 0.4529 accuracy: 0.8039 val_loss: 0.3695 val_accuracy: 0.8352
+Epoch: 3 loss: 0.3572 accuracy: 0.8461 val_loss: 0.3646 val_accuracy: 0.8409
+Epoch: 4 loss: 0.3121 accuracy: 0.8713 val_loss: 0.3455 val_accuracy: 0.8295
+Epoch: 5 loss: 0.2758 accuracy: 0.8770 val_loss: 0.3390 val_accuracy: 0.8428
+Epoch: 6 loss: 0.2496 accuracy: 0.8915 val_loss: 0.3484 val_accuracy: 0.8466
+Epoch: 7 loss: 0.2386 accuracy: 0.8992 val_loss: 0.3294 val_accuracy: 0.8655
+Epoch: 8 loss: 0.1987 accuracy: 0.9152 val_loss: 0.3491 val_accuracy: 0.8580
+Epoch: 9 loss: 0.1994 accuracy: 0.9186 val_loss: 0.3427 val_accuracy: 0.8693
+Epoch: 10 loss: 0.1756 accuracy: 0.9312 val_loss: 0.3490 val_accuracy: 0.8561
+Epoch: 11 loss: 0.1659 accuracy: 0.9343 val_loss: 0.3484 val_accuracy: 0.8617
+Epoch: 12 loss: 0.1579 accuracy: 0.9338 val_loss: 0.3590 val_accuracy: 0.8466
+Epoch: 13 loss: 0.1510 accuracy: 0.9412 val_loss: 0.3554 val_accuracy: 0.8655
+Epoch: 14 loss: 0.1360 accuracy: 0.9472 val_loss: 0.3624 val_accuracy: 0.8523
+Epoch: 15 loss: 0.1184 accuracy: 0.9595 val_loss: 0.3620 val_accuracy: 0.8674
+Epoch: 16 loss: 0.1243 accuracy: 0.9520 val_loss: 0.3671 val_accuracy: 0.8598
+Epoch: 17 loss: 0.1009 accuracy: 0.9635 val_loss: 0.3902 val_accuracy: 0.8655
+Epoch: 18 loss: 0.0989 accuracy: 0.9609 val_loss: 0.3486 val_accuracy: 0.8712
+Epoch: 19 loss: 0.0850 accuracy: 0.9686 val_loss: 0.4036 val_accuracy: 0.8674
+Epoch: 20 loss: 0.0748 accuracy: 0.9740 val_loss: 0.4299 val_accuracy: 0.8485
+Job ended!

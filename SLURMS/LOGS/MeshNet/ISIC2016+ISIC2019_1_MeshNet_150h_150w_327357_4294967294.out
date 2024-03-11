@@ -1,0 +1,112 @@
+Tue 05 Mar 2024 02:08:36 AM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2019']
+IMG_SIZE: [150, 150]
+CLASSIFIER: MeshNet
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 2 dbs
+Combining 2 db out of 2 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d (Conv2D)              (None, 150, 150, 256)     7168      
+_________________________________________________________________
+activation (Activation)      (None, 150, 150, 256)     0         
+_________________________________________________________________
+dropout (Dropout)            (None, 150, 150, 256)     0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 150, 150, 256)     1024      
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 150, 150, 128)     295040    
+_________________________________________________________________
+activation_1 (Activation)    (None, 150, 150, 128)     0         
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 150, 150, 128)     0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 150, 150, 128)     512       
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 150, 150, 128)     147584    
+_________________________________________________________________
+activation_2 (Activation)    (None, 150, 150, 128)     0         
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 150, 150, 128)     0         
+_________________________________________________________________
+batch_normalization_2 (Batch (None, 150, 150, 128)     512       
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 150, 150, 128)     147584    
+_________________________________________________________________
+activation_3 (Activation)    (None, 150, 150, 128)     0         
+_________________________________________________________________
+dropout_3 (Dropout)          (None, 150, 150, 128)     0         
+_________________________________________________________________
+batch_normalization_3 (Batch (None, 150, 150, 128)     512       
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 150, 150, 128)     147584    
+_________________________________________________________________
+activation_4 (Activation)    (None, 150, 150, 128)     0         
+_________________________________________________________________
+dropout_4 (Dropout)          (None, 150, 150, 128)     0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 150, 150, 128)     512       
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 150, 150, 128)     147584    
+_________________________________________________________________
+activation_5 (Activation)    (None, 150, 150, 128)     0         
+_________________________________________________________________
+dropout_5 (Dropout)          (None, 150, 150, 128)     0         
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 150, 150, 128)     512       
+_________________________________________________________________
+conv2d_6 (Conv2D)            (None, 150, 150, 64)      73792     
+_________________________________________________________________
+activation_6 (Activation)    (None, 150, 150, 64)      0         
+_________________________________________________________________
+dropout_6 (Dropout)          (None, 150, 150, 64)      0         
+_________________________________________________________________
+batch_normalization_6 (Batch (None, 150, 150, 64)      256       
+_________________________________________________________________
+conv2d_7 (Conv2D)            (None, 150, 150, 64)      36928     
+_________________________________________________________________
+global_max_pooling2d (Global (None, 64)                0         
+_________________________________________________________________
+dense (Dense)                (None, 2)                 130       
+=================================================================
+Total params: 1,007,234
+Trainable params: 1,005,314
+Non-trainable params: 1,920
+_________________________________________________________________
+Fitting ISIC2016+ISIC2019_aug_MeshNet_150h_150w_None model...
+model_name: ISIC2016+ISIC2019_aug_MeshNet_150h_150w_None
+Epoch: 1 loss: 0.6776 accuracy: 0.6498 val_loss: 0.7385 val_accuracy: 0.5824
+Epoch: 2 loss: 0.5804 accuracy: 0.7033 val_loss: 0.5712 val_accuracy: 0.7273
+Epoch: 3 loss: 0.5540 accuracy: 0.7228 val_loss: 0.4865 val_accuracy: 0.7606
+Epoch: 4 loss: 0.5396 accuracy: 0.7308 val_loss: 0.4402 val_accuracy: 0.7974
+Epoch: 5 loss: 0.5294 accuracy: 0.7400 val_loss: 0.4828 val_accuracy: 0.7601
+Epoch: 6 loss: 0.5169 accuracy: 0.7476 val_loss: 0.5399 val_accuracy: 0.7185
+Epoch: 7 loss: 0.5072 accuracy: 0.7534 val_loss: 0.4911 val_accuracy: 0.7522
+Epoch: 8 loss: 0.4995 accuracy: 0.7607 val_loss: 0.5374 val_accuracy: 0.7179
+Epoch: 9 loss: 0.4921 accuracy: 0.7641 val_loss: 0.4943 val_accuracy: 0.7583
+Epoch: 10 loss: 0.4863 accuracy: 0.7661 val_loss: 0.5552 val_accuracy: 0.7055
+Epoch: 11 loss: 0.4807 accuracy: 0.7718 val_loss: 0.4830 val_accuracy: 0.7621
+Epoch: 12 loss: 0.4753 accuracy: 0.7743 val_loss: 0.5500 val_accuracy: 0.7223
+Epoch: 13 loss: 0.4737 accuracy: 0.7745 val_loss: 0.5482 val_accuracy: 0.7252
+Epoch: 14 loss: 0.4669 accuracy: 0.7783 val_loss: 0.6331 val_accuracy: 0.6526
+Epoch: 15 loss: 0.4594 accuracy: 0.7839 val_loss: 0.4839 val_accuracy: 0.7688
+Epoch: 16 loss: 0.4560 accuracy: 0.7839 val_loss: 0.4857 val_accuracy: 0.7644
+Epoch: 17 loss: 0.4536 accuracy: 0.7866 val_loss: 0.5115 val_accuracy: 0.7427
+Epoch: 18 loss: 0.4488 accuracy: 0.7926 val_loss: 0.5294 val_accuracy: 0.7299
+Epoch: 19 loss: 0.4447 accuracy: 0.7895 val_loss: 0.4779 val_accuracy: 0.7646
+Epoch: 20 loss: 0.4430 accuracy: 0.7923 val_loss: 0.5897 val_accuracy: 0.6899
+Job ended!

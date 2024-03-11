@@ -1,0 +1,68 @@
+Fri 01 Mar 2024 12:29:54 PM EST
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2018', 'ISIC2019', 'ISIC2020']
+IMG_SIZE: [150, 150]
+CLASSIFIER: EfficientNetB6
+SELF_AUG: 1
+JOB_INDEX: None
+Combining...
+Combining 1 db out of 4 dbs
+Combining 2 db out of 4 dbs
+Combining 3 db out of 4 dbs
+Combining 4 db out of 4 dbs
+Stacking training images
+Stacking training labels
+Stacking validation images
+Stacking validation labels
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb6 (Functional)  (None, 2304)              40960143  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1180160   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 42,275,217
+Trainable params: 1,313,538
+Non-trainable params: 40,961,679
+_________________________________________________________________
+Fitting ISIC2016+ISIC2018+ISIC2019+ISIC2020_aug_EfficientNetB6_150h_150w_None model...
+model_name: ISIC2016+ISIC2018+ISIC2019+ISIC2020_aug_EfficientNetB6_150h_150w_None
+Epoch: 1 loss: 0.4700 accuracy: 0.7820 val_loss: 0.2169 val_accuracy: 0.9214
+Epoch: 2 loss: 0.3971 accuracy: 0.8112 val_loss: 0.2026 val_accuracy: 0.9267
+Epoch: 3 loss: 0.3759 accuracy: 0.8225 val_loss: 0.1958 val_accuracy: 0.9297
+Epoch: 4 loss: 0.3682 accuracy: 0.8271 val_loss: 0.1952 val_accuracy: 0.9280
+Epoch: 5 loss: 0.3583 accuracy: 0.8321 val_loss: 0.1951 val_accuracy: 0.9304
+Epoch: 6 loss: 0.3547 accuracy: 0.8347 val_loss: 0.1922 val_accuracy: 0.9314
+Epoch: 7 loss: 0.3510 accuracy: 0.8364 val_loss: 0.1906 val_accuracy: 0.9303
+Epoch: 8 loss: 0.3485 accuracy: 0.8366 val_loss: 0.1871 val_accuracy: 0.9325
+Epoch: 9 loss: 0.3421 accuracy: 0.8406 val_loss: 0.1867 val_accuracy: 0.9325
+Epoch: 10 loss: 0.3405 accuracy: 0.8422 val_loss: 0.1864 val_accuracy: 0.9325
+Epoch: 11 loss: 0.3369 accuracy: 0.8432 val_loss: 0.1850 val_accuracy: 0.9330
+Epoch: 12 loss: 0.3351 accuracy: 0.8445 val_loss: 0.1828 val_accuracy: 0.9339
+Epoch: 13 loss: 0.3322 accuracy: 0.8450 val_loss: 0.1847 val_accuracy: 0.9353
+Epoch: 14 loss: 0.3323 accuracy: 0.8450 val_loss: 0.1836 val_accuracy: 0.9325
+Epoch: 15 loss: 0.3293 accuracy: 0.8490 val_loss: 0.1868 val_accuracy: 0.9303
+Epoch: 16 loss: 0.3260 accuracy: 0.8492 val_loss: 0.1891 val_accuracy: 0.9280
+Epoch: 17 loss: 0.3268 accuracy: 0.8477 val_loss: 0.1782 val_accuracy: 0.9341
+Epoch: 18 loss: 0.3233 accuracy: 0.8503 val_loss: 0.1769 val_accuracy: 0.9354
+Epoch: 19 loss: 0.3212 accuracy: 0.8505 val_loss: 0.1782 val_accuracy: 0.9360
+Epoch: 20 loss: 0.3199 accuracy: 0.8525 val_loss: 0.1778 val_accuracy: 0.9367
+Job ended!
