@@ -1,3 +1,6 @@
+## A standalone Melanoma web application
+[Melanoma web application](https://mpsych.github.io/melanoma/)
+
 ## Supported datasets
 - HAM10000
 - ISIC2016
