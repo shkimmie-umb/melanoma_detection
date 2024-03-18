@@ -1,6 +1,7 @@
 # Web-based Melanoma Detection
 [ArXiv link]()
-![screenshot](https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg)
+<img src="https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg" width="48">
+<!-- ![screenshot](https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg) -->
 
 
 ## Standalone Melanoma web application
