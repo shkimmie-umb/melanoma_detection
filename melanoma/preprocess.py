@@ -501,6 +501,15 @@ class Preprocess:
 				assert_(label == original_df.cell_type_binary[x]),
 				df.image[x][0].save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
 			))
+    
+    def saveNumpyImagesToFilesWithoutLabel(self, df, base_path):
+        def assert_(cond): assert cond
+        return df.index.map(lambda x: (
+				currentPath := pathlib.Path(df.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
+				# label := df.cell_type_binary[x],
+				# assert_(label == original_df.cell_type_binary[x]),
+				df.image[x][0].save(f"{base_path}/{currentPath}.jpg", quality=100, subsampling=0)
+			))
 
     def saveCustomDBImagesToFiles(self, labels, foldersExist, RGBfolders, trains, vals=None, tests=None):
         

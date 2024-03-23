@@ -168,7 +168,7 @@ class Model:
     
 
     def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018, \
-        dbpath_7pointcriteria):
+        dbpath_7pointcriteria, dbpath_ISIC2020, leaderboard_only = False):
 
         commondata = mel.CommonData()
         
@@ -176,251 +176,296 @@ class Model:
         combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
         assert len(combined_DBs) >= 1
 
-        # 7 point criteria Testing
+        # ISIC2020
         trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_7pointcriteria, 'rb'))
-        assert testimages.shape[0] == 395
-        assert len(testlabels) == 395
-        print('Testing on 7-point-criteria DB')
-        model, _, _ = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType._7_point_criteria.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
-            )
+			trainlabels, _, validationlabels, num_classes, testimages_id = pickle.load(open(dbpath_ISIC2020, 'rb'))
+        assert testimages.shape[0] == 10982
+        print('Testing on ISIC2020 DB')
+
+        model = load_model(model_path+'/'+model_name + '.hdf5')
         target_network = model.layers[0].name
 
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType._7_point_criteria.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
+        test_pred, test_pred_classes = self.predict_testimages(
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2020.name, \
+                testimages = testimages
         )
 
-        _7_point_criteria_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
+        import csv
 
-        # Kaggle MB Testing
-        trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
-        print('Testing on Kaggle DB')
-        model, test_loss_KMB, test_acc_KMB = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType.KaggleMB.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
+        # field names
+        fields = ['image_name', 'target']
+        
+        # name of csv file
+        if not os.path.exists(f'{model_path}/leaderboard/{target_network}'):
+            os.makedirs(f'{model_path}/leaderboard/{target_network}', exist_ok=True)
+        filename = f'{model_path}/leaderboard/{target_network}/{model_name}_ISIC2020leaderboard.csv'
+        
+        
+
+        with open(filename, 'w') as csvfile:
+            # creating a csv writer object
+            csvwriter = csv.writer(csvfile)
+        
+            # writing the fields
+            csvwriter.writerow(fields)
+        
+            assert len(testimages_id) == len(test_pred_classes)
+            assert len(testimages_id) == len(test_pred)
+            # writing the data rows
+            for idx, i in enumerate(testimages_id):
+
+                csvwriter.writerow([i, test_pred[idx][1]])
+
+        
+
+
+        if leaderboard_only == False:
+
+            # 7 point criteria Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_7pointcriteria, 'rb'))
+            assert testimages.shape[0] == 395
+            assert len(testlabels) == 395
+            print('Testing on 7-point-criteria DB')
+            model, _, _ = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType._7_point_criteria.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            target_network = model.layers[0].name
+
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType._7_point_criteria.name, \
+                    trainimages = trainimages, testimages = testimages
             )
-        
-        
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        
-
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
-        )
-        
-        KaggleMB_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
-
-        # HAM10000 Testing
-        trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_HAM10000, 'rb'))
-        print('Testing on HAM10000')
-        model, _, _ = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType.HAM10000.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType._7_point_criteria.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
             )
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.HAM10000.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.HAM10000.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
-        )
 
-        HAM10000_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
+            _7_point_criteria_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
 
-        # ISIC2016 Testing
-        trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2016, 'rb'))
-        assert testimages.shape[0] == 379
-        assert len(testlabels) == 379
-        print('Testing on ISIC2016')
-        model, _, _ = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType.ISIC2016.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
+            # Kaggle MB Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_KaggleDB, 'rb'))
+            print('Testing on Kaggle DB')
+            model, test_loss_KMB, test_acc_KMB = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType.KaggleMB.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            
+            
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
+                    trainimages = trainimages, testimages = testimages
             )
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2016.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2016.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
-        )
+            
 
-        ISIC2016_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
-
-        # ISIC2017 Testing
-        trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2017, 'rb'))
-        assert testimages.shape[0] == 600
-        assert len(testlabels) == 600
-        print('Testing on ISIC2017')
-        model, _, _ = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType.ISIC2017.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
             )
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2017.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2017.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
-        )
+            
+            KaggleMB_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
 
-        ISIC2017_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
-
-        # ISIC2018 Testing
-        trainimages, testimages, validationimages, \
-			trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2018, 'rb'))
-        assert testimages.shape[0] == 1512
-        assert len(testlabels) == 1512
-        print('Testing on ISIC2018')
-        model, _, _ = self.evaluate_model(
-            model_name=model_name,
-            model_path=model_path,
-            target_db=mel.DatasetType.ISIC2018.name,
-            trainimages=trainimages,
-            trainlabels=trainlabels,
-            validationimages=validationimages,
-            validationlabels=validationlabels,
-            testimages=testimages,
-            testlabels=testlabels,
+            # HAM10000 Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_HAM10000, 'rb'))
+            print('Testing on HAM10000')
+            model, _, _ = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType.HAM10000.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType.HAM10000.name, \
+                    trainimages = trainimages, testimages = testimages
             )
-        train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
-            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
-                trainimages = trainimages, testimages = testimages
-        )
-        test_report = self.model_report(
-            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
-                target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
-                    testlabels = testlabels, test_pred_classes = test_pred_classes
-        )
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType.HAM10000.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
+            )
 
-        ISIC2018_perf = {
-            'y_pred': test_pred_classes.tolist(),
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['Malignant']['recall'],
-            'specificity': test_report['Benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-        }
+            HAM10000_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
 
-        
+            # ISIC2016 Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2016, 'rb'))
+            assert testimages.shape[0] == 379
+            assert len(testlabels) == 379
+            print('Testing on ISIC2016')
+            model, _, _ = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType.ISIC2016.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2016.name, \
+                    trainimages = trainimages, testimages = testimages
+            )
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2016.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
+            )
 
-        final_perf = {
-            'dataset': combined_DBs,
-            'classifier': network_name,
-            'Parameters': model.count_params(),
-            'HAM10000': HAM10000_perf,
-            'KaggleMB': KaggleMB_perf,
-            'ISIC2016': ISIC2016_perf,
-            'ISIC2017': ISIC2017_perf,
-            'ISIC2018': ISIC2018_perf,
-            '_7_point_criteria': _7_point_criteria_perf,
-            'Filesize': int(os.stat(model_path+'/'+model_name + '.hdf5').st_size / (1024 * 1024)),
+            ISIC2016_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
 
-        }
+            # ISIC2017 Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2017, 'rb'))
+            assert testimages.shape[0] == 600
+            assert len(testlabels) == 600
+            print('Testing on ISIC2017')
+            model, _, _ = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType.ISIC2017.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2017.name, \
+                    trainimages = trainimages, testimages = testimages
+            )
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2017.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
+            )
 
-        # Into snapshot_path
-        if not os.path.exists(f'{model_path}/performance/{target_network}'):
-            os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
-        
-        file_json = open(f'{model_path}/performance/{target_network}/{model_name}_metrics.json', "w")
-  
-        json.dump(final_perf, file_json, indent = 6)
-        
-        file_json.close()
+            ISIC2017_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
 
-        return final_perf
+            # ISIC2018 Testing
+            trainimages, testimages, validationimages, \
+                trainlabels, testlabels, validationlabels, num_classes = pickle.load(open(dbpath_ISIC2018, 'rb'))
+            assert testimages.shape[0] == 1512
+            assert len(testlabels) == 1512
+            print('Testing on ISIC2018')
+            model, _, _ = self.evaluate_model(
+                model_name=model_name,
+                model_path=model_path,
+                target_db=mel.DatasetType.ISIC2018.name,
+                trainimages=trainimages,
+                trainlabels=trainlabels,
+                validationimages=validationimages,
+                validationlabels=validationlabels,
+                testimages=testimages,
+                testlabels=testlabels,
+                )
+            train_pred, train_pred_classes, test_pred, test_pred_classes = self.computing_prediction(
+                model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2018.name, \
+                    trainimages = trainimages, testimages = testimages
+            )
+            test_report = self.model_report(
+                model_name = model_name, model_path=model_path, target_db=mel.DatasetType.ISIC2018.name, \
+                    target_network = target_network, trainlabels = trainlabels, train_pred_classes = train_pred_classes, \
+                        testlabels = testlabels, test_pred_classes = test_pred_classes
+            )
+
+            ISIC2018_perf = {
+                'y_pred': test_pred_classes.tolist(),
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['Malignant']['recall'],
+                'specificity': test_report['Benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+            }
+
+            
+
+            final_perf = {
+                'dataset': combined_DBs,
+                'classifier': network_name,
+                'Parameters': model.count_params(),
+                'HAM10000': HAM10000_perf,
+                'KaggleMB': KaggleMB_perf,
+                'ISIC2016': ISIC2016_perf,
+                'ISIC2017': ISIC2017_perf,
+                'ISIC2018': ISIC2018_perf,
+                '_7_point_criteria': _7_point_criteria_perf,
+                'Filesize': int(os.stat(model_path+'/'+model_name + '.hdf5').st_size / (1024 * 1024)),
+
+            }
+
+            # Into snapshot_path
+            if not os.path.exists(f'{model_path}/performance/{target_network}'):
+                os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
+            
+            file_json = open(f'{model_path}/performance/{target_network}/{model_name}_metrics.json', "w")
+    
+            json.dump(final_perf, file_json, indent = 6)
+            
+            file_json.close()
+
+            return final_perf
 
         
 
@@ -460,6 +505,17 @@ class Model:
         test_pred_classes = np.argmax(test_pred,axis = 1)
 
         return train_pred, train_pred_classes, test_pred, test_pred_classes
+    
+    def predict_testimages(self, model, model_name, target_db, testimages):
+        print(f'Computing predictions for {model_name} on {target_db}...')
+       
+        test_pred = model.predict(testimages)
+        # Convert predictions classes to one hot vectors
+        test_pred_classes = np.argmax(test_pred,axis = 1)
+
+        
+
+        return test_pred, test_pred_classes
 
     def model_report(self,
         model_path,

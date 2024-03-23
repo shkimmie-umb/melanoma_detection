@@ -1400,23 +1400,32 @@ class Util:
 
 		if datasettype.value == mel.DatasetType.ISIC2020.value:
 			ISIC2020_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './train')
+			ISIC2020_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC_2020_Test_Input')
 
 			num_train_img_ISIC2020 = len(list(ISIC2020_training_path.glob('./*.jpg'))) # counts all ISIC2019 training images
+			num_test_img_ISIC2020 = len(list(ISIC2020_test_path.glob('./*.jpg')))
 
 			assert num_train_img_ISIC2020 == 33126
+			assert num_test_img_ISIC2020 == 10982
 
 			logger.debug('%s %s', f"Images available in {datasettype.name} train dataset:", num_train_img_ISIC2020)
+			logger.debug('%s %s', f"Images available in {datasettype.name} test dataset:", num_test_img_ISIC2020)
 
 			# ISIC2020: Dictionary for Image Names
 			imageid_path_training_dict_ISIC2020 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2020_training_path, '*.jpg'))}
+			imageid_path_test_dict_ISIC2020 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2020_test_path, '*.jpg'))}
 
 			
-			# ISIC2018_columns = ['image_id', 'label']
+			
 			df_training_ISIC2020 = pd.read_csv(str(pathlib.Path.joinpath(
 				self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC_2020_Training_GroundTruth.csv')),
 				header=0)
+			df_test_ISIC2020 = pd.read_csv(str(pathlib.Path.joinpath(
+				self.base_dir, './melanomaDB', f'./{datasettype.name}', './ISIC_2020_Test_Metadata.csv')),
+				header=0)
 
 			assert df_training_ISIC2020.shape[0] == 33126
+			assert df_test_ISIC2020.shape[0] == 10982
 			
 
 			logger.debug("Let's check ISIC2020 metadata briefly")
@@ -1429,6 +1438,8 @@ class Util:
 			df_training_ISIC2020['path'] = df_training_ISIC2020['image_name'].map(imageid_path_training_dict_ISIC2020.get)
 			df_training_ISIC2020['cell_type_binary'] = df_training_ISIC2020['benign_malignant'].map(self.lesion_type_binary_dict_training_ISIC2020.get)
 			df_training_ISIC2020['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2020.cell_type_binary, categories=self.classes_melanoma_binary).codes
+
+			df_test_ISIC2020['path'] = df_test_ISIC2020['image'].map(imageid_path_test_dict_ISIC2020.get)
 
 
 			logger.debug("Check null data in ISIC2020 training metadata")
@@ -1451,10 +1462,24 @@ class Util:
 				)
 			)
 
+			df_test_ISIC2020['image'] = df_test_ISIC2020.path.map(
+				lambda x:(
+					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# np.asarray(img), # [1]: pixel array
+					img_to_array(img), # [1]: pixel array
+					id := pathlib.Path(x).stem, # [2]: PosixPath
+					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
+				)
+			)
+
+			df_test_ISIC2020['img_sizes'] = df_test_ISIC2020.path.map(
+				lambda x:(
+					Image.open(x).size
+				)
+			)
 
 
-			# assert all(df_training_ISIC2020.cell_type_binary.unique() == df_test_ISIC2020.cell_type_binary.unique())
-			# assert all(df_val_ISIC2020.cell_type_binary.unique() == df_test_ISIC2020.cell_type_binary.unique())
+
 			labels = df_training_ISIC2020.cell_type_binary.unique()
 
 			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
@@ -1471,30 +1496,34 @@ class Util:
 					os.makedirs(f"{test_feature_folder}/{i}", exist_ok=True)
 
 
-			# df_training_ISIC2017['image'] = df_training_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-			# df_val_ISIC2017['image'] = df_val_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-			# df_test_ISIC2017['image'] = df_test_ISIC2017.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
 
 			# Dividing ISIC2020 into train/val set
 			trainset_ISIC2020, validationset_ISIC2020 = train_test_split(df_training_ISIC2020, test_size=0.2,random_state = 1)
+			testset_ISIC2020 = df_test_ISIC2020
 
 			preprocessor.saveNumpyImagesToFiles(trainset_ISIC2020, df_training_ISIC2020, train_rgb_folder)
 			preprocessor.saveNumpyImagesToFiles(validationset_ISIC2020, df_training_ISIC2020, train_rgb_folder)
+			preprocessor.saveNumpyImagesToFilesWithoutLabel(testset_ISIC2020, test_rgb_folder)
 
 			# ISIC2020 binary images/labels
 			trainpixels_ISIC2020 = list(map(lambda x:x[1], trainset_ISIC2020.image)) # Filter out only pixel from the list
 			validationpixels_ISIC2020 = list(map(lambda x:x[1], validationset_ISIC2020.image)) # Filter out only pixel from the list
+			testpixels_ISIC2020 = list(map(lambda x:x[1], testset_ISIC2020.image))
+			testimages_id_ISIC2020 = list(map(lambda x:x[2], testset_ISIC2020.image))
 			
 
 			trainimages_ISIC2020 = preprocessor.normalizeImgs(trainpixels_ISIC2020, networktype)
 			validationimages_ISIC2020 = preprocessor.normalizeImgs(validationpixels_ISIC2020, networktype)
+			testimages_ISIC2020 = preprocessor.normalizeImgs(testpixels_ISIC2020, networktype)
 			# trainlabels_binary_ISIC2017 = np.asarray(trainset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2017 = np.asarray(testset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2017 = np.asarray(validationset_ISIC2017.cell_type_binary_idx, dtype='float64')
 			trainlabels_binary_ISIC2020 = to_categorical(trainset_ISIC2020.cell_type_binary_idx, num_classes=2)
 			validationlabels_binary_ISIC2020 = to_categorical(validationset_ISIC2020.cell_type_binary_idx, num_classes=2)
 
-			assert num_train_img_ISIC2020 == len(trainpixels_ISIC2020) + len(validationpixels_ISIC2020)
+			# assert num_train_img_ISIC2020 == len(trainpixels_ISIC2020) + len(validationpixels_ISIC2020)
+			assert num_test_img_ISIC2020 == len(testpixels_ISIC2020)
+			assert num_test_img_ISIC2020 == len(testimages_id_ISIC2020)
 			assert len(trainpixels_ISIC2020) == trainlabels_binary_ISIC2020.shape[0]
 			assert len(validationpixels_ISIC2020) == validationlabels_binary_ISIC2020.shape[0]
 			assert trainimages_ISIC2020.shape[0] == trainlabels_binary_ISIC2020.shape[0]
@@ -1508,9 +1537,9 @@ class Util:
 			if os.path.exists(filename) is not True:
 				with open(filename, 'wb') as file_bin:
 					
-					pickle.dump((trainimages_ISIC2020, None, validationimages_ISIC2020,
+					pickle.dump((trainimages_ISIC2020, testimages_ISIC2020, validationimages_ISIC2020,
 					trainlabels_binary_ISIC2020, None, validationlabels_binary_ISIC2020,
-					2), file_bin)
+					2, testimages_id_ISIC2020), file_bin)
 				file_bin.close()
 			else:
 				print("Skipping ISIC2020")
@@ -1529,9 +1558,9 @@ class Util:
 				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
 				with open(filename_bin, 'wb') as file_bin:
 					
-					pickle.dump((trainimages_ISIC2020_augmented, None, validationimages_ISIC2020,
+					pickle.dump((trainimages_ISIC2020_augmented, testimages_ISIC2020, validationimages_ISIC2020,
 					trainlabels_binary_ISIC2020_augmented, None, validationlabels_binary_ISIC2020,
-					2), file_bin)
+					2, testimages_id_ISIC2020), file_bin)
 				file_bin.close()
 			
 
