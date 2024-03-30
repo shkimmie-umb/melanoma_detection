@@ -35,6 +35,8 @@ class DatasetType(Enum):
 	PAD_UFES_20 = 9
 	MEDNODE = 10
 	KaggleMB = 11
+	Multiple = 100
+      
 
 class NetworkType(Enum):
 	ResNet50 = 1
@@ -71,11 +73,13 @@ class NetworkType(Enum):
 	NASNetMobile = 32
 	NASNetLarge = 33
 	MeshNet = 34
+	Ensemble = 35
 	# ConvNeXtTiny = 34
 	# ConvNeXtSmall = 35
 	# ConvNeXtBase = 36
 	# ConvNeXtLarge = 37
 	# ConvNeXtXLarge = 38
+
     
 
 class CommonData:
@@ -143,4 +147,6 @@ class CommonData:
         mel.NetworkType.NASNetLarge.name: mel.NetworkType.NASNetMobile.name,
 
         mel.NetworkType.MeshNet.name: mel.NetworkType.VGG16.name,
+
+        mel.NetworkType.Ensemble.name: mel.NetworkType.ResNet50.name,
       }

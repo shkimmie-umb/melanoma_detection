@@ -15,7 +15,8 @@ CFG={
 base_model = mel.CNN(CFG=CFG)
 
 # snapshot_path = '/raid/mpsych/MELANOMA/snapshot/meshnet'
-snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot/bestperformers'
+# snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot/bestperformers'
+snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot/bestperformers/ensemble'
 
 modelfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*.hdf5', recursive=True)]))
 modelnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, modelfiles))

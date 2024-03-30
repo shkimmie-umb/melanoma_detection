@@ -9,8 +9,8 @@ from tensorflow.keras import layers, regularizers
 from tensorflow.keras.models import Model, Sequential, load_model
 from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from tensorflow.keras.layers import (
-    Input, Dense, Conv2D, Flatten, Activation, Dropout, BatchNormalization,
-    MaxPooling2D, AveragePooling2D, ZeroPadding2D, GlobalAveragePooling2D, GlobalMaxPooling2D, add
+    Input, Dense, Conv2D, Activation, Dropout, BatchNormalization,
+    GlobalAveragePooling2D, GlobalMaxPooling2D, add, average
 )
 from keras.layers.merge import concatenate
 
@@ -40,6 +40,10 @@ import melanoma as mel
 
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+import os
+os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+
 
 
 class CNN(Base_Model):
@@ -692,175 +696,48 @@ class CNN(Base_Model):
 
         return model
 
-        def meshnet_goingdown(self, network=None):
-        # base_model = ResNet50(include_top=False, input_shape=(
-        #     self.CFG['img_height'], self.CFG['img_width'], 3), pooling='avg', weights=self.CFG['pretrained_weights'])
+    def ensemble(self, snapshot_path):
+        import itertools
+        import glob
+        
+        
+        
+        modelfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*.hdf5', recursive=True)]))
+        modelnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, modelfiles))
 
-
-            model = Sequential()
-            model.add(Input(shape=(150, 150, 3)))
-            # model.add(base_model)
+        models = []
+        input_size = []
+        yModels = []
+        for i, m in enumerate(modelfiles):
             
-            # image = Input(shape=(150, 150, 3))
-            # x = Conv2D(3, kernel_size=(3,3), padding='same', activation='relu')
+            model = load_model(m)
+            # model._name = f'{pathlib.Path(os.path.basename(m)).stem}_{i}'
+            model._name = str(i)
+            models.append(model)
+            # input_size.append(Input(shape=model.input_shape[1:])) # h*w*c
+            # yModels.append(model(input_size[i]))
 
-            # MeshNet-inspired layers adapted for 2D, including dilation
-            # model.add(Dense(512, activation='relu'))
+        model_input = Input(shape=models[0].input_shape[1:]) # h*w*c
+        yModels=[model(model_input) for model in models]
+        # averaging outputs
+        yAvg = average(yModels)
+        
+        # build model from same input and avg output
+        modelEns = Model(inputs=model_input, outputs=yAvg, name='ensemble')
 
-            # model.add(layers.Conv2D(2048,(3,3),padding='same',activation='relu'))
-            # model.add(layers.Conv2D(1024,(3,3),padding='same',activation='relu'))
-            # model.add(layers.Conv2D(512,(3,3),padding='same',activation='relu'))
-            # Layer 1: Convolutional + Relu + BatchNorm + Dropout
-            
-            model.add(layers.Conv2D(256,(3,3),padding='same',activation='relu'))
-            # model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
-            model.add(Activation('relu'))
-            model.add(Dropout(0.3))
-            model.add(BatchNormalization())
-            # model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
+        modelEns.compile(optimizer=self.CFG['model_optimizer'],
+                    loss=self.CFG['loss'], metrics=self.CFG['metrics'])
+        
+        
+        if not os.path.exists(f'{snapshot_path}/ensemble'):
+                os.makedirs(f'{snapshot_path}/ensemble', exist_ok=True)
 
-            # Layers 2-6: Repetition of Convolutional + Relu + BatchNorm + Dropout with increasing dilation rates
-            """
-            Our architecture entirely consists of what [7] used as a context module but we modified it to use 3D dilated convolutions.
-            https://arxiv.org/pdf/1612.00940.pdf (MeshNet Section)
-            """
-            # Layer 2
-            model.add(Conv2D(filters=128, kernel_size=(3, 3),
-                        padding='same', dilation_rate=(1, 1)))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
-            # Layer 3
-            model.add(Conv2D(filters=128, kernel_size=(3, 3),
-                        padding='same', dilation_rate=(2, 2)))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
-            # Layer 4
-            model.add(Conv2D(filters=128, kernel_size=(3, 3),
-                        padding='same', dilation_rate=(4, 4)))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
-            # Layer 5
-            model.add(Conv2D(filters=128, kernel_size=(3, 3),
-                        padding='same', dilation_rate=(8, 8)))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
-            # Layer 6
-            model.add(Conv2D(filters=128, kernel_size=(3, 3),
-                        padding='same', dilation_rate=(16, 16)))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
+        model_path = f'{snapshot_path}/ensemble/Ensemble.hdf5'
 
-            # dilation_rates = [(1, 1), (2, 2), (4, 4), (8, 8), (16, 16)]
-            # for rate in dilation_rates:
-            #     model.add(Conv2D(filters=64, kernel_size=(3, 3),
-            #             padding='same', dilation_rate=rate))
-            #     model.add(Activation('relu'))
-            #     model.add(BatchNormalization())
-            #     model.add(Dropout(0.3))
-
-            # Layer 7: Convolutional + BatchNorm + Activation + Dropout
-            model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
-            model.add(Activation('relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.3))
-            # model.add(layers.MaxPooling2D())
-
-            model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same'))
-            # model.add(layers.MaxPooling2D())
-
-            # model.add(GlobalMaxPooling2D())
-
-            # model.add(Dense(512, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
-            # model.add(Dense(256, activation='relu'))
-            # model.add(Dropout(0.2))
-            # model.add(BatchNormalization())
-
-            model.add(GlobalMaxPooling2D())
-            # model.add(GlobalAveragePooling2D())
-
-            
-            
-
-            model.add(Dense(2, activation='softmax'))
-
-            # model.layers[0].trainable = False
-
-            model.compile(optimizer=self.CFG['model_optimizer'],
-                        loss=self.CFG['loss'], metrics=self.CFG['metrics'])
-
-            model.summary()
-
-            return model
-
-
-    # def meshnet_dilation(input_shape, apply_softmax=True, input_tensor=None, classes):
-
-    #     if input_tensor is None:
-    #         model_in = Input(shape=input_shape)
-    #     else:
-    #         if not K.is_keras_tensor(input_tensor):
-    #             model_in = Input(tensor=input_tensor, shape=input_shape)
-    #         else:
-    #             model_in = input_tensor
-
-    #     h = Convolution2D(64, 3, 3, activation='relu', name='conv1_1')(model_in)
-    #     h = Convolution2D(64, 3, 3, activation='relu', name='conv1_2')(h)
-    #     h = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool1')(h)
-    #     h = Convolution2D(128, 3, 3, activation='relu', name='conv2_1')(h)
-    #     h = Convolution2D(128, 3, 3, activation='relu', name='conv2_2')(h)
-    #     h = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool2')(h)
-    #     h = Convolution2D(256, 3, 3, activation='relu', name='conv3_1')(h)
-    #     h = Convolution2D(256, 3, 3, activation='relu', name='conv3_2')(h)
-    #     h = Convolution2D(256, 3, 3, activation='relu', name='conv3_3')(h)
-    #     h = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool3')(h)
-    #     h = Convolution2D(512, 3, 3, activation='relu', name='conv4_1')(h)
-    #     h = Convolution2D(512, 3, 3, activation='relu', name='conv4_2')(h)
-    #     h = Convolution2D(512, 3, 3, activation='relu', name='conv4_3')(h)
-    #     h = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), activation='relu', name='conv5_1')(h)
-    #     h = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), activation='relu', name='conv5_2')(h)
-    #     h = AtrousConvolution2D(512, 3, 3, atrous_rate=(2, 2), activation='relu', name='conv5_3')(h)
-    #     h = AtrousConvolution2D(4096, 7, 7, atrous_rate=(4, 4), activation='relu', name='fc6')(h)
-    #     h = Dropout(0.5, name='drop6')(h)
-    #     h = Convolution2D(4096, 1, 1, activation='relu', name='fc7')(h)
-    #     h = Dropout(0.5, name='drop7')(h)
-    #     h = Convolution2D(classes, 1, 1, name='final')(h)
-    #     h = ZeroPadding2D(padding=(1, 1))(h)
-    #     h = Convolution2D(classes, 3, 3, activation='relu', name='ctx_conv1_1')(h)
-    #     h = ZeroPadding2D(padding=(1, 1))(h)
-    #     h = Convolution2D(classes, 3, 3, activation='relu', name='ctx_conv1_2')(h)
-    #     h = ZeroPadding2D(padding=(2, 2))(h)
-    #     h = AtrousConvolution2D(classes, 3, 3, atrous_rate=(2, 2), activation='relu', name='ctx_conv2_1')(h)
-    #     h = ZeroPadding2D(padding=(4, 4))(h)
-    #     h = AtrousConvolution2D(classes, 3, 3, atrous_rate=(4, 4), activation='relu', name='ctx_conv3_1')(h)
-    #     h = ZeroPadding2D(padding=(8, 8))(h)
-    #     h = AtrousConvolution2D(classes, 3, 3, atrous_rate=(8, 8), activation='relu', name='ctx_conv4_1')(h)
-    #     h = ZeroPadding2D(padding=(16, 16))(h)
-    #     h = AtrousConvolution2D(classes, 3, 3, atrous_rate=(16, 16), activation='relu', name='ctx_conv5_1')(h)
-    #     h = ZeroPadding2D(padding=(1, 1))(h)
-    #     h = Convolution2D(classes, 3, 3, activation='relu', name='ctx_fc1')(h)
-    #     logits = Convolution2D(classes, 1, 1, name='ctx_final')(h)
-
-    #     if apply_softmax:
-    #         model_out = softmax(logits)
-    #     else:
-    #         model_out = logits
-
-    #     model = Model(input=model_in, output=model_out, name='dilation_camvid')
-
-    #     return model
+        modelEns.save(model_path)
+        modelEns=load_model(model_path)
+        modelEns.summary()
+   
 
 
     

@@ -1,5 +1,5 @@
 # Web-based Melanoma Detection
-[ArXiv link]()
+[ArXiv link](https://arxiv.org/abs/2403.14898)
 <p></p>
 <img src="https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg" width="480">
 <!-- ![screenshot](https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg) -->
@@ -20,6 +20,23 @@
 - [PAD_UFES_20](https://data.mendeley.com/datasets/zr7vgbcyr2/1)
 - [MED-NODE](https://www.cs.rug.nl/~imaging/databases/melanoma_naevi/)
 - [Kaggle](https://www.kaggle.com/datasets/fanconic/skin-cancer-malignant-vs-benign)
+
+## [SIIM-ISIC leaderboard results](https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview)
+| DBs | Network | Private Score <sup id="privatescore">[1](#privatescore)</sup> | Public Score <sup id="publicscore">[2](#publicscore)</sup> |
+| ------------- | ------------- | ------------- | ------------- |
+|  ISIC16'+ISIC17'+ISIC18'+ISIC19'+MEDNODE+Kaggle | DenseNet121  | 0.7211  | 0.7472  |
+|  ISIC18' | ResNet50  | 0.5999  | 0.6301  |
+|  ISIC20' | ResNet50  | 0.7751  | 0.8126  |
+|  ISIC16'+ISIC17'+ISIC18'+ISIC19'+ISIC20'+PH2 | ResNet152  | 0.8064  | 0.8073  |
+|  ISIC19' | ResNet152  | 0.6769  | 0.7234  |
+|  ISIC16'+ISIC17'+ISIC18'+ISIC19'+ISIC20'+PH2+7pointcriteria+PAD_UFES_20+MEDNODE+Kaggle | ResNet152  | 0.7774  | 0.7894  |
+|  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 0.7618  | 0.7621  |
+
+#### Note
+> <sup id="privatescore">1</sup> Score on 70% of private testsets. The potential winner(s) are determined solely by the leaderboard ranking on the private leaderboard. <br>
+> <sup id="publicscore">2</sup> Score on the public testsets for reference <br>
+> <sup id="dataset">3</sup> Averaged the models in the table, trained with multiple datasets <br>
+> <sup id="network">4</sup> Averaged the probabilities from the models in the table<br>
 
 <!-- - ISIC contains the following diseases:
   - Actinic keratosis
