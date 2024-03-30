@@ -29,7 +29,7 @@
 |  ISIC20' | ResNet50  | 0.7751  | 0.8126  |
 |  ISIC16'+ISIC17'+ISIC18'+ISIC19'+ISIC20'+PH2 | ResNet152  | 0.8064  | 0.8073  |
 |  ISIC19' | ResNet152  | 0.6769  | 0.7234  |
-|  ISIC16'+ISIC17'+ISIC18'+ISIC19'+ISIC20'+PH2+7pointcriteria+PAD_UFES_20+MEDNODE+Kaggle | ResNet152  | 0.7774  | 0.7894  |
+|  ISIC16'+ISIC17'+ISIC18'+ISIC19'+ISIC20'+PH2+ <br> 7pointcriteria+PAD_UFES_20+MEDNODE+Kaggle | ResNet152  | 0.7774  | 0.7894  |
 |  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 0.7618  | 0.7621  |
 
 #### Note
