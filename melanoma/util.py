@@ -39,18 +39,14 @@ class ClassType(Enum):
 	binary = 2
 
 class Util:
-	# trainDataPath = ''
-	# testDataPath = ''
-	# train_ds = ''
-	# val_ds = ''
-	# class_names = []
-	def __init__(self, path, image_size=(None, None)):
+	def __init__(self, path, square_size, image_size=(None, None)):
 		self.base_dir = pathlib.Path(path)
 		
 		# self.trainDataPath = pathlib.Path.joinpath(path, '/Train')
 		# self.testDataPath = pathlib.Path.joinpath(path, '/Test')
 		# self.seed_val = seed_val
 		# self.split_portion = split_portion
+		self.square_size = square_size
 		self.image_size = image_size # (height, width)
 		# self.batch_size = batch_size
 		# self.color_mode = color_mode
@@ -299,16 +295,19 @@ class Util:
 				out_df.to_csv(out_path, index=False)
 				print(f'Saved {out_df.shape} -> {out_path}: {os.stat(out_path).st_size/1024:2.1f}kb')
 	
-	def saveDatasetsToFile(self, datasettype, networktype, augment_ratio):
+	def saveDatasetsToFile(self, datasettype, networktype, augment_ratio, uniform_normalization=True):
 		# create logger
 		logger = logging.getLogger('Melanoma classification')
 		logger.setLevel(logging.DEBUG)
 
 		
-		def ExtractPixel(image):
-					return [item[1] for item in image]
+		# def ExtractPixel(image):
+		# 			return [item[1] for item in image]
 		
-		networkname = networktype.name
+		if uniform_normalization is False:
+			networkname = networktype.name
+		elif uniform_normalization is True:
+			networkname = 'uniform01'
 
 		path = str(self.base_dir) + '/melanomaDB' + '/customDB' + '/' + networkname
 		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
@@ -375,7 +374,8 @@ class Util:
 		img_height = self.image_size[0]
 		img_width = self.image_size[1]
 
-		preprocessor = Preprocess(self.image_size)
+
+		preprocessor = Preprocess(self.square_size, self.image_size)
 
 		def getMeanStd(trainingimages):
 			# images is a list of images
@@ -392,29 +392,6 @@ class Util:
 			means = (meanB, meanG, meanR)
 			stds = (stdB, stdG, stdR)
 			return means, stds
-		# df.to_pickle(f"HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl", compression='infer', protocol=4)
-
-
-		# # height, width 순서
-		# image_shape = (img_height, img_width, 3)
-		#Transfer 'jpg' images to an array IMG
-		# def normalizeImgs(imgs):
-		# 	img_width = self.image_size[1]
-		# 	img_height = self.image_size[0]
-
-		# 	imgList = []
-		# 	for img in imgs:
-		# 		transformed_img = np.expand_dims(img, axis=0)
-		# 		transformed_img = preprocess_input_resnet50(transformed_img)
-		# 		transformed_img = transformed_img/255.
-		# 		imgList.append(transformed_img)
-		# 		# if idx == 0:
-		# 		# 	IMG = transformed_img
-		# 		# elif idx > 0:
-		# 		# 	IMG = np.vstack((IMG, transformed_img))
-		# 	IMG = np.vstack(imgList)
-		# 	return IMG
-		# def prep_cnn_data(num, n_x, n_c, path):
 		
 
 
@@ -716,7 +693,8 @@ class Util:
 			df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(
 				lambda x:(
 					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					img := preprocessor.squareImgsAndResize(path=x),
 					# np.asarray(img), # [1]: pixel array
 					img_to_array(img), # [1]: pixel array
 					currentPath := pathlib.Path(x), # [2]: PosixPath
@@ -729,18 +707,12 @@ class Util:
 					Image.open(x).size
 				)
 			)
-
-			# df_test_ISIC2016['ori_image'] = df_test_ISIC2016.path.map(
-			# 	lambda x:(
-			# 		img := Image.open(x), # [0]: PIL object
-			# 		np.asarray(img), # [1]: pixel array
-			# 	)
-			# )
 			
 			df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(
 				lambda x:(
 					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-					img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					# img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+					img := preprocessor.squareImgsAndResize(path=x),
 					# np.asarray(img), # [1]: pixel array
 					img_to_array(img), # [1]: pixel array
 					currentPath := pathlib.Path(x), # [2]: PosixPath
@@ -786,9 +758,12 @@ class Util:
 			testpixels_ISIC2016 = list(map(lambda x:x[1], testset_ISIC2016.image))
 			validationpixels_ISIC2016 = list(map(lambda x:x[1], validationset_ISIC2016.image))
 
-			trainimages_ISIC2016 = preprocessor.normalizeImgs(trainpixels_ISIC2016, networktype)
-			validationimages_ISIC2016 = preprocessor.normalizeImgs(validationpixels_ISIC2016, networktype)
-			testimages_ISIC2016 = preprocessor.normalizeImgs(testpixels_ISIC2016, networktype)
+			trainimages_ISIC2016 = preprocessor.normalizeImgs(imgs=trainpixels_ISIC2016, networktype=networktype, 
+													 uniform_normalization=uniform_normalization)
+			validationimages_ISIC2016 = preprocessor.normalizeImgs(imgs=validationpixels_ISIC2016, networktype=networktype,
+														  uniform_normalization=uniform_normalization)
+			testimages_ISIC2016 = preprocessor.normalizeImgs(imgs=testpixels_ISIC2016, networktype=networktype,
+													uniform_normalization=uniform_normalization)
 			# trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx, dtype='float64')
 			# validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx, dtype='float64')
@@ -808,11 +783,11 @@ class Util:
 			# trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
 
 			# Feature saving
-			for idx, order in enumerate(testset_ISIC2016.index):
-				img = array_to_img(testimages_ISIC2016[idx])
-				label = testset_ISIC2016.cell_type_binary[order]
-				assert label == df_test_ISIC2016.cell_type_binary[order]
-				img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
+			# for idx, order in enumerate(testset_ISIC2016.index):
+			# 	img = array_to_img(testimages_ISIC2016[idx])
+			# 	label = testset_ISIC2016.cell_type_binary[order]
+			# 	assert label == df_test_ISIC2016.cell_type_binary[order]
+			# 	img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
 
 
 			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
@@ -834,11 +809,11 @@ class Util:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2016_augmented, trainlabels_binary_ISIC2016_augmented = \
 					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_ISIC2016, trainlabels_binary_ISIC2016, \
-						augment_ratio, df_training_ISIC2016)
+						augment_ratio, uniform_normalization, df_training_ISIC2016)
 				
 				assert augmented_db_name.name == 'ISIC2016'
 				
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
+				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl'
 				with open(filename_bin, 'wb') as file_bin:
 					
 					pickle.dump((trainimages_ISIC2016_augmented, testimages_ISIC2016, validationimages_ISIC2016,
