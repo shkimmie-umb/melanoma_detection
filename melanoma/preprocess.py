@@ -16,6 +16,7 @@ from PIL import Image
 from enum import Enum
 from glob import glob
 import albumentations as A
+import io
 
 from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 
@@ -24,12 +25,12 @@ from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 
 class Preprocess:
 
-    def __init__(self, square_size, image_size=None):
-        self.square_size = square_size
+    def __init__(self):
+        # self.square_size = square_size
         # desired size
-        if image_size is not None:
-            self.img_width = image_size[1]
-            self.img_height = image_size[0]
+        # if image_size is not None:
+        #     self.img_width = image_size[1]
+        #     self.img_height = image_size[0]
 
         self.preprMethodDict = {
             # RGB to BGR
@@ -100,7 +101,7 @@ class Preprocess:
         return IMG
     
 
-    def squareImgs(self, path):
+    def squareImgs(self, path, square_size):
         img = load_img(path=path, target_size=None)
         img_width, img_height = img.size
         left = img.size[0]/2 - min(img_width, img_height)/2
@@ -110,19 +111,18 @@ class Preprocess:
 
         squared_img = img.crop((left, upper, right, bottom))
         # Make squares and resize them
-        squared_img = squared_img.resize(size=(self.square_size, self.square_size), resample=Image.LANCZOS)
+        squared_img = squared_img.resize(size=(square_size, square_size), resample=Image.LANCZOS)
 
         return squared_img
     
-    def squareImgsAndResize(self, path):
+    def squareImgsAndResize(self, path, square_size, resize_width, resize_height):
         # This makes images square
-        squared_img = self.squareImgs(path)
+        squared_img = self.squareImgs(path, square_size)
         
-        if self.img_width is not None and self.img_height is not None:
-            desired_width = self.img_width
-            desired_height = self.img_height
+        if resize_width is not None and resize_height is not None:
+            
             # This resizes all square images into desired size
-            resized_img = squared_img.resize(size=(desired_width, desired_height), resample=Image.LANCZOS)
+            resized_img = squared_img.resize(size=(resize_width, resize_height), resample=Image.LANCZOS)
         else:
             resized_img = squared_img
 
@@ -132,7 +132,7 @@ class Preprocess:
 
 
     
-    def augmentation(self, datasettype, networktype, train_rgb_folder, labels, trainimages, trainlabels, augment_ratio, uniform_normalization, df_trainset):
+    def augmentation(self, train_rgb_folder, labels, trainimages, trainlabels, square_size, resize_width, resize_height, augment_ratio, df_trainset):
         
         # augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
         augMethod = aug.Augmentation(aug.crop_flip())
@@ -156,13 +156,22 @@ class Preprocess:
                 assert df_mel.path[randmel_idx] == df_trainset.path[randmel_idx]
                 # img = Image.open(df_trainset.path[randmel_idx]).convert("RGB")
                 # img = load_img(path=df_trainset.path[randmel_idx], target_size=None)
-                img = self.squareImgs(path=df_trainset.path[randmel_idx])
+                img = self.squareImgs(path=df_trainset.path[randmel_idx], square_size=square_size)
                 np_img = img_to_array(img)
                 df_mel_augmented.loc[j] = df_trainset.loc[randmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
                 # display(f'path: {df_trainset.path[randmel_idx]}')
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(
+                    input_img=np_img,
+                    crop_height=resize_height, 
+                    crop_width=resize_width, 
+                    zoomout=1.0, 
+                    zoomin=1.1, 
+                    p_scaling=0.5, 
+                    p_rotation=0.5, 
+                    p_hflip=0.5, 
+                    p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = augmented_img['image']
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
@@ -175,12 +184,21 @@ class Preprocess:
                 assert df_non_mel.path[randnonmel_idx] == df_trainset.path[randnonmel_idx]
                 # img = Image.open(df_trainset.path[randnonmel_idx]).convert("RGB")
                 # img = load_img(path=df_trainset.path[randnonmel_idx], target_size=None)
-                img = self.squareImgs(path=df_trainset.path[randmel_idx])
+                img = self.squareImgs(path=df_trainset.path[randmel_idx], square_size=square_size)
                 np_img = img_to_array(img)
                 df_non_mel_augmented.loc[j] = df_trainset.loc[randnonmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(
+                    input_img=np_img, 
+                    crop_height=resize_height, 
+                    crop_width=resize_width, 
+                    zoomout=1.0, 
+                    zoomin=1.1, 
+                    p_scaling=0.5, 
+                    p_rotation=0.5, 
+                    p_hflip=0.5, 
+                    p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
@@ -192,12 +210,21 @@ class Preprocess:
                 assert df_mel.path[randmel_idx] == df_trainset.path[randmel_idx]
                 # img = Image.open(df_trainset.path[randmel_idx]).convert("RGB")
                 # img = load_img(path=df_trainset.path[randmel_idx], target_size=None)
-                img = self.squareImgs(path=df_trainset.path[randmel_idx])
+                img = self.squareImgs(path=df_trainset.path[randmel_idx], square_size=square_size)
                 np_img = img_to_array(img)
                 df_mel_augmented.loc[j] = df_trainset.loc[randmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(
+                    input_img=np_img, 
+                    crop_height=resize_height, 
+                    crop_width=resize_width, 
+                    zoomout=1.0, 
+                    zoomin=1.1, 
+                    p_scaling=0.5, 
+                    p_rotation=0.5, 
+                    p_hflip=0.5, 
+                    p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = augmented_img['image']
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
@@ -209,19 +236,27 @@ class Preprocess:
                 assert df_non_mel.path[randnonmel_idx] == df_trainset.path[randnonmel_idx]
                 # img = Image.open(df_trainset.path[randnonmel_idx]).convert("RGB")
                 # img = load_img(path=df_trainset.path[randnonmel_idx], target_size=None)
-                img = self.squareImgs(path=df_trainset.path[randmel_idx])
+                img = self.squareImgs(path=df_trainset.path[randmel_idx], square_size=square_size)
                 # np_img = np.asarray(img)
                 np_img = img_to_array(img)
                 df_non_mel_augmented.loc[j] = df_trainset.loc[randnonmel_idx]
                 # augmented_img = augMethod.augmentation(input_img=np_img, crop_height=img_height, crop_width=img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5,\
                 # 										p_randomBrightnessContrast=0.2)
-                augmented_img = augMethod.augmentation(input_img=np_img, crop_height=self.img_height, crop_width=self.img_width, zoomout=1.0, zoomin=1.1, p_scaling=0.5, p_rotation=0.5, p_hflip=0.5, p_vflip=0.5)
+                augmented_img = augMethod.augmentation(input_img=np_img, 
+                                                       crop_height=resize_height, 
+                                                       crop_width=resize_width, 
+                                                       zoomout=1.0, 
+                                                       zoomin=1.1, 
+                                                       p_scaling=0.5, 
+                                                       p_rotation=0.5, 
+                                                       p_hflip=0.5, 
+                                                       p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
                 assert df_non_mel_augmented.shape[0] <= num_augmented_img
 
-        df_trainset_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented])
+        df_trainset_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented], ignore_index=True, axis=0)
 
         augmentation_folder = f"{train_rgb_folder}/augmented"
         isAugFolderExist = os.path.exists(augmentation_folder)
@@ -248,11 +283,13 @@ class Preprocess:
     
         trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented.image)) # Filter out only pixel from the list
 
-        # new_means, new_stds = getMeanStd(trainpixels_HAM10000_augmented)
-        imgs_augmented = self.normalizeImgs(imgs=trainpixels_augmented, networktype=networktype, uniform_normalization=uniform_normalization)
-
-        trainimages_augmented = np.vstack((trainimages, imgs_augmented))
         
+        # imgs_augmented = self.normalizeImgs(imgs=trainpixels_augmented, networktype=networktype, uniform_normalization=uniform_normalization)
+
+        trainimages_augmented = np.vstack((trainimages, trainpixels_augmented))
+        
+        # ids augmented
+        trainids_augmented = list(map(lambda x:pathlib.Path(x).stem, df_trainset_augmented.path))
         
         
         # labels_augmented = np.asarray(trainset_HAM10000_augmented.cell_type_binary_idx, dtype='float64')
@@ -263,7 +300,7 @@ class Preprocess:
         assert trainlabels_augmented.shape[0] == trainimages_augmented.shape[0]
     
         
-        return datasettype, df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_augmented
+        return df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_augmented, trainids_augmented
     
 
 

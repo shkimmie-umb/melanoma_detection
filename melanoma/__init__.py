@@ -1,6 +1,8 @@
 # __init__.py
 from .util import *
 from .model import Model
+from .db_parser.parser import Parser
+from .db_parser.parser_ISIC2016 import parser_ISIC2016
 from .visualizer import Visualizer
 from .cnn import CNN
 from .augmentationStrategy import *

@@ -11,7 +11,8 @@ import pickle
 import PIL
 from PIL import Image
 from tqdm import tqdm
-import json
+import io
+import h5py
 
 
 from sklearn.model_selection import train_test_split
@@ -56,7 +57,7 @@ class Util:
 		self.train_ds = ''
 		self.val_ds = ''
 
-		self.classes_melanoma_binary = ['Non-Melanoma', 'Melanoma']
+		
 
 		self.foldersExist = ''
 		self.RGBfolders = ''
@@ -87,15 +88,7 @@ class Util:
 			'akiec': 'Non-Melanoma',
 		}
 
-		# ISIC2016
-		self.lesion_type_binary_dict_training_ISIC2016 = {
-			'benign' : 'Non-Melanoma',
-			'malignant' : 'Melanoma',
-		}
-		self.lesion_type_binary_dict_test_ISIC2016 = {
-			0.0 : 'Non-Melanoma',
-			1.0 : 'Melanoma',
-		}
+		
 
 		# ISIC2017
 		self.lesion_type_dict_ISIC2017_task3_1 = { # Official ISIC2017 task 3 - 1
@@ -121,45 +114,7 @@ class Util:
 
 
 
-	def loadTrainData(self):
-		print("path: ", self.trainDataPath)
-		print("seed value: ", self.seed_val)
-		print("color_mode: ", self.color_mode)
-		# self.trainDataPath = pathlib.Path(path)
-		num_train_img = len(list(self.trainDataPath.glob('*/*.jpg'))) # counts all images inside 'Train' folder
-		print("Images available in train dataset:", num_train_img)
-
-		# Loading the training data
-		# using seed=123 while creating dataset using tf.keras.preprocessing.image_dataset_from_directory
-		# resizing images to the size img_height*img_width, while writing the dataset
-		print("trainDataPath: ", self.trainDataPath)
-		self.train_ds = tf.keras.preprocessing.image_dataset_from_directory(self.trainDataPath,
-		                                                               seed=self.seed_val,
-		                                                               validation_split=self.split_portion,
-		                                                               image_size=self.image_size,
-		                                                               batch_size=self.batch_size,
-		                                                               color_mode=self.color_mode,
-		                                                               subset='training')
-		train_ds = self.train_ds
-
-		self.val_ds = tf.keras.preprocessing.image_dataset_from_directory(self.trainDataPath,
-		                                                               seed=self.seed_val,
-		                                                               validation_split=self.split_portion,
-		                                                               image_size=self.image_size,
-		                                                               batch_size=self.batch_size,
-		                                                               color_mode=self.color_mode,
-		                                                               subset='validation')
-		val_ds = self.val_ds
-		AUTOTUNE = tf.data.experimental.AUTOTUNE
-		train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-		val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-		# List out all the classes of training data in a list.
-		self.class_names = self.train_ds.class_names
-		print("Training classes are: ")
-		class_names = self.class_names
-		print(class_names)
-
-		return train_ds, val_ds
+	
 
 	
 	def generateAvgImages(self, mode):
@@ -295,87 +250,14 @@ class Util:
 				out_df.to_csv(out_path, index=False)
 				print(f'Saved {out_df.shape} -> {out_path}: {os.stat(out_path).st_size/1024:2.1f}kb')
 	
-	def saveDatasetsToFile(self, datasettype, networktype, augment_ratio, uniform_normalization=True):
-		# create logger
-		logger = logging.getLogger('Melanoma classification')
-		logger.setLevel(logging.DEBUG)
+	def saveDatasetsToFile(self, datasettype, networktype, augment_ratio):
+		
 
 		
 		# def ExtractPixel(image):
 		# 			return [item[1] for item in image]
 		
-		if uniform_normalization is False:
-			networkname = networktype.name
-		elif uniform_normalization is True:
-			networkname = 'uniform01'
-
-		path = str(self.base_dir) + '/melanomaDB' + '/customDB' + '/' + networkname
-		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
-		isExist = os.path.exists(path)
-		if not isExist :
-			os.makedirs(path)
-		else:
-			pass
-
-		print("path: ", self.base_dir)
 		
-		# Dataset path define
-		from datetime import datetime
-		now = datetime.now() # current date and time
-
-		date_time = now.strftime("%m_%d_%Y_%H:%M:%S")
-		datasetname = datasettype.name
-		
-
-		debug_rgb_folder = path + f'/debug/{datasetname}/RGB_resized/'+f'{self.image_size[0]}h_{self.image_size[1]}w_{date_time}'
-		debug_feature_folder = path + f'/debug/{datasetname}/feature/'+f'{self.image_size[0]}h_{self.image_size[1]}w_{date_time}'
-		debugRgbFolderExist = os.path.exists(debug_rgb_folder)
-		debugFeatureFolderExist = os.path.exists(debug_feature_folder)
-		if not debugRgbFolderExist :
-			os.makedirs(debug_rgb_folder)
-		else:
-			pass
-		if not debugFeatureFolderExist :
-			os.makedirs(debug_feature_folder)
-		else:
-			pass
-		whole_rgb_folder = debug_rgb_folder + '/Whole'
-		train_rgb_folder = debug_rgb_folder + '/Train'
-		val_rgb_folder = debug_rgb_folder + '/Val'
-		test_rgb_folder = debug_rgb_folder + '/Test'
-
-		whole_feature_folder = debug_feature_folder + '/Whole'
-		train_feature_folder = debug_feature_folder + '/Train'
-		val_feature_folder = debug_feature_folder + '/Val'
-		test_feature_folder = debug_feature_folder + '/Test'
-
-		
-
-		isWholeRGBExist = os.path.exists(whole_rgb_folder)
-		isTrainRGBExist = os.path.exists(train_rgb_folder)
-		isValRGBExist = os.path.exists(val_rgb_folder)
-		isTestRGBExist = os.path.exists(test_rgb_folder)
-		isWholeFeatureExist = os.path.exists(whole_feature_folder)
-		isTrainFeatureExist = os.path.exists(train_feature_folder)
-		isValFeatureExist = os.path.exists(val_feature_folder)
-		isTestFeatureExist = os.path.exists(test_feature_folder)
-
-
-		
-
-		# df = pd.read_pickle(f"../input/skin-cancer-mnist-ham10000-pickle/HAM10000_metadata-h{CFG['img_height']}-w{CFG['img_width']}.pkl")
-		pd.set_option('display.max_columns', 500)
-
-		# Given lesion types
-		
-
-		# Not required for pickled data
-		# resize() order: (width, height)
-		img_height = self.image_size[0]
-		img_width = self.image_size[1]
-
-
-		preprocessor = Preprocess(self.square_size, self.image_size)
 
 		def getMeanStd(trainingimages):
 			# images is a list of images
@@ -455,7 +337,8 @@ class Util:
 			df_HAM10000['image'] = df_HAM10000.path.map(
 				lambda x:(
 				# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-				img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+				# img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
+				img := preprocessor.squareImgsAndResize(path=x),
 				# np.asarray(img), # [1]: pixel array
 				img_to_array(img), # [1]: pixel array
 				currentPath := pathlib.Path(x), # [2]: PosixPath
@@ -487,9 +370,10 @@ class Util:
 			
 
 			# Dividing HAM10000 into train/val/test set
+			split_ratio = 0.2
 			df_single_HAM10000 = df_HAM10000[df_HAM10000.num_images == 1]
-			trainset1_HAM10000, testset_HAM10000 = train_test_split(df_single_HAM10000, test_size=0.2,random_state = 2)
-			trainset2_HAM10000, validationset_HAM10000 = train_test_split(trainset1_HAM10000, test_size=0.2,random_state = 4)
+			trainset1_HAM10000, testset_HAM10000 = train_test_split(df_single_HAM10000, test_size=split_ratio, random_state = 2)
+			trainset2_HAM10000, validationset_HAM10000 = train_test_split(trainset1_HAM10000, test_size=split_ratio, random_state = 4)
 			trainset3_HAM10000 = df_HAM10000[df_HAM10000.num_images != 1]
 			trainset_HAM10000 = pd.concat([trainset2_HAM10000, trainset3_HAM10000])
 
@@ -497,35 +381,20 @@ class Util:
 			preprocessor.saveNumpyImagesToFiles(validationset_HAM10000, df_HAM10000, val_rgb_folder)
 			preprocessor.saveNumpyImagesToFiles(testset_HAM10000, df_HAM10000, test_rgb_folder)
 
-			# trainset_HAM10000.index.map(lambda x: (
-			# 	currentPath_train := pathlib.Path(trainset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
-			# 	label := trainset_HAM10000.cell_type_binary[x],
-			# 	assert_(label == df_HAM10000.cell_type_binary[x]),
-			# 	trainset_HAM10000.image[x][0].save(f"{train_rgb_folder}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
-			# ))
-
-			# validationset_HAM10000.index.map(lambda x: (
-			# 	currentPath_val := pathlib.Path(validationset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
-			# 	label := validationset_HAM10000.cell_type_binary[x],
-			# 	assert_(label == df_HAM10000.cell_type_binary[x]),
-			# 	validationset_HAM10000.image[x][0].save(f"{val_rgb_folder}/{label}/{currentPath_val.name}", quality=100, subsampling=0)
-			# ))
-
-			# testset_HAM10000.index.map(lambda x: (
-			# 	currentPath_test := pathlib.Path(testset_HAM10000.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
-			# 	label := testset_HAM10000.cell_type_binary[x],
-			# 	assert_(label == df_HAM10000.cell_type_binary[x]),
-			# 	testset_HAM10000.image[x][0].save(f"{test_rgb_folder}/{label}/{currentPath_test.name}", quality=100, subsampling=0)
-			# ))
-
 			trainpixels_HAM10000 = list(map(lambda x:x[1], trainset_HAM10000.image)) # Filter out only pixel from the list
 			testpixels_HAM10000 = list(map(lambda x:x[1], testset_HAM10000.image))
 			validationpixels_HAM10000 = list(map(lambda x:x[1], validationset_HAM10000.image))
 
+			trainids = list(map(lambda x:x[2].stem, trainset_HAM10000.image)) # Filter out only pixel from the list
+			testids = list(map(lambda x:x[2].stem, testset_HAM10000.image))
+			validationids = list(map(lambda x:x[2].stem, validationset_HAM10000.image))
 
-			trainimages_HAM10000 = preprocessor.normalizeImgs(trainpixels_HAM10000, networktype)
-			validationimages_HAM10000 = preprocessor.normalizeImgs(validationpixels_HAM10000, networktype)
-			testimages_HAM10000 = preprocessor.normalizeImgs(testpixels_HAM10000, networktype)
+			trainimages_HAM10000 = preprocessor.normalizeImgs(imgs=trainpixels_HAM10000, networktype=networktype,
+													 uniform_normalization=uniform_normalization)
+			validationimages_HAM10000 = preprocessor.normalizeImgs(imgs=validationpixels_HAM10000, networktype=networktype,
+														  uniform_normalization=uniform_normalization)
+			testimages_HAM10000 = preprocessor.normalizeImgs(imgs=testpixels_HAM10000, networktype=networktype,
+													uniform_normalization=uniform_normalization)
 	
 			
 			trainlabels_multi_HAM10000 = np.asarray(trainset_HAM10000.cell_type_idx, dtype='float64')
@@ -547,55 +416,95 @@ class Util:
 			assert len(testpixels_HAM10000) == testlabels_binary_HAM10000.shape[0]
 			assert trainimages_HAM10000.shape[0] == trainlabels_binary_HAM10000.shape[0]
 			assert validationimages_HAM10000.shape[0] == validationlabels_binary_HAM10000.shape[0]
-			assert testimages_HAM10000.shape[0] == testlabels_binary_HAM10000.shape[0]
+			assert testimages_HAM10000.shape[0] == testlabels_binary_HAM10000.shape[0]				
 
-			# Save features from train/val/test sets divided into malignant/benign (This is only for viewing purpose)
-			# for idx, order in enumerate(trainset_HAM10000.index):
-			# 	img = Image.fromarray(trainimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB') # back to RGB
-			# 	label = trainset_HAM10000.cell_type_binary[order]
-			# 	assert label == df_HAM10000.cell_type_binary[order]
-			# 	img.save(f"{train_feature_folder}/{label}/{trainset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-			# 	# imsave(f"{train_feature_folder}/{trainset_HAM10000.image[order][2].stem}.tiff",trainimages_HAM10000[idx][:,:,::-1].astype("uint8"))
 
-			# for idx, order in enumerate(validationset_HAM10000.index):
-			# 	img = Image.fromarray(validationimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
-			# 	label = validationset_HAM10000.cell_type_binary[order]
-			# 	assert label == df_HAM10000.cell_type_binary[order]
-			# 	img.save(f"{val_feature_folder}/{label}/{validationset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
+			# Feature saving
 			# for idx, order in enumerate(testset_HAM10000.index):
-			# 	img = Image.fromarray(testimages_HAM10000[idx][:,:,::-1].astype("uint8"), mode='RGB')
+			# 	img = array_to_img(testimages_HAM10000[idx])
 			# 	label = testset_HAM10000.cell_type_binary[order]
 			# 	assert label == df_HAM10000.cell_type_binary[order]
 			# 	img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-				
-
-			for idx, order in enumerate(testset_HAM10000.index):
-				img = array_to_img(testimages_HAM10000[idx])
-				label = testset_HAM10000.cell_type_binary[order]
-				assert label == df_HAM10000.cell_type_binary[order]
-				img.save(f"{test_feature_folder}/{label}/{testset_HAM10000.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
-			
-
-
+   
+			# Convert into bytes
+			# trainimages_bytes = self.PILtoBytes(trainimages_HAM10000)
+			# testimages_bytes = self.PILtoBytes(testimages_HAM10000)
+			# validationimages_bytes = self.PILtoBytes(validationimages_HAM10000)
 			
 
 			# Unpack all image pixels using asterisk(*) with dimension (shape[0])
 			# trainimages_HAM10000 = trainimages_HAM10000.reshape(trainimages_HAM10000.shape[0], *image_shape)
 			assert datasettype.name == 'HAM10000'
-			filename_bin = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			filename_multi = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_multiclass.pkl' # height x width
+			filename = f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.h5' # height x width
 
-			if os.path.exists(filename_bin) is not True:
+			assert len(trainimages_bytes) + len(validationimages_bytes) + len(testimages_bytes) == num_train_img_HAM10000
 
-				with open(filename_bin, 'wb') as file_bin:
+
+			# with h5py.File(os.path.join(path, filename), 'w') as hf:
+			# 	trainimages_grp = hf.create_group('trainimages')
+			# 	testimages_grp = hf.create_group('testimages')
+			# 	validationimages_grp = hf.create_group('validationimages')
+			# 	trainlabels_grp = hf.create_group('trainlabels')
+			# 	testlabels_grp = hf.create_group('testlabels')
+			# 	validationlabels_grp = hf.create_group('validationlabels')
+			# 	for idx, img in enumerate(trainimages_bytes):
+			# 		trainimages_h5 = trainimages_grp.create_dataset(f'{trainids[idx]}', compression='gzip', chunks=True, data=img)
+			# 	for idx, img in enumerate(testimages_bytes):
+			# 		testimages_h5 = testimages_grp.create_dataset(f'{testids[idx]}', compression='gzip', chunks=True, data=img)
+			# 	for idx, img in enumerate(validationimages_bytes):
+			# 		validationimages_h5 = validationimages_grp.create_dataset(f'{validationids[idx]}', compression='gzip', chunks=True, data=img)
+
+			# 	trainlabels_grp.create_dataset('trainlabels', compression='gzip', chunks=True, data=trainlabels_binary_HAM10000)
+			# 	testlabels_grp.create_dataset('testlabels', compression='gzip', chunks=True, data=testlabels_binary_HAM10000)
+			# 	validationlabels_grp.create_dataset('validationlabels', compression='gzip', chunks=True, data=validationlabels_binary_HAM10000)
+
+			# 	hf.close()
+
+			# create HDF5 file
+			# with h5py.File(os.path.join(path, filename), 'w') as hf:
+			# 	hf.create_dataset('trainimages', compression='gzip', chunks=True, shape=(len(trainimages_bytes), ), data=trainimages_bytes)
+			# 	hf.create_dataset('testimages', compression='gzip', chunks=True, shape=(len(testimages_bytes), ), data=testimages_bytes)
+			# 	hf.create_dataset('validationimages', compression='gzip', chunks=True, shape=(len(validationimages_bytes), ), data=validationimages_bytes)
+			# 	hf.create_dataset('trainlabels', compression='gzip', chunks=True, data=trainlabels_binary_HAM10000)
+			# 	hf.create_dataset('testlabels', compression='gzip', chunks=True, data=testlabels_binary_HAM10000)
+			# 	hf.create_dataset('validationlabels', compression='gzip', chunks=True, data=validationlabels_binary_HAM10000)
+			# hf.close()
+
+			with h5py.File(os.path.join(path, filename), 'w') as hf:
+				trainimages_grp = hf.create_group('trainimages')
+				testimages_grp = hf.create_group('testimages')
+				validationimages_grp = hf.create_group('validationimages')
+				trainlabels_grp = hf.create_group('trainlabels')
+				testlabels_grp = hf.create_group('testlabels')
+				validationlabels_grp = hf.create_group('validationlabels')
+				for idx, img in enumerate(trainimages_HAM10000):
+					trainimages_h5 = trainimages_grp.create_dataset(f'{trainids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+				
+				for idx, img in enumerate(testimages_HAM10000):
+					testimages_h5 = testimages_grp.create_dataset(f'{testids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+				for idx, img in enumerate(validationimages_HAM10000):
+					validationimages_h5 = validationimages_grp.create_dataset(f'{validationids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+
+				for idx, label in enumerate(trainlabels_binary_HAM10000):
+					trainlabels_h5 = trainlabels_grp.create_dataset(f'{trainids[idx]}', shape=(1,), maxshape=(None,), compression='gzip', data=label)
+				for idx, label in enumerate(testlabels_binary_HAM10000):
+					testlabels_h5 = testlabels_grp.create_dataset(f'{testids[idx]}', shape=(1,), maxshape=(None,), compression='gzip', data=label)
+				for idx, label in enumerate(validationlabels_binary_HAM10000):
+					validationlabels_h5 = validationlabels_grp.create_dataset(f'{validationids[idx]}', shape=(1,), maxshape=(None,), compression='gzip', data=label)
+
+			hf.close()
+
+			filename_multi = f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_multiclass.pkl' # height x width
+
+			# if os.path.exists(filename_bin) is not True:
+
+			# 	with open(filename_bin, 'wb') as file_bin:
 					
-					pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
-					trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2), file_bin)
-				file_bin.close()
-			else:
-				print("Skipping HAM10000")
+			# 		pickle.dump((trainimages_HAM10000, testimages_HAM10000, validationimages_HAM10000,
+			# 		trainlabels_binary_HAM10000, testlabels_binary_HAM10000, validationlabels_binary_HAM10000, 2), file_bin)
+			# 	file_bin.close()
+			# else:
+			# 	print("Skipping HAM10000")
 
 			# with open(filename_multi, 'wb') as file_multi:
 				
@@ -611,215 +520,68 @@ class Util:
 				
 				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_HAM10000_augmented, trainlabels_binary_HAM10000_augmented = \
 					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_HAM10000, trainlabels_binary_HAM10000, \
-						augment_ratio, trainset_HAM10000)
+						augment_ratio, uniform_normalization, trainset_HAM10000)
 
 				assert augmented_db_name.name == 'HAM10000'
 				
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{img_height}h_{img_width}w_binary.pkl' # height x width
-				with open(filename_bin, 'wb') as file_bin:
+				filename_bin = f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{img_height}h_{img_width}w_binary.h5' # height x width
+
+				trainimages_aug_bytes = self.arrayToBytes(trainimages_HAM10000_augmented)
+				# create HDF5 file
+	
+				# with h5py.File(os.path.join(path, filename), 'w') as hf:
+				# 	trainimages_grp = hf.create_group('trainimages')
+				# 	testimages_grp = hf.create_group('testimages')
+				# 	validationimages_grp = hf.create_group('validationimages')
+				# 	trainlabels_grp = hf.create_group('trainlabels')
+				# 	testlabels_grp = hf.create_group('testlabels')
+				# 	validationlabels_grp = hf.create_group('validationlabels')
+				# 	for idx, img in enumerate(trainimages_aug_bytes):
+				# 		trainimages_h5 = trainimages_grp.create_dataset(f'{trainids[idx]}', compression='gzip', chunks=True, data=img)
+				# 	for idx, img in enumerate(testimages_bytes):
+				# 		testimages_h5 = testimages_grp.create_dataset(f'{testids[idx]}', compression='gzip', chunks=True, data=img)
+				# 	for idx, img in enumerate(validationimages_bytes):
+				# 		validationimages_h5 = validationimages_grp.create_dataset(f'{validationids[idx]}', compression='gzip', chunks=True, data=img)
+
+				# 	trainlabels_grp.create_dataset('trainlabels', compression='gzip', chunks=True, data=trainlabels_binary_HAM10000_augmented)
+				# 	testlabels_grp.create_dataset('testlabels', compression='gzip', chunks=True, data=testlabels_binary_HAM10000)
+				# 	validationlabels_grp.create_dataset('validationlabels', compression='gzip', chunks=True, data=validationlabels_binary_HAM10000)
+				# hf.close()
+	
+				with h5py.File(os.path.join(path, filename_bin), 'w') as hf:
+					trainimages_grp = hf.create_group('trainimages')
+					testimages_grp = hf.create_group('testimages')
+					validationimages_grp = hf.create_group('validationimages')
+					trainlabels_grp = hf.create_group('trainlabels')
+					testlabels_grp = hf.create_group('testlabels')
+					validationlabels_grp = hf.create_group('validationlabels')
+					for idx, img in enumerate(trainimages_HAM10000_augmented):
+						trainimages_h5 = trainimages_grp.create_dataset(f'{trainids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+					for idx, img in enumerate(testimages_HAM10000):
+						testimages_h5 = testimages_grp.create_dataset(f'{testids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+					for idx, img in enumerate(validationimages_HAM10000):
+						validationimages_h5 = validationimages_grp.create_dataset(f'{validationids[idx]}', shape=(img_height, img_width, 3), maxshape=(img_height, img_width, 3), compression='gzip', data=img)
+
+					for idx, label in enumerate(trainlabels_binary_HAM10000_augmented):
+						trainlabels_h5 = trainlabels_grp.create_dataset(f'{trainids[idx]}', shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
+					for idx, label in enumerate(testlabels_binary_HAM10000):
+						testlabels_h5 = testlabels_grp.create_dataset(f'{testids[idx]}', shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
+					for idx, label in enumerate(validationlabels_binary_HAM10000):
+						validationlabels_h5 = validationlabels_grp.create_dataset(f'{validationids[idx]}', shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
+
+				hf.close()
+				# with open(filename_bin, 'wb') as file_bin:
 					
-					pickle.dump((trainimages_HAM10000_augmented, testimages_HAM10000, validationimages_HAM10000,
-					trainlabels_binary_HAM10000_augmented, testlabels_binary_HAM10000, validationlabels_binary_HAM10000,
-					2), file_bin)
-				file_bin.close()
+				# 	pickle.dump((trainimages_HAM10000_augmented, testimages_HAM10000, validationimages_HAM10000,
+				# 	trainlabels_binary_HAM10000_augmented, testlabels_binary_HAM10000, validationlabels_binary_HAM10000,
+				# 	2), file_bin)
+				# file_bin.close()
 
 
 
 		
 		if datasettype.value == mel.DatasetType.ISIC2016.value:
-			ISIC2016_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_Data')
-			ISIC2016_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_Data')
-
-			num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
-			num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
-
-			assert num_train_img_ISIC2016 == 900
-			assert num_test_img_ISIC2016 == 379
-
-			logger.debug('%s %s', "Images available in ISIC2016 train dataset:", num_train_img_ISIC2016)
-			logger.debug('%s %s', "Images available in ISIC2016 test dataset:", num_test_img_ISIC2016)
-
-			# ISIC2016: Dictionary for Image Names
-			imageid_path_training_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_training_path, '*.jpg'))}
-			imageid_path_test_dict_ISIC2016 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2016_test_path, '*.jpg'))}
-			ISIC2016_columns = ['image_id', 'label']
-			df_training_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(
-				self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Training_GroundTruth.csv')),
-				names=ISIC2016_columns, header=None)
-			df_test_ISIC2016 = pd.read_csv(str(pathlib.Path.joinpath(
-				self.base_dir, './melanomaDB', './ISIC2016', './ISBI2016_ISIC_Part3_Test_GroundTruth.csv')),
-				names=ISIC2016_columns, header=None)
-
-			logger.debug("Let's check ISIC2016 metadata briefly")
-			logger.debug("This is ISIC2016 training data")
-			display(df_training_ISIC2016.head())
-			logger.debug("This is ISIC2016 test data")
-			display(df_test_ISIC2016.head())
-
-
-			classes_binary_ISIC2016 = df_training_ISIC2016.label.unique() # second column is label
-			num_classes_binary_ISIC2016 = len(classes_binary_ISIC2016)
-			classes_binary_ISIC2016, num_classes_binary_ISIC2016
-
-			# ISIC2016: Creating New Columns for better readability
-			df_training_ISIC2016['path'] = df_training_ISIC2016.image_id.map(imageid_path_training_dict_ISIC2016.get)
-			df_training_ISIC2016['cell_type_binary'] = df_training_ISIC2016.label.map(self.lesion_type_binary_dict_training_ISIC2016.get)
-			# Define codes for compatibility among datasets
-			df_training_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_training_ISIC2016.cell_type_binary, categories=self.classes_melanoma_binary).codes
-			df_test_ISIC2016['path'] = df_test_ISIC2016.image_id.map(imageid_path_test_dict_ISIC2016.get)
-			df_test_ISIC2016['cell_type_binary'] = df_test_ISIC2016.label.map(self.lesion_type_binary_dict_test_ISIC2016.get)
-			# Define codes for compatibility among datasets
-			df_test_ISIC2016['cell_type_binary_idx'] = pd.CategoricalIndex(df_test_ISIC2016.cell_type_binary, categories=self.classes_melanoma_binary).codes
-			# logger.debug("Let's add some more columns on top of the original metadata for better readability")
-			# logger.debug("Added columns: 'num_images', 'lesion_id', 'image_id', 'path', 'cell_type'")
-			# logger.debug("Now, let's show some of records -> df.sample(5)")
-			logger.debug("ISIC2016 training df")
-			display(df_training_ISIC2016.sample(10))
-			logger.debug("ISIC2016 test df")
-			display(df_test_ISIC2016.sample(10))
-
-			logger.debug("Check null data in ISIC2016 training metadata -> df_training_ISIC2016.isnull().sum()")
-			display(df_training_ISIC2016.isnull().sum())
-			logger.debug("Check null data in ISIC2016 test metadata -> df_test_ISIC2016.isnull().sum()")
-			display(df_test_ISIC2016.isnull().sum())
-
-			# df_training_ISIC2016['ori_image'] = df_training_ISIC2016.path.map(
-			# 	lambda x:(
-			# 		img := Image.open(x), # [0]: PIL object
-			# 		np.asarray(img), # [1]: pixel array
-			# 	)
-			# )
-			
-			df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(
-				lambda x:(
-					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-					# img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
-					img := preprocessor.squareImgsAndResize(path=x),
-					# np.asarray(img), # [1]: pixel array
-					img_to_array(img), # [1]: pixel array
-					currentPath := pathlib.Path(x), # [2]: PosixPath
-					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
-				)
-			)
-
-			df_training_ISIC2016['img_sizes'] = df_training_ISIC2016.path.map(
-				lambda x:(
-					Image.open(x).size
-				)
-			)
-			
-			df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(
-				lambda x:(
-					# img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-					# img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
-					img := preprocessor.squareImgsAndResize(path=x),
-					# np.asarray(img), # [1]: pixel array
-					img_to_array(img), # [1]: pixel array
-					currentPath := pathlib.Path(x), # [2]: PosixPath
-					# img.save(f"{whole_rgb_folder}/{currentPath.name}")
-				)
-			)
-
-			
-
-			assert all(df_training_ISIC2016.cell_type_binary.unique() == df_test_ISIC2016.cell_type_binary.unique())
-			labels = df_training_ISIC2016.cell_type_binary.unique()
-
-			if not isWholeRGBExist or not isTrainRGBExist or not isValRGBExist or not isTestRGBExist:
-				for i in labels:
-					os.makedirs(f"{whole_rgb_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{train_rgb_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{val_rgb_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{test_rgb_folder}/{i}", exist_ok=True)
-			if not isWholeFeatureExist or not isTrainFeatureExist or not isValFeatureExist or not isTestFeatureExist:
-				for i in labels:
-					os.makedirs(f"{whole_feature_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{train_feature_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{val_feature_folder}/{i}", exist_ok=True)
-					os.makedirs(f"{test_feature_folder}/{i}", exist_ok=True)
-
-			# df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-			# df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(lambda x: np.asarray(Image.open(x).resize((img_width, img_height))))
-
-
-			# Dividing ISIC2016 into train/val set
-			trainset_ISIC2016, validationset_ISIC2016 = train_test_split(df_training_ISIC2016, test_size=0.2,random_state = 1)
-			# ISIC2016 test data is given, so there is no need to create test dataset separately
-			testset_ISIC2016 = df_test_ISIC2016
-
-
-			preprocessor.saveNumpyImagesToFiles(trainset_ISIC2016, df_training_ISIC2016, train_rgb_folder)
-			preprocessor.saveNumpyImagesToFiles(validationset_ISIC2016, df_training_ISIC2016, val_rgb_folder)
-			preprocessor.saveNumpyImagesToFiles(testset_ISIC2016, df_test_ISIC2016, test_rgb_folder)
-
-
-			# ISIC2016 binary images/labels
-			trainpixels_ISIC2016 = list(map(lambda x:x[1], trainset_ISIC2016.image)) # Filter out only pixel from the list
-			testpixels_ISIC2016 = list(map(lambda x:x[1], testset_ISIC2016.image))
-			validationpixels_ISIC2016 = list(map(lambda x:x[1], validationset_ISIC2016.image))
-
-			trainimages_ISIC2016 = preprocessor.normalizeImgs(imgs=trainpixels_ISIC2016, networktype=networktype, 
-													 uniform_normalization=uniform_normalization)
-			validationimages_ISIC2016 = preprocessor.normalizeImgs(imgs=validationpixels_ISIC2016, networktype=networktype,
-														  uniform_normalization=uniform_normalization)
-			testimages_ISIC2016 = preprocessor.normalizeImgs(imgs=testpixels_ISIC2016, networktype=networktype,
-													uniform_normalization=uniform_normalization)
-			# trainlabels_binary_ISIC2016 = np.asarray(trainset_ISIC2016.cell_type_binary_idx, dtype='float64')
-			# testlabels_binary_ISIC2016 = np.asarray(testset_ISIC2016.cell_type_binary_idx, dtype='float64')
-			# validationlabels_binary_ISIC2016 = np.asarray(validationset_ISIC2016.cell_type_binary_idx, dtype='float64')
-			trainlabels_binary_ISIC2016 = to_categorical(trainset_ISIC2016.cell_type_binary_idx, num_classes=2)
-			testlabels_binary_ISIC2016 = to_categorical(testset_ISIC2016.cell_type_binary_idx, num_classes=2)
-			validationlabels_binary_ISIC2016 = to_categorical(validationset_ISIC2016.cell_type_binary_idx, num_classes=2)
-
-			assert num_train_img_ISIC2016 == (len(trainpixels_ISIC2016) + len(validationpixels_ISIC2016))
-			assert num_test_img_ISIC2016 == len(testpixels_ISIC2016)
-			assert len(trainpixels_ISIC2016) == trainlabels_binary_ISIC2016.shape[0]
-			assert len(validationpixels_ISIC2016) == validationlabels_binary_ISIC2016.shape[0]
-			assert len(testpixels_ISIC2016) == testlabels_binary_ISIC2016.shape[0]
-			assert trainimages_ISIC2016.shape[0] == trainlabels_binary_ISIC2016.shape[0]
-			assert validationimages_ISIC2016.shape[0] == validationlabels_binary_ISIC2016.shape[0]
-			assert testimages_ISIC2016.shape[0] == testlabels_binary_ISIC2016.shape[0]
-
-			# trainimages_ISIC2016 = trainimages_ISIC2016.reshape(trainimages_ISIC2016.shape[0], *image_shape)
-
-			# Feature saving
-			# for idx, order in enumerate(testset_ISIC2016.index):
-			# 	img = array_to_img(testimages_ISIC2016[idx])
-			# 	label = testset_ISIC2016.cell_type_binary[order]
-			# 	assert label == df_test_ISIC2016.cell_type_binary[order]
-			# 	img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
-
-
-			filename = path+'/'+f'{datasettype.name}_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl' # height x width
-			if os.path.exists(filename) is not True:
-				with open(filename, 'wb') as file_bin:
-					
-					pickle.dump((trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016,
-					trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
-					2), file_bin)
-				file_bin.close()
-			else:
-				print("Skipping ISIC2016")
-
-
-			# Augmentation only on training set
-			
-			
-			if augment_ratio is not None and augment_ratio >= 1.0:
-				
-				augmented_db_name, df_mel_augmented, df_non_mel_augmented, trainimages_ISIC2016_augmented, trainlabels_binary_ISIC2016_augmented = \
-					preprocessor.augmentation(datasettype, networktype, train_rgb_folder, labels, trainimages_ISIC2016, trainlabels_binary_ISIC2016, \
-						augment_ratio, uniform_normalization, df_training_ISIC2016)
-				
-				assert augmented_db_name.name == 'ISIC2016'
-				
-				filename_bin = path+'/'+f'{datasettype.name}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.image_size[0]}h_{self.image_size[1]}w_binary.pkl'
-				with open(filename_bin, 'wb') as file_bin:
-					
-					pickle.dump((trainimages_ISIC2016_augmented, testimages_ISIC2016, validationimages_ISIC2016,
-					trainlabels_binary_ISIC2016_augmented, testlabels_binary_ISIC2016, validationlabels_binary_ISIC2016,
-					2), file_bin)
-				file_bin.close()
+			pass
 
 
 		if datasettype.value == mel.DatasetType.ISIC2017.value:
