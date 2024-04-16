@@ -115,38 +115,100 @@ class CommonData:
             mel.NetworkType.NASNetMobile.name: NASNetMobile,
             mel.NetworkType.NASNetLarge.name: NASNetLarge,
       }
+
+      self.dbNumImgs = {
+        mel.DatasetType.HAM10000: {
+              "trainimages": 10015,
+              "validationimages": 0,
+              "testimages": 0
+              },
+        mel.DatasetType.ISIC2016: {
+              "trainimages": 900,
+              "validationimages": 0,
+              "testimages": 379
+              },
+        mel.DatasetType.ISIC2017: {
+              "trainimages": 2000,
+              "validationimages": 150,
+              "testimages": 600
+              },
+        mel.DatasetType.ISIC2018: {
+              "trainimages": 10015,
+              "validationimages": 193,
+              "testimages": 1512
+              },
+        mel.DatasetType.ISIC2019: {
+              "trainimages": 25331,
+              "validationimages": 0,
+              "testimages": 8238 # No ground truth
+              },
+        mel.DatasetType.ISIC2020: {
+              "trainimages": 33126,
+              "validationimages": 0,
+              "testimages": 10982
+              },
+        mel.DatasetType.PH2: {
+              "trainimages": 200,
+              "validationimages": 0,
+              "testimages": 0
+              },
+        mel.DatasetType._7_point_criteria: {
+              "trainimages": 2013,
+              "validationimages": 0,
+              "testimages": 0
+              },
+        mel.DatasetType.PAD_UFES_20: {
+              "trainimages": 2298,
+              "validationimages": 0,
+              "testimages": 0
+              },
+        mel.DatasetType.KaggleMB: {
+            # train: 1440 benign, 1197 malignant; 
+            # test: 360 benign + 300 malignant
+              "trainimages": 1440+1197,
+              "validationimages": 0,
+              "testimages": 360+300
+              },
+        mel.DatasetType.MEDNODE: {
+            # train: 70 melanoma, 100 naevus
+              "trainimages": 70+100,
+              "validationimages": 0,
+              "testimages": 0
+              },
+        }
+
       self.DBpreprocessorDict = {
-        mel.NetworkType.ResNet50.name: mel.NetworkType.ResNet50.name,
-        mel.NetworkType.ResNet101.name: mel.NetworkType.ResNet50.name,
-        mel.NetworkType.ResNet152.name: mel.NetworkType.ResNet50.name,
-        mel.NetworkType.Xception.name: mel.NetworkType.Xception.name,
-        mel.NetworkType.InceptionV3.name: mel.NetworkType.InceptionV3.name,
-        mel.NetworkType.VGG16.name: mel.NetworkType.VGG16.name,
-        mel.NetworkType.VGG19.name: mel.NetworkType.VGG19.name,
-        mel.NetworkType.EfficientNetB0.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB1.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB2.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB3.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB4.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB5.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB6.name: mel.NetworkType.EfficientNetB0.name,
-        mel.NetworkType.EfficientNetB7.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.ResNet50.name: mel.NetworkType.ResNet50.name,
+            mel.NetworkType.ResNet101.name: mel.NetworkType.ResNet50.name,
+            mel.NetworkType.ResNet152.name: mel.NetworkType.ResNet50.name,
+            mel.NetworkType.Xception.name: mel.NetworkType.Xception.name,
+            mel.NetworkType.InceptionV3.name: mel.NetworkType.InceptionV3.name,
+            mel.NetworkType.VGG16.name: mel.NetworkType.VGG16.name,
+            mel.NetworkType.VGG19.name: mel.NetworkType.VGG19.name,
+            mel.NetworkType.EfficientNetB0.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB1.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB2.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB3.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB4.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB5.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB6.name: mel.NetworkType.EfficientNetB0.name,
+            mel.NetworkType.EfficientNetB7.name: mel.NetworkType.EfficientNetB0.name,
 
-        mel.NetworkType.ResNet50V2.name: mel.NetworkType.ResNet50V2.name,
-        mel.NetworkType.ResNet101V2.name: mel.NetworkType.ResNet50V2.name,
-        mel.NetworkType.ResNet152V2.name: mel.NetworkType.ResNet50V2.name,
+            mel.NetworkType.ResNet50V2.name: mel.NetworkType.ResNet50V2.name,
+            mel.NetworkType.ResNet101V2.name: mel.NetworkType.ResNet50V2.name,
+            mel.NetworkType.ResNet152V2.name: mel.NetworkType.ResNet50V2.name,
 
-        mel.NetworkType.MobileNet.name: mel.NetworkType.MobileNet.name,
-        mel.NetworkType.MobileNetV2.name: mel.NetworkType.MobileNetV2.name,
+            mel.NetworkType.MobileNet.name: mel.NetworkType.MobileNet.name,
+            mel.NetworkType.MobileNetV2.name: mel.NetworkType.MobileNetV2.name,
 
-        mel.NetworkType.DenseNet121.name: mel.NetworkType.DenseNet121.name,
-        mel.NetworkType.DenseNet169.name: mel.NetworkType.DenseNet121.name,
-        mel.NetworkType.DenseNet201.name: mel.NetworkType.DenseNet121.name,
+            mel.NetworkType.DenseNet121.name: mel.NetworkType.DenseNet121.name,
+            mel.NetworkType.DenseNet169.name: mel.NetworkType.DenseNet121.name,
+            mel.NetworkType.DenseNet201.name: mel.NetworkType.DenseNet121.name,
 
-        mel.NetworkType.NASNetMobile.name: mel.NetworkType.NASNetMobile.name,
-        mel.NetworkType.NASNetLarge.name: mel.NetworkType.NASNetMobile.name,
+            mel.NetworkType.NASNetMobile.name: mel.NetworkType.NASNetMobile.name,
+            mel.NetworkType.NASNetLarge.name: mel.NetworkType.NASNetMobile.name,
 
-        mel.NetworkType.MeshNet.name: mel.NetworkType.VGG16.name,
+            mel.NetworkType.MeshNet.name: mel.NetworkType.VGG16.name,
 
-        mel.NetworkType.Ensemble.name: mel.NetworkType.ResNet50.name,
-      }
+            mel.NetworkType.Ensemble.name: mel.NetworkType.ResNet50.name,
+            }

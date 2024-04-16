@@ -198,12 +198,6 @@ class parser_ISIC2016(Parser):
         # 	assert label == df_test_ISIC2016.cell_type_binary[order]
         # 	img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
 
-        # Convert into bytes
-        # trainimages_bytes = self.PILtoBytes(trainimages_ISIC2016)
-        # testimages_bytes = self.PILtoBytes(testimages_ISIC2016)
-        # validationimages_bytes = self.PILtoBytes(validationimages_ISIC2016)
-
-
         filename = f'{datasetname}_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
 
         # assert len(trainimages_bytes) + len(validationimages_bytes) == 900
@@ -222,15 +216,14 @@ class parser_ISIC2016(Parser):
                         testlabels=testlabels_binary_ISIC2016,
                         validationlabels=validationlabels_binary_ISIC2016
                         )
+        
+        self.validate_h5(
+            path=self.path,
+            filename=filename, 
+            dbnumimgs=mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2016], 
+            val_exists=True, 
+            test_exists=True)
 
-
-
-        # with open(filename, 'wb') as file_bin:
-
-        # 	pickle.dump((trainimages_ISIC2016, testimages_ISIC2016, validationimages_ISIC2016,
-        # 	trainlabels_binary_ISIC2016, testlabels_binary_ISIC2016,validationlabels_binary_ISIC2016,
-        # 	2), file_bin)
-        # file_bin.close()
 
 
 
@@ -272,30 +265,3 @@ class parser_ISIC2016(Parser):
                         testlabels=testlabels_binary_ISIC2016,
                         validationlabels=validationlabels_binary_ISIC2016
                         )
-        # hff = h5py.File(os.path.join(self.path, filename_aug), 'w')
-        # # with h5py.File(os.path.join(path, filename_aug), 'w') as hf:
-        # trainimages_grp = hff.create_group('trainimages')
-        # testimages_grp = hff.create_group('testimages')
-        # validationimages_grp = hff.create_group('validationimages')
-        # trainlabels_grp = hff.create_group('trainlabels')
-        # testlabels_grp = hff.create_group('testlabels')
-        # validationlabels_grp = hff.create_group('validationlabels')
-        # for idx, img in enumerate(trainpixels_ISIC2016_augmented):
-        #     img_np = self.arrayToBytes(img)
-        #     trainimages_h5 = trainimages_grp.create_dataset(f'{trainids_new[idx]}_{idx}', shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
-        # for idx, img in enumerate(testpixels_ISIC2016):
-        #     img_np = self.arrayToBytes(img)
-        #     testimages_h5 = testimages_grp.create_dataset(f'{testids[idx]}', shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
-        # for idx, img in enumerate(validationpixels_ISIC2016):
-        #     img_np = self.arrayToBytes(img)
-        #     validationimages_h5 = validationimages_grp.create_dataset(f'{validationids[idx]}', shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
-
-        # for idx, label in enumerate(trainlabels_binary_ISIC2016_augmented):
-        #     trainlabels_h5 = trainlabels_grp.create_dataset(f'{trainids_new[idx]}_{idx}', shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
-        # for idx, label in enumerate(testlabels_binary_ISIC2016):
-        #     testlabels_h5 = testlabels_grp.create_dataset(f'{testids[idx]}', shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
-        # for idx, label in enumerate(validationlabels_binary_ISIC2016):
-        #     validationlabels_h5 = validationlabels_grp.create_dataset(f'{validationids[idx]}', shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
-
-
-        # hff.close()

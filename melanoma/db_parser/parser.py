@@ -98,6 +98,44 @@ class Parser:
         
         return image_pil
 
+    def validate_h5(self, path, filename, dbnumimgs, val_exists=False, test_exists=False):
+        
+        
+        hf = h5py.File(name=os.path.join(path, filename), mode='r', track_order=True)
+        
+        # print(pil_to_bytes_h5.keys())
+        trainimages_key = np.array(hf.get('trainimages'))
+        trainlabels_key = np.array(hf.get('trainlabels'))
+        trainids_key = np.array(hf.get('trainids'))
+        
+
+        if val_exists is False:
+            assert len(trainimages_key) == dbnumimgs['trainimages']
+            assert len(trainlabels_key) == dbnumimgs['trainimages']
+            assert len(trainids_key) == dbnumimgs['trainimages']
+
+        elif val_exists is True:
+            validationimages_key = np.array(hf.get('validationimages'))
+            validationlabels_key = np.array(hf.get('validationlabels'))
+            validationids_key = np.array(hf.get('validationids'))
+            assert len(trainimages_key) + len(validationimages_key) == dbnumimgs['trainimages']+dbnumimgs['validationimages']
+            assert len(trainlabels_key) + len(validationlabels_key) == dbnumimgs['trainimages'] + dbnumimgs['validationimages']
+            assert len(trainids_key) + len(validationids_key) == dbnumimgs['trainimages'] + dbnumimgs['validationimages']
+
+        if test_exists is True:
+            testimages_key = np.array(hf.get('testimages'))
+            testlabels_key = np.array(hf.get('testlabels'))
+            testids_key = np.array(hf.get('testids'))
+            assert len(testimages_key) == dbnumimgs['testimages']
+            assert len(testlabels_key) == dbnumimgs['testimages']
+            assert len(testids_key) == dbnumimgs['testimages']
+
+
+        hf.close()
+        
+        
+        
+
     def generateHDF5(self, path, filename, trainpxs, testpxs, validationpxs,
                      trainids, testids, validationids,
                      trainlabels, testlabels, validationlabels):
@@ -137,6 +175,10 @@ class Parser:
             validationids_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=id)
 
         hf.close()
+
+        
+
+
 
     def makeFolders(self, datasetname):
         
