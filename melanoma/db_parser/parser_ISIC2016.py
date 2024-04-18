@@ -221,7 +221,8 @@ class parser_ISIC2016(Parser):
             path=self.path,
             filename=filename, 
             dbnumimgs=mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2016], 
-            val_exists=True, 
+            train_only=False,
+            val_exists=False, 
             test_exists=True)
 
 

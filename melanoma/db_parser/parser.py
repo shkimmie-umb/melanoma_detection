@@ -56,19 +56,30 @@ class Parser:
 
         self.preprocessor = mel.Preprocess()
 
-    def encode(self, img_array):
+    @staticmethod
+    def encode(img_pil):
 		
 		
-        img_pil = array_to_img(img_array)
+        # img_pil = array_to_img(img_array)
         image_buffer = io.BytesIO() # convert array to bytes
-        img_pil.save(image_buffer, format="JPEG", quality=100, subsampling=0)
+        # img_pil.save(image_buffer, format="JPEG", quality=100, subsampling=0)
+        img_pil.save(image_buffer, format="JPEG")
         image_bytes = image_buffer.getvalue() # retrieve bytes string
         image_np = np.asarray(image_bytes)
         image_buffer.close()
 
         return image_np
+    
+    @staticmethod
+    def decode(np_bytes):
+        
+        image_buffer = io.BytesIO(np_bytes)
+        image_pil = Image.open(image_buffer)        
+        
+        return image_pil
 	
-    def decode(self, h5_file):
+    @staticmethod
+    def decode_(h5_file):
         
         
         pil_to_bytes_h5 = h5py.File(name=os.path.join(h5_file), mode='r', track_order=True)
@@ -98,7 +109,7 @@ class Parser:
         
         return image_pil
 
-    def validate_h5(self, path, filename, dbnumimgs, val_exists=False, test_exists=False):
+    def validate_h5(self, path, filename, dbnumimgs, train_only=True, val_exists=False, test_exists=False):
         
         
         hf = h5py.File(name=os.path.join(path, filename), mode='r', track_order=True)
@@ -107,28 +118,30 @@ class Parser:
         trainimages_key = np.array(hf.get('trainimages'))
         trainlabels_key = np.array(hf.get('trainlabels'))
         trainids_key = np.array(hf.get('trainids'))
+        validationimages_key = np.array(hf.get('validationimages'))
+        validationlabels_key = np.array(hf.get('validationlabels'))
+        validationids_key = np.array(hf.get('validationids'))
+        testimages_key = np.array(hf.get('testimages'))
+        testlabels_key = np.array(hf.get('testlabels'))
+        testids_key = np.array(hf.get('testids'))
         
 
-        if val_exists is False:
-            assert len(trainimages_key) == dbnumimgs['trainimages']
-            assert len(trainlabels_key) == dbnumimgs['trainimages']
-            assert len(trainids_key) == dbnumimgs['trainimages']
+        if train_only is True:
+            assert len(trainimages_key)+len(validationimages_key)+len(testimages_key) == dbnumimgs['trainimages']
+            assert len(trainlabels_key)+len(validationlabels_key)+len(testlabels_key) == dbnumimgs['trainimages']
+            assert len(trainids_key)+len(validationids_key)+len(testids_key) == dbnumimgs['trainimages']
 
-        elif val_exists is True:
-            validationimages_key = np.array(hf.get('validationimages'))
-            validationlabels_key = np.array(hf.get('validationlabels'))
-            validationids_key = np.array(hf.get('validationids'))
+        elif train_only is False and val_exists is True:
+            
             assert len(trainimages_key) + len(validationimages_key) == dbnumimgs['trainimages']+dbnumimgs['validationimages']
             assert len(trainlabels_key) + len(validationlabels_key) == dbnumimgs['trainimages'] + dbnumimgs['validationimages']
             assert len(trainids_key) + len(validationids_key) == dbnumimgs['trainimages'] + dbnumimgs['validationimages']
 
-        if test_exists is True:
-            testimages_key = np.array(hf.get('testimages'))
-            testlabels_key = np.array(hf.get('testlabels'))
-            testids_key = np.array(hf.get('testids'))
-            assert len(testimages_key) == dbnumimgs['testimages']
-            assert len(testlabels_key) == dbnumimgs['testimages']
-            assert len(testids_key) == dbnumimgs['testimages']
+        if train_only is False and test_exists is True:
+
+            assert len(testimages_key)+len(validationimages_key)+len(trainimages_key) == dbnumimgs['testimages']+dbnumimgs['validationimages']+dbnumimgs['trainimages']
+            assert len(testlabels_key)+len(validationlabels_key)+len(trainlabels_key) == dbnumimgs['testimages']+dbnumimgs['validationimages']+dbnumimgs['trainimages']
+            assert len(testids_key)+len(validationids_key)+len(trainids_key) == dbnumimgs['testimages']+dbnumimgs['validationimages']+dbnumimgs['trainimages']
 
 
         hf.close()
@@ -151,14 +164,14 @@ class Parser:
         testids_grp = hf.create_group(name='testids', track_order=True)
         validationids_grp = hf.create_group(name='validationids', track_order=True)
         for idx, img in enumerate(trainpxs):
-            img_np = self.encode(img)
-            trainimages_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
+            # img_np = self.encode(img)
+            trainimages_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
         for idx, img in enumerate(testpxs):
-            img_np = self.encode(img)
-            testimages_grp.create_dataset(f'{testids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
+            # img_np = self.encode(img)
+            testimages_grp.create_dataset(f'{testids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
         for idx, img in enumerate(validationpxs):
-            img_np = self.encode(img)
-            validationimages_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img_np)
+            # img_np = self.encode(img)
+            validationimages_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
 
         for idx, label in enumerate(trainlabels):
             trainlabels_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)

@@ -173,7 +173,7 @@ class Preprocess:
                     p_hflip=0.5, 
                     p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
-                df_mel_augmented.at[j, 'image'] = augmented_img['image']
+                df_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
                 assert df_mel_augmented.shape[0] <= num_augmented_img
                 
@@ -200,7 +200,7 @@ class Preprocess:
                     p_hflip=0.5, 
                     p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
-                df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
+                df_non_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
                 num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
                 assert df_non_mel_augmented.shape[0] <= num_augmented_img
         elif mel_cnt > non_mel_cnt:
@@ -226,7 +226,7 @@ class Preprocess:
                     p_hflip=0.5, 
                     p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
-                df_mel_augmented.at[j, 'image'] = augmented_img['image']
+                df_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
                 assert df_mel_augmented.shape[0] <= num_augmented_img
 
@@ -252,7 +252,7 @@ class Preprocess:
                                                        p_hflip=0.5, 
                                                        p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
-                df_non_mel_augmented.at[j, 'image'] = augmented_img['image']
+                df_non_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
                 num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
                 assert df_non_mel_augmented.shape[0] <= num_augmented_img
 
@@ -267,7 +267,7 @@ class Preprocess:
         # Save augmented images for viewing purpose
         for idx in df_mel_augmented.index:
             # img = Image.fromarray(df_mel_augmented.image[idx], mode='RGB')
-            img = array_to_img(df_mel_augmented.image[idx])
+            img = mel.Parser.decode(df_mel_augmented['image'][idx])
             currentPath = pathlib.Path(df_mel_augmented.path[idx])
             label = df_mel_augmented.cell_type_binary[idx]
             assert label == 'Melanoma'
@@ -275,18 +275,20 @@ class Preprocess:
 
         for idx in df_non_mel_augmented.index:
             # img = Image.fromarray(df_non_mel_augmented.image[idx], mode='RGB')
-            img = array_to_img(df_non_mel_augmented.image[idx])
+            img = mel.Parser.decode(df_non_mel_augmented['image'][idx])
             currentPath = pathlib.Path(df_non_mel_augmented.path[idx])
             label = df_non_mel_augmented.cell_type_binary[idx]
             assert label == 'Non-Melanoma'
             img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
     
-        trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented.image)) # Filter out only pixel from the list
+        trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented['image'])) # Filter out only pixel from the list
 
         
         # imgs_augmented = self.normalizeImgs(imgs=trainpixels_augmented, networktype=networktype, uniform_normalization=uniform_normalization)
 
-        trainimages_augmented = np.vstack((trainimages, trainpixels_augmented))
+        # trainimages_augmented = np.vstack((trainimages, trainpixels_augmented))
+        # trainimages_augmented = pd.concat([trainimages, trainpixels_augmented], ignore_index=True, axis=0)
+        trainimages_augmented = trainimages + trainpixels_augmented
         
         # ids augmented
         trainids_augmented = list(map(lambda x:pathlib.Path(x).stem, df_trainset_augmented.path))
@@ -297,7 +299,7 @@ class Preprocess:
         trainlabels_augmented = np.vstack((trainlabels, labels_augmented))
 
         assert len(trainpixels_augmented) == labels_augmented.shape[0]
-        assert trainlabels_augmented.shape[0] == trainimages_augmented.shape[0]
+        assert trainlabels_augmented.shape[0] == len(trainimages_augmented)
     
         
         return df_mel_augmented, df_non_mel_augmented, trainimages_augmented, trainlabels_augmented, trainids_augmented
@@ -306,22 +308,33 @@ class Preprocess:
 
 
     def saveNumpyImagesToFiles(self, df, original_df, base_path):
-        def assert_(cond): assert cond
-        return df.index.map(lambda x: (
-				currentPath_train := pathlib.Path(df.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
-				label := df.cell_type_binary[x],
-				assert_(label == original_df.cell_type_binary[x]),
-				df.image[x][0].save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
-			))
+        # def assert_(cond): assert cond
+        # return df.index.map(lambda x: (
+        #         print(df.image[x][1]),
+        #         img := load_img(path=df.image[x][1], target_size=None),
+		# 		currentPath_train := pathlib.Path(df.image[x][1]), # [0]: Encoded PIL obj, [1]: PosixPath
+		# 		label := df.cell_type_binary[x],
+		# 		assert_(label == original_df.cell_type_binary[x]),
+		# 		img.save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
+		# 	))
+        for idx, sliced_idx in enumerate(df.index):
+            print(df.image[sliced_idx][1])
+            img = load_img(path=df.image[sliced_idx][1], target_size=None)
+            currentPath = pathlib.Path(df.image[sliced_idx][1])
+            label = df.cell_type_binary[sliced_idx]
+            assert label == original_df.cell_type_binary[sliced_idx]
+            img.save(f"{base_path}/{label}/{currentPath.stem}.jpg", quality=100, subsampling=0)
+
     
-    def saveNumpyImagesToFilesWithoutLabel(self, df, base_path):
-        def assert_(cond): assert cond
-        return df.index.map(lambda x: (
-				currentPath := pathlib.Path(df.image[x][2]), # [0]: PIL obj, [1]: pixels, [2]: PosixPath
-				# label := df.cell_type_binary[x],
-				# assert_(label == original_df.cell_type_binary[x]),
-				df.image[x][0].save(f"{base_path}/{currentPath}.jpg", quality=100, subsampling=0)
-			))
+    # def saveNumpyImagesToFilesWithoutLabel(self, df, base_path):
+    #     def assert_(cond): assert cond
+    #     return df.index.map(lambda x: (
+    #             img := load_img(path=df.image[x][1], target_size=None),
+	# 			currentPath := pathlib.Path(df.image[x][1]), # [0]: Encoded PIL obj, [1]: PosixPath
+	# 			# label := df.cell_type_binary[x],
+	# 			# assert_(label == original_df.cell_type_binary[x]),
+	# 			img.save(f"{base_path}/{currentPath}.jpg", quality=100, subsampling=0)
+	# 		))
 
     def saveCustomDBImagesToFiles(self, labels, foldersExist, RGBfolders, trains, vals=None, tests=None):
         
