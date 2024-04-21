@@ -153,9 +153,9 @@ class CommonData:
               "testimages": 0
               },
         mel.DatasetType._7_point_criteria: {
-              "trainimages": 2013,
-              "validationimages": 0,
-              "testimages": 0
+              "trainimages": 413,
+              "validationimages": 203,
+              "testimages": 395
               },
         mel.DatasetType.PAD_UFES_20: {
               "trainimages": 2298,

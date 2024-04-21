@@ -36,8 +36,8 @@ class parser_ISIC2016(Parser):
         num_train_img_ISIC2016 = len(list(ISIC2016_training_path.glob('./*.jpg'))) # counts all ISIC2016 training images
         num_test_img_ISIC2016 = len(list(ISIC2016_test_path.glob('./*.jpg'))) # counts all ISIC2016 test images
 
-        assert num_train_img_ISIC2016 == 900
-        assert num_test_img_ISIC2016 == 379
+        assert num_train_img_ISIC2016 == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2016]['trainimages']
+        assert num_test_img_ISIC2016 == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2016]['testimages']
 
         self.logger.debug('%s %s', "Images available in ISIC2016 train dataset:", num_train_img_ISIC2016)
         self.logger.debug('%s %s', "Images available in ISIC2016 test dataset:", num_test_img_ISIC2016)
@@ -89,27 +89,18 @@ class parser_ISIC2016(Parser):
 
         df_training_ISIC2016['image'] = df_training_ISIC2016.path.map(
         lambda x:(
-            # img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-            # img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
-            img := self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
-                                                         resize_width=self.resize_width, resize_height=self.resize_height),
-            # np.asarray(img), # [1]: pixel array
-            img_to_array(img), # [1]: pixel array
-            currentPath := pathlib.Path(x), # [2]: PosixPath
-            # img.save(f"{whole_rgb_folder}/{currentPath.name}")
-        )
+            img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
+                                                         resize_width=self.resize_width, resize_height=self.resize_height)),
+            currentPath := pathlib.Path(x), # [1]: PosixPath
+            )
         )
 
 
         df_test_ISIC2016['image'] = df_test_ISIC2016.path.map(
         lambda x:(
-            # img := Image.open(x).resize((img_width, img_height)).convert("RGB"), # [0]: PIL object
-            # img := load_img(path=x, target_size=(img_width, img_height)), # [0]: PIL object
-            img := self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
-                                                         resize_width=self.resize_width, resize_height=self.resize_height),
-            # np.asarray(img), # [1]: pixel array
-            img_to_array(img), # [1]: pixel array
-            currentPath := pathlib.Path(x), # [2]: PosixPath
+            img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
+                                                resize_width=self.resize_width, resize_height=self.resize_height)),
+            currentPath := pathlib.Path(x), # [1]: PosixPath
             )
         )
 
@@ -158,13 +149,13 @@ class parser_ISIC2016(Parser):
         # for idx, img_obj in enumerate(validationset_ISIC2016['image']):
         #     validationpixels_ISIC2016.append(img_obj[1])
         #     validationids.append(img_obj[2].stem)
-        trainpixels_ISIC2016 = list(map(lambda x:x[1], trainset_ISIC2016.image)) # Filter out only pixel from the list
-        testpixels_ISIC2016 = list(map(lambda x:x[1], testset_ISIC2016.image))
-        validationpixels_ISIC2016 = list(map(lambda x:x[1], validationset_ISIC2016.image))
+        trainpixels_ISIC2016 = list(map(lambda x:x[0], trainset_ISIC2016['image'])) # Filter out only pixel from the list
+        testpixels_ISIC2016 = list(map(lambda x:x[0], testset_ISIC2016['image']))
+        validationpixels_ISIC2016 = list(map(lambda x:x[0], validationset_ISIC2016['image']))
 
-        trainids = list(map(lambda x:x[2].stem, trainset_ISIC2016.image)) # Filter out only pixel from the list
-        testids = list(map(lambda x:x[2].stem, testset_ISIC2016.image))
-        validationids = list(map(lambda x:x[2].stem, validationset_ISIC2016.image))
+        trainids = list(map(lambda x:x[1].stem, trainset_ISIC2016['image'])) # Filter out only pixel from the list
+        testids = list(map(lambda x:x[1].stem, testset_ISIC2016['image']))
+        validationids = list(map(lambda x:x[1].stem, validationset_ISIC2016['image']))
 
         # trainimages_ISIC2016 = preprocessor.normalizeImgs(imgs=trainpixels_ISIC2016, networktype=networktype, 
         # 										 uniform_normalization=uniform_normalization)
@@ -248,21 +239,21 @@ class parser_ISIC2016(Parser):
                 df_trainset = df_training_ISIC2016
             )
 
-        trainids_new = trainids + trainids_augmented
+            trainids_new = trainids + trainids_augmented
 
 
-        filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
+            filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
 
 
-        # create HDF5 file
-        self.generateHDF5(path=self.path, filename=filename_aug, 
-                        trainpxs=trainpixels_ISIC2016_augmented, 
-                        testpxs=testpixels_ISIC2016, 
-                        validationpxs=validationpixels_ISIC2016,
-                        trainids=trainids_new, 
-                        testids=testids,
-                        validationids=validationids,
-                        trainlabels=trainlabels_binary_ISIC2016_augmented,
-                        testlabels=testlabels_binary_ISIC2016,
-                        validationlabels=validationlabels_binary_ISIC2016
-                        )
+            # create HDF5 file
+            self.generateHDF5(path=self.path, filename=filename_aug, 
+                            trainpxs=trainpixels_ISIC2016_augmented, 
+                            testpxs=testpixels_ISIC2016, 
+                            validationpxs=validationpixels_ISIC2016,
+                            trainids=trainids_new, 
+                            testids=testids,
+                            validationids=validationids,
+                            trainlabels=trainlabels_binary_ISIC2016_augmented,
+                            testlabels=testlabels_binary_ISIC2016,
+                            validationlabels=validationlabels_binary_ISIC2016
+                            )

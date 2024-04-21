@@ -232,21 +232,21 @@ class parser_HAM10000(Parser):
                 df_trainset = df_HAM10000
             )
 
-        trainids_new = trainids + trainids_augmented
+            trainids_new = trainids + trainids_augmented
 
 
-        filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
+            filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
 
 
-        # create HDF5 file
-        self.generateHDF5(path=self.path, filename=filename_aug, 
-                        trainpxs=trainpixels_augmented, 
-                        testpxs=testpixels_HAM10000, 
-                        validationpxs=validationpixels_HAM10000,
-                        trainids=trainids_new, 
-                        testids=testids,
-                        validationids=validationids,
-                        trainlabels=trainlabels_augmented,
-                        testlabels=testlabels_binary_HAM10000,
-                        validationlabels=validationlabels_binary_HAM10000
-                        )
+            # create HDF5 file
+            self.generateHDF5(path=self.path, filename=filename_aug, 
+                            trainpxs=trainpixels_augmented, 
+                            testpxs=testpixels_HAM10000, 
+                            validationpxs=validationpixels_HAM10000,
+                            trainids=trainids_new, 
+                            testids=testids,
+                            validationids=validationids,
+                            trainlabels=trainlabels_augmented,
+                            testlabels=testlabels_binary_HAM10000,
+                            validationlabels=validationlabels_binary_HAM10000
+                            )

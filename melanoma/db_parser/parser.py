@@ -38,6 +38,11 @@ class Parser:
         elif uniform_normalization is True:
             networkname = 'uniform01'
 
+        self.common_binary_label = {
+			0.0: 'Non-Melanoma',
+			1.0: 'Melanoma',
+		}
+
         self.path = str(self.base_dir) + '/melanomaDB' + '/customDB' + '/' + networkname
 		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
         isExist = os.path.exists(self.path)
@@ -65,7 +70,7 @@ class Parser:
         # img_pil.save(image_buffer, format="JPEG", quality=100, subsampling=0)
         img_pil.save(image_buffer, format="JPEG")
         image_bytes = image_buffer.getvalue() # retrieve bytes string
-        image_np = np.asarray(image_bytes)
+        image_np = np.asarray(image_bytes, dtype=f'|S{len(image_bytes)}')
         image_buffer.close()
 
         return image_np
@@ -168,24 +173,24 @@ class Parser:
             trainimages_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
         for idx, img in enumerate(testpxs):
             # img_np = self.encode(img)
-            testimages_grp.create_dataset(f'{testids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
+            testimages_grp.create_dataset(f'{testids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
         for idx, img in enumerate(validationpxs):
             # img_np = self.encode(img)
-            validationimages_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
+            validationimages_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
 
         for idx, label in enumerate(trainlabels):
             trainlabels_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
         for idx, label in enumerate(testlabels):
-            testlabels_grp.create_dataset(f'{testids[idx]}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
+            testlabels_grp.create_dataset(f'{testids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
         for idx, label in enumerate(validationlabels):
-            validationlabels_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
+            validationlabels_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
 
         for idx, id in enumerate(trainids):
             trainids_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=id)
         for idx, id in enumerate(testids):
-            testids_grp.create_dataset(f'{testids[idx]}', shape=(1, ), track_order=True, maxshape=(None, ), compression='gzip', data=id)
+            testids_grp.create_dataset(f'{testids[idx]}_{idx}', shape=(1, ), track_order=True, maxshape=(None, ), compression='gzip', data=id)
         for idx, id in enumerate(validationids):
-            validationids_grp.create_dataset(f'{validationids[idx]}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=id)
+            validationids_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=id)
 
         hf.close()
 

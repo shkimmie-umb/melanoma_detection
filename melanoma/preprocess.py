@@ -271,7 +271,7 @@ class Preprocess:
             currentPath = pathlib.Path(df_mel_augmented.path[idx])
             label = df_mel_augmented.cell_type_binary[idx]
             assert label == 'Melanoma'
-            img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
+            img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg")
 
         for idx in df_non_mel_augmented.index:
             # img = Image.fromarray(df_non_mel_augmented.image[idx], mode='RGB')
@@ -279,7 +279,7 @@ class Preprocess:
             currentPath = pathlib.Path(df_non_mel_augmented.path[idx])
             label = df_non_mel_augmented.cell_type_binary[idx]
             assert label == 'Non-Melanoma'
-            img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg", quality=100, subsampling=0)
+            img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg")
     
         trainpixels_augmented = list(map(lambda x:x, df_trainset_augmented['image'])) # Filter out only pixel from the list
 
@@ -318,12 +318,13 @@ class Preprocess:
 		# 		img.save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
 		# 	))
         for idx, sliced_idx in enumerate(df.index):
-            print(df.image[sliced_idx][1])
-            img = load_img(path=df.image[sliced_idx][1], target_size=None)
-            currentPath = pathlib.Path(df.image[sliced_idx][1])
+            # Print will make the logic fail
+            # print(df.image[sliced_idx][1])
+            img = mel.Parser.decode(df['image'][sliced_idx][0])
+            currentPath = pathlib.Path(df['image'][sliced_idx][1])
             label = df.cell_type_binary[sliced_idx]
             assert label == original_df.cell_type_binary[sliced_idx]
-            img.save(f"{base_path}/{label}/{currentPath.stem}.jpg", quality=100, subsampling=0)
+            img.save(f"{base_path}/{label}/{currentPath.stem}.jpg")
 
     
     # def saveNumpyImagesToFilesWithoutLabel(self, df, base_path):
