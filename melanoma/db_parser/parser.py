@@ -84,35 +84,75 @@ class Parser:
         return image_pil
 	
     @staticmethod
-    def decode_(h5_file):
+    def open_H5(h5file):
         
+        hf = h5py.File(name=h5file, mode='r', track_order=True)
         
-        pil_to_bytes_h5 = h5py.File(name=os.path.join(h5_file), mode='r', track_order=True)
+        trainimages_key = np.array(hf.get('trainimages'))
+        trainlabels_key = np.array(hf.get('trainlabels'))
+        trainids_key = np.array(hf.get('trainids'))
+        validationimages_key = np.array(hf.get('validationimages'))
+        validationlabels_key = np.array(hf.get('validationlabels'))
+        validationids_key = np.array(hf.get('validationids'))
+        testimages_key = np.array(hf.get('testimages'))
+        testlabels_key = np.array(hf.get('testlabels'))
+        testids_key = np.array(hf.get('testids'))
 
-        # print(pil_to_bytes_h5.keys())
-        trainimages_key = np.array(pil_to_bytes_h5.get('trainimages'))
-        testimages_key = np.array(pil_to_bytes_h5.get('testimages'))
-        validationimages_key = np.array(pil_to_bytes_h5.get('validationimages'))
-        trainlabels_key = np.array(pil_to_bytes_h5.get('trainlabels'))
-        testlabels_key = np.array(pil_to_bytes_h5.get('testlabels'))
-        validationlabels_key = np.array(pil_to_bytes_h5.get('validationlabels'))
-        trainids_key = np.array(pil_to_bytes_h5.get('trainids'))
-        testids_key = np.array(pil_to_bytes_h5.get('testids'))
-        validationids_key = np.array(pil_to_bytes_h5.get('validationids'))
+        assert (trainimages_key == trainlabels_key).all() == True
+        assert (trainimages_key == trainids_key).all() == True
+        assert (validationimages_key == validationlabels_key).all() == True
+        assert (validationimages_key == validationids_key).all() == True
+        assert (testimages_key == testlabels_key).all() == True
+        assert (testimages_key == testids_key).all() == True
+
+        trainimages_list = []
+        trainlabels_list = []
+        trainids_list = []
+        validationimages_list = []
+        validationlabels_list = []
+        validationids_list = []
+        testimages_list = []
+        testlabels_list = []
+        testids_list = []
 
         for key in trainimages_key:
-            image_array = np.array(pil_to_bytes_h5['trainimages'][key][()])
-            image_ids = np.array(pil_to_bytes_h5['trainids'][key][()])
-            
-            image_buffer = io.BytesIO(image_array)
-            image_pil = Image.open(image_buffer)
+            trainimages_list.append(np.array(hf.get('trainimages')[key]))
+            trainlabels_list.append(np.array(hf.get('trainlabels')[key]))
+            trainids_list.append(np.array(hf.get('trainids')[key]))
 
-            # process the pillow image image_pil ...
+        for key in validationimages_key:
+            validationimages_list.append(np.array(hf.get('validationimages')[key]))
+            validationlabels_list.append(np.array(hf.get('validationlabels')[key]))
+            validationids_list.append(np.array(hf.get('validationids')[key]))
 
-        pil_to_bytes_h5.close()
+        for key in testimages_key:
+            testimages_list.append(np.array(hf.get('testimages')[key]))
+            testlabels_list.append(np.array(hf.get('testlabels')[key]))
+            testids_list.append(np.array(hf.get('testids')[key]))
+        
+        traindata = {"trainimages": trainimages_list,
+                     "trainlabels": trainlabels_list,
+                     "trainids": trainids_list
+                    }
+        
+        validationdata = {"validationimages": validationimages_list,
+                     "validationlabels": validationlabels_list,
+                     "validationids": validationids_list
+                    }
+        
+        testdata = {"testimages": testimages_list,
+                     "testlabels": testlabels_list,
+                     "testids": testids_list
+                    }
+
+
+        
+
+        hf.close()
+        
+        return traindata, validationdata, testdata
         
         
-        return image_pil
 
     def validate_h5(self, path, filename, dbnumimgs, train_only=True, val_exists=False, test_exists=False):
         

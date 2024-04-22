@@ -164,9 +164,10 @@ class CNN(Base_Model):
 
         return data_gen, Resnet50_model
 
-    def transformer(self, network):
+    @staticmethod
+    def transfer(network, CFG):
         # Define model with different applications
-        tf.keras.backend.clear_session()
+        # tf.keras.backend.clear_session()
         model = Sequential()
         #vgg-16 , 80% accuracy with 100 epochs
         # model.add(VGG16(input_shape=(224,224,3),pooling='avg',classes=1000,weights=vgg16_weights_path))
@@ -174,10 +175,10 @@ class CNN(Base_Model):
         model.add(network(
                 include_top=False,
                 input_tensor=None,
-                input_shape=(self.CFG['img_height'], self.CFG['img_width'], 3),
+                input_shape=(CFG['img_height'], CFG['img_width'], 3),
                 pooling='avg',
                 # classes=self.CFG['num_classes'],
-                weights=self.CFG['pretrained_weights']
+                weights=CFG['pretrained_weights']
         ))
         # model.add(Flatten())
         model.add(Dense(512, activation='relu'))
@@ -192,9 +193,7 @@ class CNN(Base_Model):
         model.layers[0].trainable = False
         model.summary()
 
-        model.compile(optimizer=self.CFG['model_optimizer'], loss=self.CFG['loss'], metrics=self.CFG['metrics'])
-
-        
+        model.compile(optimizer=CFG['model_optimizer'], loss=CFG['loss'], metrics=CFG['metrics'])
 
         return model
 

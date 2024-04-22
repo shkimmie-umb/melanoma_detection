@@ -1,19 +1,12 @@
-
-import melanoma as mel
-
-
-import logging
-import sys
 import os
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 from pathlib import Path
 import itertools
 import glob
-
-
 import argparse
-# defined command line options
-# this also generates --help and error handling
+
+import melanoma as mel
+
 CLI=argparse.ArgumentParser()
 CLI.add_argument(
   "--DB",  # name on the CLI - drop the `--` for positional/required parameters
@@ -34,13 +27,13 @@ CLI.add_argument(
   
 )
 
-CLI.add_argument(
-  "--SELF_AUG",
-  nargs="?",
-  type=int,
-  default=0,
+# CLI.add_argument(
+#   "--SELF_AUG",
+#   nargs="?",
+#   type=int,
+#   default=0,
 
-)
+# )
 
 CLI.add_argument(
   "--JOB_INDEX",
@@ -58,74 +51,57 @@ check_Classifiers = [c.name for c in mel.NetworkType]
 
 assert set(args.DB).issubset(check_DBs)
 assert any(args.CLASSIFIER in item for item in check_Classifiers)
-assert args.SELF_AUG == 0 or args.SELF_AUG == 1
 
 print(f"DB: {args.DB}")
 print(f"IMG_SIZE: {args.IMG_SIZE}")
 print(f"CLASSIFIER: {args.CLASSIFIER}")
-print(f"SELF_AUG: {args.SELF_AUG}")
+# print(f"SELF_AUG: {args.SELF_AUG}")
 print(f"JOB_INDEX: {args.JOB_INDEX}")
-# print("DB: %r" % args.DB)
-# print("IMG_SIZE: %r" % args.IMG_SIZE)
-# print("CLASSIFIER: %r" % args.CLASSIFIER)
-# print("JOB_INDEX: %r" % args.JOB_INDEX)
 
 DB = args.DB
 IMG_SIZE = tuple(args.IMG_SIZE)
 CLASSIFIER = args.CLASSIFIER
-SELF_AUG = args.SELF_AUG
+# SELF_AUG = args.SELF_AUG
 JOB_INDEX = args.JOB_INDEX
-# DB = sys.argv[1] # HAM10000, ISIC2016
-# IMG_SIZE = int(sys.argv[2]) # (150, 150)
-# CLASSIFIER = sys.argv[3] # 'ResNet50, VGG16'
-# JOB_INDEX = int(sys.argv[4])
-
-# logger = logging.getLogger()
-# logger.setLevel(logging.INFO)
-# logging.debug("test")
 
 DBname = '+'.join(DB)
 
 rootpath = '/hpcstor6/scratch01/s/sanghyuk.kim001'
-# img_size = (224, 224) # height, width
 img_size = IMG_SIZE # height, width
-utilInstance = mel.Util(rootpath, img_size)
 
 from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.python.keras.callbacks import EarlyStopping
 # from mel import SilentTrainingCallback as silent_callback
 
-img_height, img_width = utilInstance.getImgSize()
-
-optimizer1 = Adam(learning_rate=0.001)
+# optimizer1 = Adam(learning_rate=0.001)
 optimizer2 = Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
 red_lr= ReduceLROnPlateau(monitor='val_accuracy', patience=3 , verbose=1, factor=0.7)
 cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
 
 CFG = dict(
-			batch_size            =  32,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  20,   # 5; 10; 20;
+			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
+			epochs                =  40,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   0,   # 0; 1
 			fontsize              =  14,
 			num_classes           =  2, # binary
+      apply_aug             = True,
 
 			# Images sizes
-			img_height = img_height,   # Original: (450h, 600w)
-      img_width = img_width,
+			img_height = 640,   # Original: (450h, 600w)
+      img_width = 640,
 
 			# Images augs
-			ROTATION_RANGE        =   90.0,
-			ZOOM_RANGE            =   0.1,
-			HSHIFT_RANGE          =   0.1, # randomly shift images horizontally
-			WSHIFT_RANGE          =   0.1, # randomly shift images vertically
+			ROTATION_RANGE        =   0.0,
+			ZOOM_RANGE            =   0.0,
+			HSHIFT_RANGE          =   0.0, # randomly shift images horizontally
+			WSHIFT_RANGE          =   0.0, # randomly shift images vertically
 			HFLIP                 = False, # randomly flip images
 			VFLIP                 = False, # randomly flip images
 
 			# Model settings
 			pretrained_weights = 'imagenet',
-      # pretrained_weights = None,
 			model_optimizer = optimizer2,
 			# loss='binary_crossentropy',
 			loss='categorical_crossentropy',
@@ -142,81 +118,48 @@ CFG = dict(
       experiment_noaug = f'{DBname}_noaug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 			experiment_aug = f'{DBname}_aug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 		)
-base_model = mel.CNN(CFG=CFG)
+# base_model = mel.CNN(CFG=CFG)
 commondata = mel.CommonData()
 
 
 # Training DBs with Networks
-dbpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001/melanomaDB/customDB/{commondata.DBpreprocessorDict[CLASSIFIER]}'
-# picklename = f'{DB}_{IMG_SIZE}h_{IMG_SIZE}w_binary'
-del_augmentation = {'ROTATION_RANGE':0.0, 'ZOOM_RANGE':0.0, 'HSHIFT_RANGE':0.0, 'WSHIFT_RANGE':0.0}
-CFG.update(del_augmentation)
+dbpath = f'/hpcstor6/scratch01/s/sanghyuk.kim001/melanomaDB/customDB/uniform01'
 
-ori_pkl = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
-aug_pkl = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_augmentedWith_*Melanoma_*Non-Melanoma_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
+ori_dbs = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
+aug_dbs = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_augmented*_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w*', recursive=True) for db in DB]))
 
-assert len(ori_pkl) == len(aug_pkl)
+assert len(ori_dbs) == len(aug_dbs)
 
 
-	# trainimages, testimages, validationimages, \
-	# 			trainlabels, testlabels, validationlabels, num_classes\
-	# 				= utilInstance.loadDatasetFromFile(dbpath+'/'+Path(ori_pkl).stem+'.pkl')
-if SELF_AUG == 0:
-  trainimages, testimages, validationimages, \
-        trainlabels, testlabels, validationlabels, \
-          = utilInstance.combineDatasets(ori_pkl)
-  assert len(trainimages) == len(trainlabels)
-  if validationimages is not None and validationlabels is not None:
-    assert len(validationimages) == len(validationlabels)
-  if testimages is not None and testlabels is not None:
-    assert len(testimages) == len(testlabels)
 
 
-elif SELF_AUG == 1:
-  trainimages_aug, testimages, validationimages, \
-        trainlabels_aug, testlabels, validationlabels, \
-          = utilInstance.combineDatasets(aug_pkl)
-  assert len(trainimages_aug) == len(trainlabels_aug)
-  if validationimages is not None and validationlabels is not None:
-    assert len(validationimages) == len(validationlabels)
-  if testimages is not None and testlabels is not None:
-    assert len(testimages) == len(testlabels)
-
-
-# assert len(trainimages) == len(trainlabels)
-# if validationimages is not None and validationlabels is not None:
-#   assert len(validationimages) == len(validationlabels)
-#   assert len(validationimages) == len(validationimages_aug)
-#   assert len(validationlabels) == len(validationlabels_aug)
-# if testimages is not None and testlabels is not None:
-#   assert len(testimages) == len(testlabels)
-#   assert len(testimages) == len(testimages_aug)
-#   assert len(testlabels) == len(testlabels_aug)
-# assert len(trainimages_aug) == len(trainlabels_aug)
-# if validationimages_aug is not None and validationlabels_aug is not None:
-#   assert len(validationimages_aug) == len(validationlabels_aug)
-# if testimages_aug is not None and testlabels_aug is not None:
-#   assert len(testimages_aug) == len(testlabels_aug)
+combined_data = mel.Util.combineDatasets(ori_dbs)
 
 # Test, Val sets must not be augmented
 
-if SELF_AUG == 0:
-  # Original images training (No augmentation)
-  model_noaug_name = CFG['experiment_noaug']
-  model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
 
-  # modelfiles = list(itertools.chain.from_iterable([glob.glob(f"{CFG['snapshot_path']}/*.hdf5", recursive=True)]))
-  # modelnames = list(map(lambda x: Path(os.path.basename(x)).stem, modelfiles))
+# Original images training (No augmentation)
+model_noaug_name = CFG['experiment_noaug']
+model = mel.CNN.transfer(commondata.classifierDict[CLASSIFIER], CFG)
+
+trainimages = combined_data['trainimages']
+trainlabels = combined_data['trainlabels']
+validationimages = combined_data['validationimages']
+validationlabels = combined_data['validationlabels']
+
+# for i in trainimages:
+#     trainimages[i] = mel.Parser.decode(trainimages[i])
 
 
-  history_noaug = base_model.fit_model(
-      model = model,
-      model_name = model_noaug_name,
-      trainimages = trainimages,
-      trainlabels = trainlabels,
-      validationimages = validationimages,
-      validationlabels = validationlabels,
-  )
+
+history_noaug = mel.CNN.fit_model(
+  CFG = CFG,
+  model = model,
+  trainimages = trainimages,
+  trainlabels = trainlabels,
+  validationimages = validationimages,
+  validationlabels = validationlabels,
+)
 
     # visualizer = mel.Visualizer()
     # visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_noaug_name)
@@ -229,20 +172,30 @@ if SELF_AUG == 0:
 
 
 
-elif SELF_AUG == 1:
-  # Augmented images training (augmentation)
-  model_aug_name = CFG['experiment_aug']
-  # model = base_model.transformer(commondata.classifierDict[CLASSIFIER])
-  model = base_model.meshnet_test()
 
-  history = base_model.fit_model(
-      model = model,
-      model_name = model_aug_name,
-      trainimages = trainimages_aug,
-      trainlabels = trainlabels_aug,
-      validationimages = validationimages,
-      validationlabels = validationlabels,
-  )
+  # Augmented images training (augmentation)
+model_aug_name = CFG['experiment_aug']
+combined_data = mel.Util.combineDatasets(aug_dbs)
+
+del trainimages
+del trainlabels
+del validationimages
+del validationlabels
+
+trainimages = combined_data['trainimages']
+trainlabels = combined_data['trainlabels']
+validationimages = combined_data['validationimages']
+validationlabels = combined_data['validationlabels']
+
+history_aug = mel.CNN.fit_model(
+  CFG = CFG,
+  model = model,
+  trainimages = trainimages,
+  trainlabels = trainlabels,
+  validationimages = validationimages,
+  validationlabels = validationlabels,
+)
+
 
     # visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_aug_name)
 
@@ -251,8 +204,3 @@ elif SELF_AUG == 1:
     #     plot_path=CFG['snapshot_path'],
     #     history = history_aug
     # )
-
-  # if not any(model_aug_name in has_model for has_model in modelnames):
-
-  # else:
-  #   print(f"Model {model_noaug_name} already exists")

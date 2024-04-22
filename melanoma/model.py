@@ -33,6 +33,7 @@ from sklearn.utils import class_weight
 from collections import Counter
 
 from warnings import filterwarnings
+from keras.preprocessing.image import img_to_array
 
 import numpy as np
 import pickle
@@ -42,6 +43,7 @@ import seaborn as sns
 import json
 import os
 import dataframe_image as dfi
+import random
 
 import melanoma as mel
 
@@ -114,26 +116,61 @@ class Model:
             
             return model
     
-    def fit_model(self, model, model_name, trainimages, trainlabels, validationimages, validationlabels):
+    @staticmethod
+    def fit_model( CFG, model, trainimages, trainlabels, validationimages, validationlabels):
+        def slice_data(images, labels, idx, batch_size):
+            start = idx
+            end = start + batch_size
+
+            sliced_images = images[start:end]
+            sliced_labels = labels[start:end]
+
+            assert len(sliced_images) == len(sliced_labels)
+
+            img_array = []
+            
+            for idx, img in enumerate(sliced_images):
+                img_array.append(img_to_array(mel.Parser.decode(img)))
+            
+
+            return (np.array(img_array), sliced_labels)
+
+        def batch_generator(images, labels, batch_size):
+            while True:
+
+                index= random.randint(0, len(images)-1)
+                yield slice_data(images, labels, index, batch_size)
+        
+        valimg_array = []
+            
+        for idx, img in enumerate(validationimages):
+            valimg_array.append(img_to_array(mel.Parser.decode(img)))
+        valimg_array = np.array(valimg_array)
+
         data_gen = ImageDataGenerator(
             featurewise_center=False,  # set input mean to 0 over the dataset
             samplewise_center=False,  # set each sample mean to 0
             featurewise_std_normalization=False,  # divide inputs by std of the dataset
             samplewise_std_normalization=False,  # divide each input by its std
             zca_whitening=False,  # apply ZCA whitening
-            rotation_range=self.CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
-            zoom_range = self.CFG['ZOOM_RANGE'], # Randomly zoom image 
-            width_shift_range=self.CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
-            height_shift_range=self.CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
-            horizontal_flip=self.CFG['HFLIP'],  # randomly flip images
-            vertical_flip=self.CFG['VFLIP'] # randomly flip images
+            rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
+            zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
+            width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
+            height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
+            horizontal_flip=CFG['HFLIP'],  # randomly flip images
+            vertical_flip=CFG['VFLIP'], # randomly flip images
+            rescale=1./255
         )  
-        snapshot_path = self.CFG['snapshot_path']
-        early_stopper_patience = self.CFG['stopper_patience']
-        epochs = self.CFG['epochs']
-        batch_size = self.CFG['batch_size']
+        snapshot_path = CFG['snapshot_path']
+        early_stopper_patience = CFG['stopper_patience']
+        
+        
         # tf.function - decorated function tried to create variables on non-first call'. 
         # tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
+        if CFG['apply_aug'] is True:
+            model_name = CFG['experiment_aug']
+        elif CFG['apply_aug'] is False:
+            model_name = CFG['experiment_noaug']
 
         print(f'Fitting {model_name} model...')
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
@@ -142,27 +179,30 @@ class Model:
         print("model_name: " + f"{model_name}")
         cb_checkpointer  = ModelCheckpoint(
             filepath=f'{snapshot_path}/{model_name}.hdf5',
-            # filepath=f'{snapshot_path}/{model_name}.hdf5',
-            # filepath = 'weights.{epoch:02d}-{val_loss:.2f}.hdf5'
-            # filepath = 'snapshot/{model_name}_{epochs:-2d}-{val_loss:.2f}.hdf5',
-            # filepath = CFG['path_model']+'ResNet50-{epoch:02d}-{val_loss:.2f}.hdf5',
             monitor  = 'val_loss',
             save_best_only=True, 
             mode='min'
         )
 
         # callbacks_list = [cb_checkpointer, cb_early_stopper_val_loss, silent_training_callback()]
-        extracallbacks = self.CFG['callbacks']
+        extracallbacks = CFG['callbacks']
+
+        # steps_per_epoch = len(trainimages) // CFG['batch_size']
+        my_batch_generator = batch_generator(trainimages, trainlabels, CFG['batch_size'])
 
         history = model.fit(
-            data_gen.flow(trainimages, trainlabels, batch_size = batch_size, shuffle=True),
-            epochs = epochs,
+            # data_gen.flow(trainimages, trainlabels, batch_size = CFG['batch_size'], shuffle=True),
+            my_batch_generator,
+            epochs = CFG['epochs'],
             # validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
-            validation_data = (validationimages, validationlabels),
-            verbose = self.CFG['verbose'],
-            steps_per_epoch=trainimages.shape[0] // batch_size,
+            validation_data = (valimg_array, validationlabels),
+            verbose = CFG['verbose'],
+            steps_per_epoch=len(trainimages) // CFG['batch_size'],
             callbacks=[cb_checkpointer, extracallbacks], # We can add GCCollectCallback() to save memory
         )
+
+        import gc
+        gc.collect()
 
         return history
     

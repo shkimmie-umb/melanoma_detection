@@ -405,153 +405,46 @@ class Util:
 
 		return x, y, x_portion, y_portion
 	
-	def combineDatasets(self, *args):
+	@staticmethod
+	def combineDatasets(*args):
+		from collections import defaultdict
 		
-		trainimgs_list = []
-		valimgs_list = []
-		trainlabels_list = []
-		vallabels_list = []
+		combined_data = defaultdict(list)
 
 		print('Combining...')
-		for idx, pkl_file in enumerate(args[0]):
+		for idx, h5_file in enumerate(args[0]):
 			
-			datum = pickle.load(open(pkl_file, 'rb'))
-			print(f'Combining {idx+1} db out of {len(args[0])} dbs')
-			# [0]:Trainimgs, [1]:Testimgs, [2]:Valimgs, [3]:trainlabels, [4]:Testlabels, [5]:Vallabels
-			trainimgs_list.append(datum[0])
-			if datum[2] is not None:
-				valimgs_list.append(datum[2])
-			trainlabels_list.append(datum[3])
-			if datum[5] is not None:
-				vallabels_list.append(datum[5])
-			
+			traindata, validationdata, testdata = mel.Parser.open_H5(h5_file)
+			print(f'Combining {idx+1}th db out of {len(args[0])} dbs')
 
-		
-		
-		assert sum(list(map(lambda v: len(v), trainimgs_list))) == sum(list(map(lambda v: len(v), trainlabels_list)))
-		for idx, file in enumerate(trainimgs_list):
-			assert trainimgs_list[idx].shape[0] == trainlabels_list[idx].shape[0]
-		
-		
-		print('Stacking training images')
-		list_size = sum(list(map(lambda v: len(v), trainimgs_list)))
-		trainimgs_list = np.vstack(trainimgs_list)
-		assert trainimgs_list.shape[0] == list_size
-		
+			combined_data['trainimages'].append(traindata['trainimages'])
+			combined_data['trainlabels'].append(traindata['trainlabels'])
+			combined_data['trainids'].append(traindata['trainids'])
 
-		print('Stacking training labels')
-		list_size = sum(list(map(lambda v: len(v), trainlabels_list)))
-		trainlabels_list = np.vstack(trainlabels_list)
-		assert trainlabels_list.shape[0] == list_size
+			combined_data['validationimages'].append(validationdata['validationimages'])
+			combined_data['validationlabels'].append(validationdata['validationlabels'])
+			combined_data['validationids'].append(validationdata['validationids'])
+
+
+
+		print('Stacking data')
+		combined_data['trainimages'] = np.vstack(combined_data['trainimages'])
+		combined_data['trainlabels'] = np.vstack(combined_data['trainlabels'])
+		combined_data['trainids'] = np.vstack(combined_data['trainids'])
+		combined_data['validationimages'] = np.vstack(combined_data['validationimages'])
+		combined_data['validationlabels'] = np.vstack(combined_data['validationlabels'])
+		combined_data['validationids'] = np.vstack(combined_data['validationids'])
+
+		assert len(combined_data['trainimages']) == len(combined_data['trainlabels']) \
+		and len(combined_data['trainlabels']) == len(combined_data['trainids'])
+		assert len(combined_data['validationimages']) == len(combined_data['validationlabels']) \
+		and len(combined_data['validationlabels']) == len(combined_data['validationids'])
 		
-		
+		print('Combining complete')
 
-		assert sum(list(map(lambda v: len(v), valimgs_list))) == sum(list(map(lambda v: len(v), vallabels_list)))
-		for idx, file in enumerate(valimgs_list):
-			assert valimgs_list[idx].shape[0] == vallabels_list[idx].shape[0]
-		
-		
+		return combined_data
 
-		print('Stacking validation images')
-		list_size = sum(list(map(lambda v: len(v), valimgs_list)))
-		valimgs_list = np.vstack(valimgs_list)		
-		assert valimgs_list.shape[0] == list_size
-		
-
-		print('Stacking validation labels')
-		list_size = sum(list(map(lambda v: len(v), vallabels_list)))
-		vallabels_list = np.vstack(vallabels_list)
-		assert vallabels_list.shape[0] == list_size
-
-		return trainimgs_list, None, valimgs_list, trainlabels_list, None, vallabels_list
-
-	def combineSavedDatasetsToFile(self, new_path, new_filename, *args):
-		totalpath = new_path + new_filename
-
-		trainimgs_list = []
-		valimgs_list = []
-		trainlabels_list = []
-		vallabels_list = []
-		# for db in args:
-		# 	trainimages, _, validationimages, \
-		# 	trainlabels, _, validationlabels, num_classes = pickle.load(open(db, 'rb'))
-		# 	trainimgs_list.append(trainimages)
-		# 	# testimgs_list.append(testimages)
-		# 	valimgs_list.append(validationimages)
-		# 	trainlabels_list.append(trainlabels)
-		# 	# testlabels_list.append(testlabels)
-		# 	vallabels_list.append(validationlabels)
-
-		print('Combining...')
-		for idx, pkl_file in enumerate(args):
-			
-			datum = pickle.load(open(pkl_file, 'rb'))
-			print(f'Combining {idx+1} db out of {len(args)} dbs')
-			# [0]:Trainimgs, [1]:Testimgs, [2]:Valimgs, [3]:trainlabels, [4]:Testlabels, [5]:Vallabels
-			trainimgs_list.append(datum[0])
-			if datum[2] is not None:
-				valimgs_list.append(datum[2])
-			trainlabels_list.append(datum[3])
-			if datum[5] is not None:
-				vallabels_list.append(datum[5])
-			
-
-		
-		
-		assert sum(list(map(lambda v: len(v), trainimgs_list))) == sum(list(map(lambda v: len(v), trainlabels_list)))
-		for idx, file in enumerate(trainimgs_list):
-			assert trainimgs_list[idx].shape[0] == trainlabels_list[idx].shape[0]
-		
-
-		print('Stacking training images')
-		list_size = sum(list(map(lambda v: len(v), trainimgs_list)))
-		trainimgs_list = np.vstack(trainimgs_list)
-		assert trainimgs_list.shape[0] == list_size
-		# assert trainimages_combined.shape[0] == sum(list(map(lambda v: len(v), trainimgs_list)))
-		# del trainimgs_list
-
-		print('Stacking training labels')
-		list_size = sum(list(map(lambda v: len(v), trainlabels_list)))
-		trainlabels_list = np.vstack(trainlabels_list)
-		assert trainlabels_list.shape[0] == list_size
-		# assert trainlabels_combined.shape[0] == sum(list(map(lambda v: len(v), trainlabels_list)))
-		# del trainlabels_list
-		
-		
-
-		assert sum(list(map(lambda v: len(v), valimgs_list))) == sum(list(map(lambda v: len(v), vallabels_list)))
-		for idx, file in enumerate(valimgs_list):
-			assert valimgs_list[idx].shape[0] == vallabels_list[idx].shape[0]
-		
-		
-
-		print('Stacking validation images')
-		list_size = sum(list(map(lambda v: len(v), valimgs_list)))
-		valimgs_list = np.vstack(valimgs_list)		
-		assert valimgs_list.shape[0] == list_size
-		# assert validationimages_combined.shape[0] == sum(list(map(lambda v: len(v), valimgs_list)))
-		# del valimgs_list
-
-		print('Stacking validation labels')
-		list_size = sum(list(map(lambda v: len(v), vallabels_list)))
-		vallabels_list = np.vstack(vallabels_list)
-		assert vallabels_list.shape[0] == list_size
-		# assert validationlabels_combined.shape[0] == sum(list(map(lambda v: len(v), vallabels_list)))
-		# del vallabels_list
-
-		
-
-		leng = lambda x: len(x[x.len()])
-
-		print(f'Pickling {new_filename}...')
-		with open(totalpath, 'wb') as file:
-				
-				# pickle.dump((trainimages_combined, None, validationimages_combined,
-				# trainlabels_combined, None, validationlabels_combined, 2), file)
-				pickle.dump((trainimgs_list, None, valimgs_list,
-				trainlabels_list, None, vallabels_list, 2), file)
-		file.close()
-		print(f'{new_filename} generated')
+	
 		
 	def saveDatasetFromDirectory(self, new_path, new_filename, networktype, labels, split_ratio=None,
 	debug_paths=None, path_benign_train=None, path_malignant_train=None,
@@ -651,19 +544,6 @@ class Util:
 			data_gen_X_val.fit(X_val)
 
 			return data_gen_X_train, data_gen_X_val, X_train, X_test, X_val, y_train, y_test, y_val, y_train.shape[1]
-	
-	def getImgSize(self):
-		img_height = self.image_size[0]
-		img_width = self.image_size[1]
-		return img_height, img_width
-		
-
-
-	def loadTestData(self):
-		# test_data_dir = pathlib.Path(path)
-		num_test_img = len(list(self.test_data_dir.glob('*/*.jpg'))) # counts all images inside 'Test' folder
-		print("Images available in test dataset:", num_test_img)
-
 
 
 	
