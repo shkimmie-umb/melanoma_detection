@@ -81,7 +81,7 @@ cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
 
 CFG = dict(
 			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  40,   # 5; 10; 20;
+			epochs                =  100,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   0,   # 0; 1
 			fontsize              =  14,
@@ -131,15 +131,15 @@ aug_dbs = list(itertools.chain.from_iterable([glob.glob(f'{dbpath}/{db}_augmente
 assert len(ori_dbs) == len(aug_dbs)
 
 
+print("Start training augmented images")
 
-
-combined_data = mel.Util.combineDatasets(ori_dbs)
+combined_data = mel.Util.combineDatasets(aug_dbs)
 
 # Test, Val sets must not be augmented
 
 
 # Original images training (No augmentation)
-model_noaug_name = CFG['experiment_noaug']
+model_name = CFG['experiment_aug']
 model = mel.CNN.transfer(commondata.classifierDict[CLASSIFIER], CFG)
 
 trainimages = combined_data['trainimages']
@@ -147,14 +147,13 @@ trainlabels = combined_data['trainlabels']
 validationimages = combined_data['validationimages']
 validationlabels = combined_data['validationlabels']
 
-# for i in trainimages:
-#     trainimages[i] = mel.Parser.decode(trainimages[i])
 
 
 
 history_noaug = mel.CNN.fit_model(
   CFG = CFG,
   model = model,
+  model_name = model_name,
   trainimages = trainimages,
   trainlabels = trainlabels,
   validationimages = validationimages,
@@ -170,32 +169,10 @@ history_noaug = mel.CNN.fit_model(
     #     history = history_noaug
     # )
 
+print("End of augmented training")
 
 
-
-  # Augmented images training (augmentation)
-model_aug_name = CFG['experiment_aug']
-combined_data = mel.Util.combineDatasets(aug_dbs)
-
-del trainimages
-del trainlabels
-del validationimages
-del validationlabels
-
-trainimages = combined_data['trainimages']
-trainlabels = combined_data['trainlabels']
-validationimages = combined_data['validationimages']
-validationlabels = combined_data['validationlabels']
-
-history_aug = mel.CNN.fit_model(
-  CFG = CFG,
-  model = model,
-  trainimages = trainimages,
-  trainlabels = trainlabels,
-  validationimages = validationimages,
-  validationlabels = validationlabels,
-)
-
+print("Finish")
 
     # visualizer.visualize_model(model = model, plot_path=CFG['snapshot_path'], model_name = model_aug_name)
 

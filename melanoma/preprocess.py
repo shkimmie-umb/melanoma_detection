@@ -64,6 +64,13 @@ class Preprocess:
             mel.NetworkType.NASNetMobile.name: tf.keras.applications.nasnet.preprocess_input,
             mel.NetworkType.NASNetLarge.name: tf.keras.applications.nasnet.preprocess_input,
         }
+
+    @staticmethod
+    def normalizeImg(img):
+        img = img/255.0
+
+        return img
+        
     
     def normalizeImgs(self, imgs, networktype, uniform_normalization):
         imgList = []

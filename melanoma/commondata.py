@@ -73,7 +73,7 @@ class NetworkType(Enum):
 	NASNetMobile = 32
 	NASNetLarge = 33
 	MeshNet = 34
-	Ensemble = 35
+	# Ensemble = 35
 	# ConvNeXtTiny = 34
 	# ConvNeXtSmall = 35
 	# ConvNeXtBase = 36
@@ -210,5 +210,5 @@ class CommonData:
 
             mel.NetworkType.MeshNet.name: mel.NetworkType.VGG16.name,
 
-            mel.NetworkType.Ensemble.name: mel.NetworkType.ResNet50.name,
+            # mel.NetworkType.Ensemble.name: mel.NetworkType.ResNet50.name,
             }

@@ -117,60 +117,70 @@ class Model:
             return model
     
     @staticmethod
-    def fit_model( CFG, model, trainimages, trainlabels, validationimages, validationlabels):
-        def slice_data(images, labels, idx, batch_size):
-            start = idx
-            end = start + batch_size
+    def fit_model( CFG, model, model_name, trainimages, trainlabels, validationimages, validationlabels):
+        def slice_data(images, labels, idxes, batch_size):
+            # start = idx
+            # end = start + batch_size
+            from operator import itemgetter
+            assert len(idxes) > 1 and batch_size > 1
+            
+            batch_idxes = random.choices(idxes, k=batch_size)
 
-            sliced_images = images[start:end]
-            sliced_labels = labels[start:end]
+            sliced_images = images[batch_idxes]
+            sliced_labels = labels[batch_idxes]
+
+            # sliced_images = images[start:end]
+            # sliced_labels = labels[start:end]
 
             assert len(sliced_images) == len(sliced_labels)
 
             img_array = []
             
             for idx, img in enumerate(sliced_images):
-                img_array.append(img_to_array(mel.Parser.decode(img)))
-            
+                decoded_img = img_to_array(mel.Parser.decode(img))
+                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
+                img_array.append(decoded_img)
+            img_array = np.array(img_array) # Convert list to numpy
 
-            return (np.array(img_array), sliced_labels)
+            return (img_array, sliced_labels)
 
         def batch_generator(images, labels, batch_size):
             while True:
 
-                index= random.randint(0, len(images)-1)
-                yield slice_data(images, labels, index, batch_size)
+                # index= random.randint(0, len(images)-1)
+                index = np.arange(len(images)-1)
+                reordered_indexes = np.random.permutation(index)
+                yield slice_data(images, labels, reordered_indexes, batch_size)
         
         valimg_array = []
             
         for idx, img in enumerate(validationimages):
-            valimg_array.append(img_to_array(mel.Parser.decode(img)))
+            decoded_img = img_to_array(mel.Parser.decode(img))
+            decoded_img = mel.Preprocess.normalizeImg(decoded_img)
+            valimg_array.append(decoded_img)
         valimg_array = np.array(valimg_array)
 
-        data_gen = ImageDataGenerator(
-            featurewise_center=False,  # set input mean to 0 over the dataset
-            samplewise_center=False,  # set each sample mean to 0
-            featurewise_std_normalization=False,  # divide inputs by std of the dataset
-            samplewise_std_normalization=False,  # divide each input by its std
-            zca_whitening=False,  # apply ZCA whitening
-            rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
-            zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
-            width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
-            height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
-            horizontal_flip=CFG['HFLIP'],  # randomly flip images
-            vertical_flip=CFG['VFLIP'], # randomly flip images
-            rescale=1./255
-        )  
+        # data_gen = ImageDataGenerator(
+        #     featurewise_center=False,  # set input mean to 0 over the dataset
+        #     samplewise_center=False,  # set each sample mean to 0
+        #     featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        #     samplewise_std_normalization=False,  # divide each input by its std
+        #     zca_whitening=False,  # apply ZCA whitening
+        #     rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
+        #     zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
+        #     width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
+        #     height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
+        #     horizontal_flip=CFG['HFLIP'],  # randomly flip images
+        #     vertical_flip=CFG['VFLIP'], # randomly flip images
+        #     rescale=1./255
+        # )  
         snapshot_path = CFG['snapshot_path']
         early_stopper_patience = CFG['stopper_patience']
         
         
         # tf.function - decorated function tried to create variables on non-first call'. 
         # tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
-        if CFG['apply_aug'] is True:
-            model_name = CFG['experiment_aug']
-        elif CFG['apply_aug'] is False:
-            model_name = CFG['experiment_noaug']
+
 
         print(f'Fitting {model_name} model...')
         # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
