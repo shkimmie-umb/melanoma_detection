@@ -1,0 +1,74 @@
+Thu 02 May 2024 10:47:07 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152 (Functional)       (None, 2048)              58370944  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,554,946
+Trainable params: 1,182,466
+Non-trainable params: 58,372,480
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_ResNet152_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_ResNet152_384h_384w_None
+Epoch: 1 loss: 0.8771 accuracy: 0.6630 val_loss: 0.4549 val_accuracy: 0.9091
+Epoch: 2 loss: 0.6981 accuracy: 0.7287 val_loss: 0.3911 val_accuracy: 0.9091
+Epoch: 3 loss: 0.6327 accuracy: 0.7509 val_loss: 0.3836 val_accuracy: 0.9001
+Epoch: 4 loss: 0.5887 accuracy: 0.7656 val_loss: 0.3753 val_accuracy: 0.9086
+Epoch: 5 loss: 0.5567 accuracy: 0.7698 val_loss: 0.3441 val_accuracy: 0.9086
+Epoch: 6 loss: 0.5338 accuracy: 0.7727 val_loss: 1.6755 val_accuracy: 0.1217
+Epoch: 7 loss: 0.5213 accuracy: 0.7757 val_loss: 0.3060 val_accuracy: 0.9013
+Epoch: 8 loss: 0.5074 accuracy: 0.7807 val_loss: 0.3070 val_accuracy: 0.9074
+Epoch: 9 loss: 0.5013 accuracy: 0.7804 val_loss: 0.3314 val_accuracy: 0.9082
+Epoch: 10 loss: 0.4920 accuracy: 0.7838 val_loss: 0.3116 val_accuracy: 0.9058
+Epoch: 11 loss: 0.4833 accuracy: 0.7845 val_loss: 0.4026 val_accuracy: 0.8879
+Epoch: 12 loss: 0.4825 accuracy: 0.7865 val_loss: 0.2797 val_accuracy: 0.9053
+Epoch: 13 loss: 0.4827 accuracy: 0.7852 val_loss: 0.3380 val_accuracy: 0.9061
+Epoch: 14 loss: 0.4772 accuracy: 0.7882 val_loss: 0.4483 val_accuracy: 0.8381
+Epoch: 15 loss: 0.4788 accuracy: 0.7856 val_loss: 0.3412 val_accuracy: 0.9077
+Epoch: 16 loss: 0.4681 accuracy: 0.7909 val_loss: 0.3503 val_accuracy: 0.8880
+Epoch: 17 loss: 0.4656 accuracy: 0.7911 val_loss: 0.3513 val_accuracy: 0.9073
+
+Epoch 00017: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 18 loss: 0.4600 accuracy: 0.7941 val_loss: 0.3263 val_accuracy: 0.9091
+Epoch: 19 loss: 0.4576 accuracy: 0.7964 val_loss: 0.3624 val_accuracy: 0.9089
+Epoch: 20 loss: 0.4582 accuracy: 0.7974 val_loss: 0.8768 val_accuracy: 0.3848
+Epoch: 21 loss: 0.4563 accuracy: 0.7974 val_loss: 0.9851 val_accuracy: 0.3652
+Epoch: 22 loss: 0.4565 accuracy: 0.7978 val_loss: 0.3601 val_accuracy: 0.9091
+
+Epoch 00022: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

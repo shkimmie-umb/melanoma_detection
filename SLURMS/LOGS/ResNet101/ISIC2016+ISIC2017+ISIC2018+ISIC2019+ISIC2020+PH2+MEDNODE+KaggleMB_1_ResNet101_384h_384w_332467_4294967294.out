@@ -1,0 +1,67 @@
+Sun 05 May 2024 03:08:34 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet101
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 8 dbs
+Combining 2th db out of 8 dbs
+Combining 3th db out of 8 dbs
+Combining 4th db out of 8 dbs
+Combining 5th db out of 8 dbs
+Combining 6th db out of 8 dbs
+Combining 7th db out of 8 dbs
+Combining 8th db out of 8 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet101 (Functional)       (None, 2048)              42658176  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 43,842,178
+Trainable params: 1,182,466
+Non-trainable params: 42,659,712
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+MEDNODE+KaggleMB_aug_ResNet101_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+MEDNODE+KaggleMB_aug_ResNet101_384h_384w_None
+Epoch: 1 loss: 0.8224 accuracy: 0.6863 val_loss: 0.4487 val_accuracy: 0.8940
+Epoch: 2 loss: 0.6548 accuracy: 0.7294 val_loss: 0.4748 val_accuracy: 0.8941
+Epoch: 3 loss: 0.6066 accuracy: 0.7445 val_loss: 0.4118 val_accuracy: 0.8851
+Epoch: 4 loss: 0.5595 accuracy: 0.7628 val_loss: 0.4912 val_accuracy: 0.8830
+Epoch: 5 loss: 0.5288 accuracy: 0.7678 val_loss: 0.6707 val_accuracy: 0.7001
+Epoch: 6 loss: 0.5092 accuracy: 0.7707 val_loss: 1.9851 val_accuracy: 0.1103
+Epoch: 7 loss: 0.4875 accuracy: 0.7747 val_loss: 1.1563 val_accuracy: 0.1258
+Epoch: 8 loss: 0.4904 accuracy: 0.7740 val_loss: 1.8403 val_accuracy: 0.1075
+
+Epoch 00008: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 9 loss: 0.4773 accuracy: 0.7821 val_loss: 0.5137 val_accuracy: 0.8255
+Epoch: 10 loss: 0.4671 accuracy: 0.7868 val_loss: 1.3075 val_accuracy: 0.1360
+Epoch: 11 loss: 0.4749 accuracy: 0.7827 val_loss: 1.8913 val_accuracy: 0.1208
+Epoch: 12 loss: 0.4668 accuracy: 0.7882 val_loss: 1.0896 val_accuracy: 0.1900
+Epoch: 13 loss: 0.4649 accuracy: 0.7880 val_loss: 1.1205 val_accuracy: 0.1752
+
+Epoch 00013: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

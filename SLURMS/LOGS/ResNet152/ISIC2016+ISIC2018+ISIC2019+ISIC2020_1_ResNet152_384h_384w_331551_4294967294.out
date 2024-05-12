@@ -1,0 +1,75 @@
+Thu 02 May 2024 01:01:40 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2018', 'ISIC2019', 'ISIC2020']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 4 dbs
+Combining 2th db out of 4 dbs
+Combining 3th db out of 4 dbs
+Combining 4th db out of 4 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152 (Functional)       (None, 2048)              58370944  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,554,946
+Trainable params: 1,182,466
+Non-trainable params: 58,372,480
+_________________________________________________________________
+Fitting ISIC2016+ISIC2018+ISIC2019+ISIC2020_aug_ResNet152_384h_384w_None model...
+model_name: ISIC2016+ISIC2018+ISIC2019+ISIC2020_aug_ResNet152_384h_384w_None
+Epoch: 1 loss: 0.8751 accuracy: 0.6704 val_loss: 0.4394 val_accuracy: 0.9105
+Epoch: 2 loss: 0.6868 accuracy: 0.7379 val_loss: 0.4100 val_accuracy: 0.9109
+Epoch: 3 loss: 0.6177 accuracy: 0.7605 val_loss: 2.9728 val_accuracy: 0.0895
+Epoch: 4 loss: 0.5830 accuracy: 0.7675 val_loss: 0.3453 val_accuracy: 0.9100
+Epoch: 5 loss: 0.5560 accuracy: 0.7724 val_loss: 0.3556 val_accuracy: 0.9101
+Epoch: 6 loss: 0.5336 accuracy: 0.7757 val_loss: 0.3138 val_accuracy: 0.9097
+Epoch: 7 loss: 0.5626 accuracy: 0.7497 val_loss: 0.3247 val_accuracy: 0.9105
+Epoch: 8 loss: 0.5644 accuracy: 0.7450 val_loss: 0.3897 val_accuracy: 0.9097
+Epoch: 9 loss: 0.5570 accuracy: 0.7468 val_loss: 0.3243 val_accuracy: 0.9105
+Epoch: 10 loss: 0.5952 accuracy: 0.7272 val_loss: 0.9877 val_accuracy: 0.1083
+Epoch: 11 loss: 0.5953 accuracy: 0.7250 val_loss: 0.3706 val_accuracy: 0.9105
+
+Epoch 00011: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 12 loss: 0.5824 accuracy: 0.7295 val_loss: 0.3309 val_accuracy: 0.8992
+Epoch: 13 loss: 0.5644 accuracy: 0.7395 val_loss: 0.2914 val_accuracy: 0.9101
+Epoch: 14 loss: 0.5175 accuracy: 0.7667 val_loss: 0.3374 val_accuracy: 0.9104
+Epoch: 15 loss: 0.5053 accuracy: 0.7728 val_loss: 0.2953 val_accuracy: 0.9073
+Epoch: 16 loss: 0.4969 accuracy: 0.7791 val_loss: 0.3834 val_accuracy: 0.9105
+Epoch: 17 loss: 0.5866 accuracy: 0.7285 val_loss: 0.4070 val_accuracy: 0.9105
+Epoch: 18 loss: 0.5835 accuracy: 0.7260 val_loss: 0.3850 val_accuracy: 0.9103
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 19 loss: 0.5874 accuracy: 0.7271 val_loss: 0.4246 val_accuracy: 0.9105
+Epoch: 20 loss: 0.5770 accuracy: 0.7319 val_loss: 0.4009 val_accuracy: 0.9105
+Epoch: 21 loss: 0.5739 accuracy: 0.7322 val_loss: 0.3203 val_accuracy: 0.9113
+Epoch: 22 loss: 0.5210 accuracy: 0.7631 val_loss: 0.3652 val_accuracy: 0.9104
+Epoch: 23 loss: 0.5402 accuracy: 0.7510 val_loss: 0.3467 val_accuracy: 0.9104
+
+Epoch 00023: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+End of augmented training
+Finish
+Job ended!

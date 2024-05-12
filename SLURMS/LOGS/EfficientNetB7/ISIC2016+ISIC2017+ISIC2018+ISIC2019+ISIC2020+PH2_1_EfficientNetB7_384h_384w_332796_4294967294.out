@@ -1,0 +1,75 @@
+Wed 08 May 2024 09:28:03 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB7
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb7 (Functional)  (None, 2560)              64097687  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1311232   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 65,543,833
+Trainable params: 1,444,610
+Non-trainable params: 64,099,223
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_EfficientNetB7_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_EfficientNetB7_384h_384w_None
+Epoch: 1 loss: 1.0796 accuracy: 0.6734 val_loss: 0.7876 val_accuracy: 0.9091
+Epoch: 2 loss: 0.9037 accuracy: 0.7203 val_loss: 0.6340 val_accuracy: 0.9091
+Epoch: 3 loss: 0.7983 accuracy: 0.7228 val_loss: 0.6020 val_accuracy: 0.9091
+Epoch: 4 loss: 0.7172 accuracy: 0.7250 val_loss: 0.4856 val_accuracy: 0.9091
+Epoch: 5 loss: 0.6666 accuracy: 0.7252 val_loss: 0.5723 val_accuracy: 0.9091
+Epoch: 6 loss: 0.6443 accuracy: 0.7220 val_loss: 0.4783 val_accuracy: 0.9091
+Epoch: 7 loss: 0.6270 accuracy: 0.7242 val_loss: 0.4726 val_accuracy: 0.9091
+Epoch: 8 loss: 0.6164 accuracy: 0.7254 val_loss: 0.4289 val_accuracy: 0.9091
+Epoch: 9 loss: 0.6139 accuracy: 0.7231 val_loss: 0.4234 val_accuracy: 0.9091
+Epoch: 10 loss: 0.6073 accuracy: 0.7249 val_loss: 0.5325 val_accuracy: 0.9091
+Epoch: 11 loss: 0.6038 accuracy: 0.7244 val_loss: 0.4383 val_accuracy: 0.9091
+Epoch: 12 loss: 0.6012 accuracy: 0.7244 val_loss: 0.4514 val_accuracy: 0.9091
+Epoch: 13 loss: 0.6014 accuracy: 0.7220 val_loss: 0.3606 val_accuracy: 0.9091
+Epoch: 14 loss: 0.5964 accuracy: 0.7260 val_loss: 0.3930 val_accuracy: 0.9091
+Epoch: 15 loss: 0.5997 accuracy: 0.7212 val_loss: 0.4152 val_accuracy: 0.9091
+Epoch: 16 loss: 0.5962 accuracy: 0.7239 val_loss: 0.4035 val_accuracy: 0.9091
+Epoch: 17 loss: 0.5962 accuracy: 0.7223 val_loss: 0.3944 val_accuracy: 0.9091
+Epoch: 18 loss: 0.5952 accuracy: 0.7236 val_loss: 0.3965 val_accuracy: 0.9091
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 19 loss: 0.5933 accuracy: 0.7241 val_loss: 0.4236 val_accuracy: 0.9091
+Epoch: 20 loss: 0.5919 accuracy: 0.7252 val_loss: 0.4337 val_accuracy: 0.9091
+Epoch: 21 loss: 0.5934 accuracy: 0.7234 val_loss: 0.4018 val_accuracy: 0.9091
+Epoch: 22 loss: 0.5940 accuracy: 0.7223 val_loss: 0.4324 val_accuracy: 0.9091
+Epoch: 23 loss: 0.5921 accuracy: 0.7244 val_loss: 0.4155 val_accuracy: 0.9091
+
+Epoch 00023: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

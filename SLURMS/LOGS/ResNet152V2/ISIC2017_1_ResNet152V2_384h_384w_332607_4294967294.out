@@ -1,0 +1,60 @@
+Mon 06 May 2024 08:09:04 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2017']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152V2
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152v2 (Functional)     (None, 2048)              58331648  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,515,650
+Trainable params: 1,182,466
+Non-trainable params: 58,333,184
+_________________________________________________________________
+Fitting ISIC2017_aug_ResNet152V2_384h_384w_None model...
+model_name: ISIC2017_aug_ResNet152V2_384h_384w_None
+Epoch: 1 loss: 1.3289 accuracy: 0.6449 val_loss: 1.1106 val_accuracy: 0.7733
+Epoch: 2 loss: 1.1055 accuracy: 0.7417 val_loss: 1.0791 val_accuracy: 0.7667
+Epoch: 3 loss: 0.9675 accuracy: 0.8122 val_loss: 1.0591 val_accuracy: 0.7800
+Epoch: 4 loss: 0.9013 accuracy: 0.8388 val_loss: 1.0611 val_accuracy: 0.7800
+Epoch: 5 loss: 0.8542 accuracy: 0.8614 val_loss: 1.0863 val_accuracy: 0.7400
+Epoch: 6 loss: 0.8163 accuracy: 0.8770 val_loss: 1.0630 val_accuracy: 0.7800
+Epoch: 7 loss: 0.7633 accuracy: 0.8986 val_loss: 1.0891 val_accuracy: 0.7600
+Epoch: 8 loss: 0.7250 accuracy: 0.9166 val_loss: 1.0924 val_accuracy: 0.7667
+
+Epoch 00008: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 9 loss: 0.7019 accuracy: 0.9229 val_loss: 1.0896 val_accuracy: 0.7533
+Epoch: 10 loss: 0.6783 accuracy: 0.9345 val_loss: 1.1039 val_accuracy: 0.7800
+Epoch: 11 loss: 0.6658 accuracy: 0.9398 val_loss: 1.1115 val_accuracy: 0.7667
+Epoch: 12 loss: 0.6326 accuracy: 0.9495 val_loss: 1.1170 val_accuracy: 0.7667
+Epoch: 13 loss: 0.6302 accuracy: 0.9515 val_loss: 1.1328 val_accuracy: 0.7800
+
+Epoch 00013: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

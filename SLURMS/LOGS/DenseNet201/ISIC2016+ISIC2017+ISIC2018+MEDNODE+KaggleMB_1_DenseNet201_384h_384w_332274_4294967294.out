@@ -1,0 +1,102 @@
+Sat 04 May 2024 06:59:40 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: DenseNet201
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 5 dbs
+Combining 2th db out of 5 dbs
+Combining 3th db out of 5 dbs
+Combining 4th db out of 5 dbs
+Combining 5th db out of 5 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet201 (Functional)     (None, 1920)              18321984  
+_________________________________________________________________
+dense (Dense)                (None, 512)               983552    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 19,440,450
+Trainable params: 1,116,930
+Non-trainable params: 18,323,520
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+MEDNODE+KaggleMB_aug_DenseNet201_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+MEDNODE+KaggleMB_aug_DenseNet201_384h_384w_None
+Epoch: 1 loss: 0.9256 accuracy: 0.7762 val_loss: 0.7796 val_accuracy: 0.8304
+Epoch: 2 loss: 0.6872 accuracy: 0.8486 val_loss: 0.7175 val_accuracy: 0.8240
+Epoch: 3 loss: 0.6098 accuracy: 0.8775 val_loss: 0.6908 val_accuracy: 0.8479
+Epoch: 4 loss: 0.5723 accuracy: 0.8878 val_loss: 0.6671 val_accuracy: 0.8461
+Epoch: 5 loss: 0.5373 accuracy: 0.9004 val_loss: 0.6625 val_accuracy: 0.8581
+Epoch: 6 loss: 0.5149 accuracy: 0.9051 val_loss: 0.6489 val_accuracy: 0.8479
+Epoch: 7 loss: 0.4836 accuracy: 0.9145 val_loss: 0.6424 val_accuracy: 0.8507
+Epoch: 8 loss: 0.4633 accuracy: 0.9214 val_loss: 0.6123 val_accuracy: 0.8682
+Epoch: 9 loss: 0.4348 accuracy: 0.9329 val_loss: 0.5861 val_accuracy: 0.8793
+Epoch: 10 loss: 0.4259 accuracy: 0.9315 val_loss: 0.5883 val_accuracy: 0.8737
+Epoch: 11 loss: 0.4090 accuracy: 0.9371 val_loss: 0.5771 val_accuracy: 0.8700
+Epoch: 12 loss: 0.3882 accuracy: 0.9424 val_loss: 0.5763 val_accuracy: 0.8719
+Epoch: 13 loss: 0.3785 accuracy: 0.9443 val_loss: 0.5747 val_accuracy: 0.8765
+Epoch: 14 loss: 0.3555 accuracy: 0.9522 val_loss: 0.5420 val_accuracy: 0.8922
+Epoch: 15 loss: 0.3488 accuracy: 0.9507 val_loss: 0.5754 val_accuracy: 0.8802
+Epoch: 16 loss: 0.3339 accuracy: 0.9560 val_loss: 0.5615 val_accuracy: 0.8765
+Epoch: 17 loss: 0.3250 accuracy: 0.9559 val_loss: 0.5701 val_accuracy: 0.8793
+Epoch: 18 loss: 0.3097 accuracy: 0.9612 val_loss: 0.5534 val_accuracy: 0.8793
+Epoch: 19 loss: 0.3015 accuracy: 0.9609 val_loss: 0.5265 val_accuracy: 0.8922
+Epoch: 20 loss: 0.2957 accuracy: 0.9614 val_loss: 0.5713 val_accuracy: 0.8839
+Epoch: 21 loss: 0.2772 accuracy: 0.9676 val_loss: 0.5272 val_accuracy: 0.8903
+Epoch: 22 loss: 0.2748 accuracy: 0.9651 val_loss: 0.5231 val_accuracy: 0.8866
+Epoch: 23 loss: 0.2719 accuracy: 0.9646 val_loss: 0.5459 val_accuracy: 0.8820
+Epoch: 24 loss: 0.2586 accuracy: 0.9684 val_loss: 0.5351 val_accuracy: 0.8894
+Epoch: 25 loss: 0.2546 accuracy: 0.9692 val_loss: 0.5725 val_accuracy: 0.8645
+Epoch: 26 loss: 0.2541 accuracy: 0.9682 val_loss: 0.5425 val_accuracy: 0.8894
+Epoch: 27 loss: 0.2479 accuracy: 0.9689 val_loss: 0.5378 val_accuracy: 0.8885
+
+Epoch 00027: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 28 loss: 0.2296 accuracy: 0.9753 val_loss: 0.4726 val_accuracy: 0.8968
+Epoch: 29 loss: 0.2178 accuracy: 0.9790 val_loss: 0.4909 val_accuracy: 0.8977
+Epoch: 30 loss: 0.2183 accuracy: 0.9785 val_loss: 0.4896 val_accuracy: 0.9032
+Epoch: 31 loss: 0.2130 accuracy: 0.9782 val_loss: 0.5050 val_accuracy: 0.8968
+Epoch: 32 loss: 0.2030 accuracy: 0.9810 val_loss: 0.5090 val_accuracy: 0.8995
+Epoch: 33 loss: 0.2040 accuracy: 0.9796 val_loss: 0.5414 val_accuracy: 0.9051
+
+Epoch 00033: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 34 loss: 0.2001 accuracy: 0.9800 val_loss: 0.5164 val_accuracy: 0.8922
+Epoch: 35 loss: 0.1872 accuracy: 0.9855 val_loss: 0.5193 val_accuracy: 0.9005
+Epoch: 36 loss: 0.1820 accuracy: 0.9862 val_loss: 0.4893 val_accuracy: 0.9014
+Epoch: 37 loss: 0.1827 accuracy: 0.9847 val_loss: 0.4644 val_accuracy: 0.9005
+Epoch: 38 loss: 0.1815 accuracy: 0.9836 val_loss: 0.4885 val_accuracy: 0.9023
+Epoch: 39 loss: 0.1745 accuracy: 0.9858 val_loss: 0.5257 val_accuracy: 0.8977
+Epoch: 40 loss: 0.1701 accuracy: 0.9876 val_loss: 0.5173 val_accuracy: 0.8995
+Epoch: 41 loss: 0.1658 accuracy: 0.9874 val_loss: 0.5173 val_accuracy: 0.8995
+Epoch: 42 loss: 0.1651 accuracy: 0.9876 val_loss: 0.5005 val_accuracy: 0.9041
+
+Epoch 00042: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+Epoch: 43 loss: 0.1630 accuracy: 0.9868 val_loss: 0.5172 val_accuracy: 0.9032
+Epoch: 44 loss: 0.1539 accuracy: 0.9908 val_loss: 0.4845 val_accuracy: 0.9161
+Epoch: 45 loss: 0.1536 accuracy: 0.9902 val_loss: 0.5225 val_accuracy: 0.9032
+Epoch: 46 loss: 0.1533 accuracy: 0.9899 val_loss: 0.5182 val_accuracy: 0.9088
+Epoch: 47 loss: 0.1491 accuracy: 0.9909 val_loss: 0.5068 val_accuracy: 0.9115
+
+Epoch 00047: ReduceLROnPlateau reducing learning rate to 4.0960000478662555e-05.
+End of augmented training
+Finish
+Job ended!

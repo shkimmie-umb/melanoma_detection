@@ -1,0 +1,87 @@
+Thu 02 May 2024 10:50:00 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB1
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb1 (Functional)  (None, 1280)              6575239   
+_________________________________________________________________
+dense (Dense)                (None, 512)               655872    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,366,025
+Trainable params: 789,250
+Non-trainable params: 6,576,775
+_________________________________________________________________
+Fitting ISIC2016_aug_EfficientNetB1_384h_384w_None model...
+model_name: ISIC2016_aug_EfficientNetB1_384h_384w_None
+Epoch: 1 loss: 1.5500 accuracy: 0.4948 val_loss: 1.1909 val_accuracy: 0.8222
+Epoch: 2 loss: 1.4889 accuracy: 0.4861 val_loss: 1.2057 val_accuracy: 0.8222
+Epoch: 3 loss: 1.4021 accuracy: 0.4896 val_loss: 1.2265 val_accuracy: 0.1778
+Epoch: 4 loss: 1.3608 accuracy: 0.5208 val_loss: 1.2494 val_accuracy: 0.1778
+Epoch: 5 loss: 1.3433 accuracy: 0.4870 val_loss: 1.2522 val_accuracy: 0.1778
+Epoch: 6 loss: 1.2940 accuracy: 0.5200 val_loss: 1.2688 val_accuracy: 0.1778
+
+Epoch 00006: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 7 loss: 1.2964 accuracy: 0.5200 val_loss: 1.2503 val_accuracy: 0.1778
+Epoch: 8 loss: 1.2773 accuracy: 0.5122 val_loss: 1.2199 val_accuracy: 0.1778
+Epoch: 9 loss: 1.2625 accuracy: 0.5408 val_loss: 1.2209 val_accuracy: 0.1778
+Epoch: 10 loss: 1.2338 accuracy: 0.5330 val_loss: 1.2287 val_accuracy: 0.1778
+Epoch: 11 loss: 1.2528 accuracy: 0.5356 val_loss: 1.1883 val_accuracy: 0.1778
+Epoch: 12 loss: 1.1914 accuracy: 0.5720 val_loss: 1.2027 val_accuracy: 0.1778
+Epoch: 13 loss: 1.2211 accuracy: 0.5460 val_loss: 1.2235 val_accuracy: 0.1778
+Epoch: 14 loss: 1.2019 accuracy: 0.5469 val_loss: 1.1860 val_accuracy: 0.1778
+Epoch: 15 loss: 1.2295 accuracy: 0.5234 val_loss: 1.1706 val_accuracy: 0.1778
+Epoch: 16 loss: 1.1940 accuracy: 0.5486 val_loss: 1.1090 val_accuracy: 0.8222
+Epoch: 17 loss: 1.1904 accuracy: 0.5382 val_loss: 1.1218 val_accuracy: 0.8222
+Epoch: 18 loss: 1.1920 accuracy: 0.5312 val_loss: 1.1288 val_accuracy: 0.8222
+Epoch: 19 loss: 1.1643 accuracy: 0.5703 val_loss: 1.1623 val_accuracy: 0.1778
+Epoch: 20 loss: 1.1550 accuracy: 0.5868 val_loss: 1.1458 val_accuracy: 0.1833
+Epoch: 21 loss: 1.2023 accuracy: 0.5304 val_loss: 1.1618 val_accuracy: 0.1778
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 22 loss: 1.1512 accuracy: 0.5634 val_loss: 1.1269 val_accuracy: 0.8222
+Epoch: 23 loss: 1.1536 accuracy: 0.5842 val_loss: 1.0908 val_accuracy: 0.8222
+Epoch: 24 loss: 1.1717 accuracy: 0.5573 val_loss: 1.1255 val_accuracy: 0.7944
+Epoch: 25 loss: 1.1396 accuracy: 0.5686 val_loss: 1.0597 val_accuracy: 0.8222
+Epoch: 26 loss: 1.1626 accuracy: 0.5460 val_loss: 1.0045 val_accuracy: 0.8222
+Epoch: 27 loss: 1.1452 accuracy: 0.5642 val_loss: 1.0259 val_accuracy: 0.8222
+Epoch: 28 loss: 1.1446 accuracy: 0.5399 val_loss: 1.0295 val_accuracy: 0.8222
+Epoch: 29 loss: 1.1455 accuracy: 0.5564 val_loss: 1.0341 val_accuracy: 0.8222
+Epoch: 30 loss: 1.1468 accuracy: 0.5590 val_loss: 1.0971 val_accuracy: 0.8222
+Epoch: 31 loss: 1.1406 accuracy: 0.5634 val_loss: 1.0299 val_accuracy: 0.8222
+
+Epoch 00031: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+Epoch: 32 loss: 1.1595 accuracy: 0.5443 val_loss: 1.0300 val_accuracy: 0.8222
+Epoch: 33 loss: 1.1298 accuracy: 0.5660 val_loss: 1.0247 val_accuracy: 0.8222
+Epoch: 34 loss: 1.1370 accuracy: 0.5608 val_loss: 1.0604 val_accuracy: 0.8222
+Epoch: 35 loss: 1.1257 accuracy: 0.5738 val_loss: 1.0686 val_accuracy: 0.8222
+Epoch: 36 loss: 1.1160 accuracy: 0.5703 val_loss: 1.0326 val_accuracy: 0.8222
+
+Epoch 00036: ReduceLROnPlateau reducing learning rate to 4.0960000478662555e-05.
+End of augmented training
+Finish
+Job ended!

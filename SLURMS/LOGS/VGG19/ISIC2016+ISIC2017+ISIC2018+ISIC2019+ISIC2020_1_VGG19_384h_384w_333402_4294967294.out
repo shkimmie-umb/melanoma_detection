@@ -1,0 +1,73 @@
+Thu 09 May 2024 09:30:41 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020']
+IMG_SIZE: [384, 384]
+CLASSIFIER: VGG19
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 5 dbs
+Combining 2th db out of 5 dbs
+Combining 3th db out of 5 dbs
+Combining 4th db out of 5 dbs
+Combining 5th db out of 5 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg19 (Functional)           (None, 512)               20024384  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 20,421,954
+Trainable params: 396,034
+Non-trainable params: 20,025,920
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020_aug_VGG19_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020_aug_VGG19_384h_384w_None
+Epoch: 1 loss: 0.7497 accuracy: 0.7646 val_loss: 0.5137 val_accuracy: 0.8735
+Epoch: 2 loss: 0.5799 accuracy: 0.8173 val_loss: 0.4649 val_accuracy: 0.8771
+Epoch: 3 loss: 0.5301 accuracy: 0.8284 val_loss: 0.3874 val_accuracy: 0.9083
+Epoch: 4 loss: 0.4948 accuracy: 0.8361 val_loss: 0.4228 val_accuracy: 0.8716
+Epoch: 5 loss: 0.4646 accuracy: 0.8411 val_loss: 0.4294 val_accuracy: 0.8535
+Epoch: 6 loss: 0.4397 accuracy: 0.8445 val_loss: 0.3781 val_accuracy: 0.8764
+Epoch: 7 loss: 0.4231 accuracy: 0.8458 val_loss: 0.4009 val_accuracy: 0.8539
+Epoch: 8 loss: 0.4037 accuracy: 0.8498 val_loss: 0.3327 val_accuracy: 0.8901
+Epoch: 9 loss: 0.3909 accuracy: 0.8507 val_loss: 0.3031 val_accuracy: 0.8970
+Epoch: 10 loss: 0.3791 accuracy: 0.8545 val_loss: 0.2895 val_accuracy: 0.9100
+Epoch: 11 loss: 0.3743 accuracy: 0.8536 val_loss: 0.3879 val_accuracy: 0.8424
+Epoch: 12 loss: 0.3678 accuracy: 0.8553 val_loss: 0.2886 val_accuracy: 0.9015
+Epoch: 13 loss: 0.3622 accuracy: 0.8566 val_loss: 0.3657 val_accuracy: 0.8500
+Epoch: 14 loss: 0.3541 accuracy: 0.8579 val_loss: 0.3833 val_accuracy: 0.8422
+Epoch: 15 loss: 0.3474 accuracy: 0.8614 val_loss: 0.3714 val_accuracy: 0.8441
+Epoch: 16 loss: 0.3458 accuracy: 0.8608 val_loss: 0.2985 val_accuracy: 0.8922
+Epoch: 17 loss: 0.3460 accuracy: 0.8601 val_loss: 0.2952 val_accuracy: 0.8947
+
+Epoch 00017: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 18 loss: 0.3352 accuracy: 0.8651 val_loss: 0.2964 val_accuracy: 0.8833
+Epoch: 19 loss: 0.3304 accuracy: 0.8657 val_loss: 0.3384 val_accuracy: 0.8659
+Epoch: 20 loss: 0.3297 accuracy: 0.8655 val_loss: 0.3264 val_accuracy: 0.8704
+Epoch: 21 loss: 0.3247 accuracy: 0.8684 val_loss: 0.3006 val_accuracy: 0.8861
+Epoch: 22 loss: 0.3203 accuracy: 0.8706 val_loss: 0.2935 val_accuracy: 0.8915
+
+Epoch 00022: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

@@ -1,0 +1,73 @@
+Fri 03 May 2024 05:42:13 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2018', 'ISIC2019']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB3
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 3 dbs
+Combining 2th db out of 3 dbs
+Combining 3th db out of 3 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb3 (Functional)  (None, 1536)              10783535  
+_________________________________________________________________
+dense (Dense)                (None, 512)               786944    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 11,705,393
+Trainable params: 920,322
+Non-trainable params: 10,785,071
+_________________________________________________________________
+Fitting ISIC2016+ISIC2018+ISIC2019_aug_EfficientNetB3_384h_384w_None model...
+model_name: ISIC2016+ISIC2018+ISIC2019_aug_EfficientNetB3_384h_384w_None
+Epoch: 1 loss: 1.1939 accuracy: 0.5680 val_loss: 1.0270 val_accuracy: 0.8230
+Epoch: 2 loss: 1.0501 accuracy: 0.6198 val_loss: 0.8190 val_accuracy: 0.8237
+Epoch: 3 loss: 0.9985 accuracy: 0.6244 val_loss: 0.8583 val_accuracy: 0.8237
+Epoch: 4 loss: 0.9432 accuracy: 0.6427 val_loss: 0.7529 val_accuracy: 0.8237
+Epoch: 5 loss: 0.9011 accuracy: 0.6452 val_loss: 0.7017 val_accuracy: 0.8237
+Epoch: 6 loss: 0.8593 accuracy: 0.6456 val_loss: 0.6667 val_accuracy: 0.8237
+Epoch: 7 loss: 0.8187 accuracy: 0.6490 val_loss: 0.9467 val_accuracy: 0.1763
+Epoch: 8 loss: 0.7817 accuracy: 0.6515 val_loss: 0.6350 val_accuracy: 0.8237
+Epoch: 9 loss: 0.7519 accuracy: 0.6551 val_loss: 0.6179 val_accuracy: 0.8237
+Epoch: 10 loss: 0.7300 accuracy: 0.6521 val_loss: 0.7655 val_accuracy: 0.1770
+Epoch: 11 loss: 0.7129 accuracy: 0.6527 val_loss: 0.5804 val_accuracy: 0.8237
+Epoch: 12 loss: 0.6962 accuracy: 0.6580 val_loss: 0.7579 val_accuracy: 0.1763
+Epoch: 13 loss: 0.6906 accuracy: 0.6531 val_loss: 0.5626 val_accuracy: 0.8237
+Epoch: 14 loss: 0.6828 accuracy: 0.6545 val_loss: 0.5254 val_accuracy: 0.8237
+Epoch: 15 loss: 0.6774 accuracy: 0.6549 val_loss: 0.5627 val_accuracy: 0.8237
+Epoch: 16 loss: 0.6730 accuracy: 0.6558 val_loss: 0.5449 val_accuracy: 0.8237
+Epoch: 17 loss: 0.6697 accuracy: 0.6547 val_loss: 0.6422 val_accuracy: 0.8237
+Epoch: 18 loss: 0.6703 accuracy: 0.6511 val_loss: 0.5398 val_accuracy: 0.8237
+Epoch: 19 loss: 0.6654 accuracy: 0.6547 val_loss: 0.5504 val_accuracy: 0.8237
+
+Epoch 00019: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 20 loss: 0.6614 accuracy: 0.6556 val_loss: 0.5296 val_accuracy: 0.8237
+Epoch: 21 loss: 0.6607 accuracy: 0.6555 val_loss: 0.5891 val_accuracy: 0.8237
+Epoch: 22 loss: 0.6588 accuracy: 0.6567 val_loss: 0.5414 val_accuracy: 0.8237
+Epoch: 23 loss: 0.6575 accuracy: 0.6568 val_loss: 0.5542 val_accuracy: 0.8237
+Epoch: 24 loss: 0.6585 accuracy: 0.6541 val_loss: 0.5608 val_accuracy: 0.8237
+
+Epoch 00024: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

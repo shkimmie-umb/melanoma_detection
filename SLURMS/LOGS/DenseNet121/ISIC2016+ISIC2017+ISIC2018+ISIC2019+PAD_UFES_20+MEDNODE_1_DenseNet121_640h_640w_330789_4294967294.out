@@ -1,0 +1,150 @@
+Tue 30 Apr 2024 03:27:23 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'PAD_UFES_20', 'MEDNODE']
+IMG_SIZE: [640, 640]
+CLASSIFIER: DenseNet121
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet121 (Functional)     (None, 1024)              7037504   
+_________________________________________________________________
+dense (Dense)                (None, 512)               524800    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0         
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 7,697,218
+Trainable params: 658,178
+Non-trainable params: 7,039,040
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+PAD_UFES_20+MEDNODE_aug_DenseNet121_640h_640w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+PAD_UFES_20+MEDNODE_aug_DenseNet121_640h_640w_None
+Epoch: 1 loss: 0.7819 accuracy: 0.5694 val_loss: 0.4621 val_accuracy: 0.8258
+Epoch: 2 loss: 0.6667 accuracy: 0.6363 val_loss: 0.4463 val_accuracy: 0.8406
+Epoch: 3 loss: 0.6460 accuracy: 0.6499 val_loss: 0.4438 val_accuracy: 0.8595
+Epoch: 4 loss: 0.6310 accuracy: 0.6593 val_loss: 0.4314 val_accuracy: 0.8613
+Epoch: 5 loss: 0.6108 accuracy: 0.6801 val_loss: 0.4195 val_accuracy: 0.8690
+Epoch: 6 loss: 0.5964 accuracy: 0.6942 val_loss: 0.4087 val_accuracy: 0.8637
+Epoch: 7 loss: 0.6221 accuracy: 0.6597 val_loss: 0.4155 val_accuracy: 0.8726
+Epoch: 8 loss: 0.5964 accuracy: 0.6910 val_loss: 0.3996 val_accuracy: 0.8695
+Epoch: 9 loss: 0.5913 accuracy: 0.6937 val_loss: 0.3934 val_accuracy: 0.8639
+Epoch: 10 loss: 0.5922 accuracy: 0.6909 val_loss: 0.3968 val_accuracy: 0.8670
+Epoch: 11 loss: 0.6021 accuracy: 0.6786 val_loss: 0.4167 val_accuracy: 0.8736
+Epoch: 12 loss: 0.5826 accuracy: 0.7000 val_loss: 0.4126 val_accuracy: 0.8731
+Epoch: 13 loss: 0.5766 accuracy: 0.7029 val_loss: 0.3931 val_accuracy: 0.8743
+Epoch: 14 loss: 0.5793 accuracy: 0.6974 val_loss: 0.4137 val_accuracy: 0.8762
+Epoch: 15 loss: 0.5586 accuracy: 0.7186 val_loss: 0.3732 val_accuracy: 0.8780
+Epoch: 16 loss: 0.5625 accuracy: 0.7145 val_loss: 0.3876 val_accuracy: 0.8752
+Epoch: 17 loss: 0.5789 accuracy: 0.6976 val_loss: 0.3937 val_accuracy: 0.8764
+Epoch: 18 loss: 0.5570 accuracy: 0.7183 val_loss: 0.3717 val_accuracy: 0.8803
+Epoch: 19 loss: 0.5578 accuracy: 0.7173 val_loss: 0.3849 val_accuracy: 0.8795
+Epoch: 20 loss: 0.5677 accuracy: 0.7032 val_loss: 0.3890 val_accuracy: 0.8784
+Epoch: 21 loss: 0.5479 accuracy: 0.7259 val_loss: 0.3704 val_accuracy: 0.8818
+Epoch: 22 loss: 0.5493 accuracy: 0.7229 val_loss: 0.3838 val_accuracy: 0.8767
+Epoch: 23 loss: 0.5453 accuracy: 0.7245 val_loss: 0.3828 val_accuracy: 0.8805
+Epoch: 24 loss: 0.5446 accuracy: 0.7196 val_loss: 0.3734 val_accuracy: 0.8828
+Epoch: 25 loss: 0.5400 accuracy: 0.7260 val_loss: 0.3990 val_accuracy: 0.8759
+Epoch: 26 loss: 0.5413 accuracy: 0.7135 val_loss: 0.3837 val_accuracy: 0.8710
+Epoch: 27 loss: 0.5208 accuracy: 0.7328 val_loss: 0.3636 val_accuracy: 0.8831
+Epoch: 28 loss: 0.5165 accuracy: 0.7307 val_loss: 0.3477 val_accuracy: 0.8800
+Epoch: 29 loss: 0.5080 accuracy: 0.7282 val_loss: 0.3686 val_accuracy: 0.8789
+Epoch: 30 loss: 0.5184 accuracy: 0.7060 val_loss: 0.3603 val_accuracy: 0.8798
+Epoch: 31 loss: 0.4886 accuracy: 0.7377 val_loss: 0.3474 val_accuracy: 0.8720
+Epoch: 32 loss: 0.4955 accuracy: 0.7305 val_loss: 0.3596 val_accuracy: 0.8710
+Epoch: 33 loss: 0.5052 accuracy: 0.7130 val_loss: 0.3592 val_accuracy: 0.8746
+Epoch: 34 loss: 0.4813 accuracy: 0.7330 val_loss: 0.3680 val_accuracy: 0.8741
+Epoch: 35 loss: 0.4974 accuracy: 0.7108 val_loss: 0.3522 val_accuracy: 0.8756
+Epoch: 36 loss: 0.4655 accuracy: 0.7524 val_loss: 0.3432 val_accuracy: 0.8642
+Epoch: 37 loss: 0.4697 accuracy: 0.7417 val_loss: 0.3457 val_accuracy: 0.8728
+Epoch: 38 loss: 0.4672 accuracy: 0.7317 val_loss: 0.3389 val_accuracy: 0.8713
+Epoch: 39 loss: 0.4571 accuracy: 0.7379 val_loss: 0.3330 val_accuracy: 0.8734
+Epoch: 40 loss: 0.4617 accuracy: 0.7323 val_loss: 0.3337 val_accuracy: 0.8739
+Epoch: 41 loss: 0.4619 accuracy: 0.7343 val_loss: 0.3451 val_accuracy: 0.8761
+Epoch: 42 loss: 0.4429 accuracy: 0.7522 val_loss: 0.3172 val_accuracy: 0.8757
+Epoch: 43 loss: 0.4517 accuracy: 0.7423 val_loss: 0.3298 val_accuracy: 0.8782
+Epoch: 44 loss: 0.4738 accuracy: 0.7222 val_loss: 0.3263 val_accuracy: 0.8794
+Epoch: 45 loss: 0.4671 accuracy: 0.7273 val_loss: 0.3299 val_accuracy: 0.8644
+Epoch: 46 loss: 0.4449 accuracy: 0.7615 val_loss: 0.3226 val_accuracy: 0.8841
+Epoch: 47 loss: 0.4498 accuracy: 0.7449 val_loss: 0.3461 val_accuracy: 0.8794
+Epoch: 48 loss: 0.4485 accuracy: 0.7466 val_loss: 0.3257 val_accuracy: 0.8800
+Epoch: 49 loss: 0.4402 accuracy: 0.7470 val_loss: 0.3101 val_accuracy: 0.8766
+Epoch: 50 loss: 0.4470 accuracy: 0.7500 val_loss: 0.3109 val_accuracy: 0.8780
+Epoch: 51 loss: 0.4379 accuracy: 0.7641 val_loss: 0.3401 val_accuracy: 0.8779
+Epoch: 52 loss: 0.4334 accuracy: 0.7693 val_loss: 0.3051 val_accuracy: 0.8851
+Epoch: 53 loss: 0.4468 accuracy: 0.7580 val_loss: 0.3239 val_accuracy: 0.8744
+Epoch: 54 loss: 0.4537 accuracy: 0.7471 val_loss: 0.3020 val_accuracy: 0.8866
+Epoch: 55 loss: 0.4637 accuracy: 0.7398 val_loss: 0.3061 val_accuracy: 0.8856
+Epoch: 56 loss: 0.4274 accuracy: 0.7802 val_loss: 0.3443 val_accuracy: 0.8746
+Epoch: 57 loss: 0.4298 accuracy: 0.7772 val_loss: 0.2959 val_accuracy: 0.8892
+Epoch: 58 loss: 0.4487 accuracy: 0.7501 val_loss: 0.3058 val_accuracy: 0.8790
+Epoch: 59 loss: 0.4575 accuracy: 0.7482 val_loss: 0.3153 val_accuracy: 0.8815
+Epoch: 60 loss: 0.4311 accuracy: 0.7694 val_loss: 0.3160 val_accuracy: 0.8792
+Epoch: 61 loss: 0.4350 accuracy: 0.7722 val_loss: 0.3104 val_accuracy: 0.8805
+Epoch: 62 loss: 0.4292 accuracy: 0.7725 val_loss: 0.3280 val_accuracy: 0.8794
+Epoch: 63 loss: 0.4245 accuracy: 0.7734 val_loss: 0.3065 val_accuracy: 0.8871
+Epoch: 64 loss: 0.4070 accuracy: 0.7791 val_loss: 0.3006 val_accuracy: 0.8835
+Epoch: 65 loss: 0.4286 accuracy: 0.7593 val_loss: 0.3398 val_accuracy: 0.8721
+Epoch: 66 loss: 0.4423 accuracy: 0.7598 val_loss: 0.3073 val_accuracy: 0.8845
+Epoch: 67 loss: 0.4277 accuracy: 0.7519 val_loss: 0.3099 val_accuracy: 0.8892
+Epoch: 68 loss: 0.4372 accuracy: 0.7476 val_loss: 0.3131 val_accuracy: 0.8876
+Epoch: 69 loss: 0.4378 accuracy: 0.7472 val_loss: 0.3234 val_accuracy: 0.8823
+Epoch: 70 loss: 0.4256 accuracy: 0.7531 val_loss: 0.2965 val_accuracy: 0.8876
+Epoch: 71 loss: 0.4284 accuracy: 0.7526 val_loss: 0.3069 val_accuracy: 0.8790
+Epoch: 72 loss: 0.3953 accuracy: 0.7820 val_loss: 0.3118 val_accuracy: 0.8881
+Epoch: 73 loss: 0.4322 accuracy: 0.7740 val_loss: 0.3019 val_accuracy: 0.8810
+Epoch: 74 loss: 0.4174 accuracy: 0.7771 val_loss: 0.2963 val_accuracy: 0.8821
+Epoch: 75 loss: 0.4349 accuracy: 0.7741 val_loss: 0.3232 val_accuracy: 0.8863
+Epoch: 76 loss: 0.4432 accuracy: 0.7576 val_loss: 0.3112 val_accuracy: 0.8915
+Epoch: 77 loss: 0.4218 accuracy: 0.7839 val_loss: 0.3406 val_accuracy: 0.8907
+Epoch: 78 loss: 0.4149 accuracy: 0.7829 val_loss: 0.3096 val_accuracy: 0.8856
+Epoch: 79 loss: 0.3978 accuracy: 0.7857 val_loss: 0.3068 val_accuracy: 0.8795
+Epoch: 80 loss: 0.4087 accuracy: 0.7797 val_loss: 0.3119 val_accuracy: 0.8744
+Epoch: 81 loss: 0.3944 accuracy: 0.8042 val_loss: 0.3265 val_accuracy: 0.8886
+Epoch: 82 loss: 0.4170 accuracy: 0.7818 val_loss: 0.3337 val_accuracy: 0.8868
+Epoch: 83 loss: 0.3888 accuracy: 0.8092 val_loss: 0.3181 val_accuracy: 0.8905
+Epoch: 84 loss: 0.4021 accuracy: 0.7940 val_loss: 0.3115 val_accuracy: 0.8823
+Epoch: 85 loss: 0.4253 accuracy: 0.7809 val_loss: 0.3340 val_accuracy: 0.8725
+Epoch: 86 loss: 0.4119 accuracy: 0.7880 val_loss: 0.3154 val_accuracy: 0.8918
+Epoch: 87 loss: 0.4024 accuracy: 0.7825 val_loss: 0.2983 val_accuracy: 0.8826
+Epoch: 88 loss: 0.3844 accuracy: 0.7986 val_loss: 0.3138 val_accuracy: 0.8963
+Epoch: 89 loss: 0.3990 accuracy: 0.8072 val_loss: 0.3296 val_accuracy: 0.8838
+Epoch: 90 loss: 0.3969 accuracy: 0.7984 val_loss: 0.3030 val_accuracy: 0.8884
+Epoch: 91 loss: 0.4128 accuracy: 0.7810 val_loss: 0.3206 val_accuracy: 0.8818
+Epoch: 92 loss: 0.4155 accuracy: 0.7900 val_loss: 0.3255 val_accuracy: 0.8729
+Epoch: 93 loss: 0.3854 accuracy: 0.8054 val_loss: 0.3025 val_accuracy: 0.8935
+Epoch: 94 loss: 0.4165 accuracy: 0.7931 val_loss: 0.2868 val_accuracy: 0.8884
+Epoch: 95 loss: 0.4031 accuracy: 0.7881 val_loss: 0.3130 val_accuracy: 0.8928
+Epoch: 96 loss: 0.3935 accuracy: 0.7996 val_loss: 0.3066 val_accuracy: 0.8955
+Epoch: 97 loss: 0.3796 accuracy: 0.8137 val_loss: 0.3078 val_accuracy: 0.8876
+Epoch: 98 loss: 0.3825 accuracy: 0.8137 val_loss: 0.3000 val_accuracy: 0.8879
+Epoch: 99 loss: 0.4169 accuracy: 0.7787 val_loss: 0.2938 val_accuracy: 0.8918
+Epoch: 100 loss: 0.4024 accuracy: 0.7846 val_loss: 0.2958 val_accuracy: 0.8841
+End of augmented training
+Finish
+Job ended!

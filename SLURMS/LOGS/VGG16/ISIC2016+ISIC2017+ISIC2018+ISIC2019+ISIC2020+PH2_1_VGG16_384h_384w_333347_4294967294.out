@@ -1,0 +1,101 @@
+Wed 08 May 2024 11:39:23 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2']
+IMG_SIZE: [384, 384]
+CLASSIFIER: VGG16
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+vgg16 (Functional)           (None, 512)               14714688  
+_________________________________________________________________
+dense (Dense)                (None, 512)               262656    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 15,112,258
+Trainable params: 396,034
+Non-trainable params: 14,716,224
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_VGG16_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2_aug_VGG16_384h_384w_None
+Epoch: 1 loss: 0.7215 accuracy: 0.7741 val_loss: 0.6662 val_accuracy: 0.7658
+Epoch: 2 loss: 0.5477 accuracy: 0.8249 val_loss: 0.5394 val_accuracy: 0.8156
+Epoch: 3 loss: 0.4930 accuracy: 0.8397 val_loss: 0.5286 val_accuracy: 0.8155
+Epoch: 4 loss: 0.4659 accuracy: 0.8446 val_loss: 0.4374 val_accuracy: 0.8590
+Epoch: 5 loss: 0.4376 accuracy: 0.8531 val_loss: 0.4210 val_accuracy: 0.8576
+Epoch: 6 loss: 0.4182 accuracy: 0.8567 val_loss: 0.4257 val_accuracy: 0.8445
+Epoch: 7 loss: 0.4008 accuracy: 0.8590 val_loss: 0.3614 val_accuracy: 0.8770
+Epoch: 8 loss: 0.3880 accuracy: 0.8603 val_loss: 0.3211 val_accuracy: 0.9001
+Epoch: 9 loss: 0.3741 accuracy: 0.8650 val_loss: 0.4412 val_accuracy: 0.8204
+Epoch: 10 loss: 0.3673 accuracy: 0.8646 val_loss: 0.4166 val_accuracy: 0.8423
+Epoch: 11 loss: 0.3583 accuracy: 0.8672 val_loss: 0.2920 val_accuracy: 0.9068
+Epoch: 12 loss: 0.3507 accuracy: 0.8676 val_loss: 0.3378 val_accuracy: 0.8777
+Epoch: 13 loss: 0.3464 accuracy: 0.8690 val_loss: 0.3306 val_accuracy: 0.8813
+Epoch: 14 loss: 0.3366 accuracy: 0.8730 val_loss: 0.3021 val_accuracy: 0.8982
+Epoch: 15 loss: 0.3357 accuracy: 0.8716 val_loss: 0.3061 val_accuracy: 0.8937
+Epoch: 16 loss: 0.3293 accuracy: 0.8733 val_loss: 0.2803 val_accuracy: 0.9053
+Epoch: 17 loss: 0.3254 accuracy: 0.8736 val_loss: 0.3188 val_accuracy: 0.8881
+Epoch: 18 loss: 0.3189 accuracy: 0.8773 val_loss: 0.2938 val_accuracy: 0.8947
+Epoch: 19 loss: 0.3160 accuracy: 0.8789 val_loss: 0.2991 val_accuracy: 0.8878
+Epoch: 20 loss: 0.3102 accuracy: 0.8802 val_loss: 0.2804 val_accuracy: 0.8989
+Epoch: 21 loss: 0.3110 accuracy: 0.8792 val_loss: 0.2895 val_accuracy: 0.8919
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 22 loss: 0.3014 accuracy: 0.8824 val_loss: 0.2921 val_accuracy: 0.8937
+Epoch: 23 loss: 0.3001 accuracy: 0.8848 val_loss: 0.2864 val_accuracy: 0.8969
+Epoch: 24 loss: 0.2937 accuracy: 0.8860 val_loss: 0.2730 val_accuracy: 0.9045
+Epoch: 25 loss: 0.2939 accuracy: 0.8865 val_loss: 0.3371 val_accuracy: 0.8685
+Epoch: 26 loss: 0.2895 accuracy: 0.8881 val_loss: 0.2871 val_accuracy: 0.8964
+Epoch: 27 loss: 0.2871 accuracy: 0.8898 val_loss: 0.2913 val_accuracy: 0.8892
+Epoch: 28 loss: 0.2874 accuracy: 0.8901 val_loss: 0.2844 val_accuracy: 0.8951
+Epoch: 29 loss: 0.2841 accuracy: 0.8907 val_loss: 0.2724 val_accuracy: 0.9020
+Epoch: 30 loss: 0.2820 accuracy: 0.8910 val_loss: 0.2944 val_accuracy: 0.8855
+Epoch: 31 loss: 0.2808 accuracy: 0.8918 val_loss: 0.2924 val_accuracy: 0.8890
+Epoch: 32 loss: 0.2823 accuracy: 0.8915 val_loss: 0.2721 val_accuracy: 0.8961
+Epoch: 33 loss: 0.2761 accuracy: 0.8941 val_loss: 0.2939 val_accuracy: 0.8874
+Epoch: 34 loss: 0.2744 accuracy: 0.8940 val_loss: 0.2822 val_accuracy: 0.8960
+Epoch: 35 loss: 0.2761 accuracy: 0.8932 val_loss: 0.3115 val_accuracy: 0.8802
+Epoch: 36 loss: 0.2730 accuracy: 0.8951 val_loss: 0.2913 val_accuracy: 0.8904
+Epoch: 37 loss: 0.2715 accuracy: 0.8957 val_loss: 0.2480 val_accuracy: 0.9104
+Epoch: 38 loss: 0.2695 accuracy: 0.8970 val_loss: 0.2924 val_accuracy: 0.8941
+Epoch: 39 loss: 0.2660 accuracy: 0.8996 val_loss: 0.2877 val_accuracy: 0.8907
+Epoch: 40 loss: 0.2646 accuracy: 0.8985 val_loss: 0.3031 val_accuracy: 0.8854
+Epoch: 41 loss: 0.2676 accuracy: 0.8982 val_loss: 0.2721 val_accuracy: 0.9015
+Epoch: 42 loss: 0.2640 accuracy: 0.8996 val_loss: 0.2541 val_accuracy: 0.9074
+
+Epoch 00042: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 43 loss: 0.2587 accuracy: 0.9014 val_loss: 0.2886 val_accuracy: 0.8925
+Epoch: 44 loss: 0.2551 accuracy: 0.9031 val_loss: 0.2661 val_accuracy: 0.9032
+Epoch: 45 loss: 0.2558 accuracy: 0.9030 val_loss: 0.3071 val_accuracy: 0.8824
+Epoch: 46 loss: 0.2551 accuracy: 0.9034 val_loss: 0.3163 val_accuracy: 0.8754
+Epoch: 47 loss: 0.2555 accuracy: 0.9030 val_loss: 0.2511 val_accuracy: 0.9086
+
+Epoch 00047: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+End of augmented training
+Finish
+Job ended!

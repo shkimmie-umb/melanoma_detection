@@ -1,0 +1,11 @@
+2024-04-30 11:25:16.385104: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+Traceback (most recent call last):
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/train.py", line 136, in <module>
+    combined_data = mel.Util.combineDatasets(aug_dbs)
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/melanoma/util.py", line 434, in combineDatasets
+    combined_data['validationimages'] = np.vstack(combined_data['validationimages'])
+  File "<__array_function__ internals>", line 5, in vstack
+  File "/home/sanghyuk.kim001/anaconda3/envs/clean_chimera_env/lib/python3.9/site-packages/numpy/core/shape_base.py", line 283, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 1 and the array at index 4 has size 0

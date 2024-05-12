@@ -1,0 +1,75 @@
+Thu 02 May 2024 09:53:37 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 8 dbs
+Combining 2th db out of 8 dbs
+Combining 3th db out of 8 dbs
+Combining 4th db out of 8 dbs
+Combining 5th db out of 8 dbs
+Combining 6th db out of 8 dbs
+Combining 7th db out of 8 dbs
+Combining 8th db out of 8 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152 (Functional)       (None, 2048)              58370944  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,554,946
+Trainable params: 1,182,466
+Non-trainable params: 58,372,480
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_aug_ResNet152_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_aug_ResNet152_384h_384w_None
+Epoch: 1 loss: 0.8592 accuracy: 0.6700 val_loss: 0.7750 val_accuracy: 0.8263
+Epoch: 2 loss: 0.6847 accuracy: 0.7353 val_loss: 0.4058 val_accuracy: 0.9074
+Epoch: 3 loss: 0.6615 accuracy: 0.7298 val_loss: 0.4953 val_accuracy: 0.9009
+Epoch: 4 loss: 0.6383 accuracy: 0.7278 val_loss: 0.5222 val_accuracy: 0.8300
+Epoch: 5 loss: 0.6017 accuracy: 0.7346 val_loss: 0.5802 val_accuracy: 0.8042
+Epoch: 6 loss: 0.5714 accuracy: 0.7400 val_loss: 0.3247 val_accuracy: 0.9057
+Epoch: 7 loss: 0.5411 accuracy: 0.7568 val_loss: 0.5150 val_accuracy: 0.8769
+Epoch: 8 loss: 0.5190 accuracy: 0.7704 val_loss: 0.3981 val_accuracy: 0.9075
+Epoch: 9 loss: 0.5125 accuracy: 0.7708 val_loss: 0.4678 val_accuracy: 0.9082
+Epoch: 10 loss: 0.5090 accuracy: 0.7701 val_loss: 0.8902 val_accuracy: 0.1577
+Epoch: 11 loss: 0.5010 accuracy: 0.7742 val_loss: 0.2977 val_accuracy: 0.9020
+Epoch: 12 loss: 0.4953 accuracy: 0.7776 val_loss: 0.3394 val_accuracy: 0.9081
+Epoch: 13 loss: 0.5244 accuracy: 0.7609 val_loss: 0.5234 val_accuracy: 0.9082
+Epoch: 14 loss: 0.5882 accuracy: 0.7276 val_loss: 0.3546 val_accuracy: 0.9082
+Epoch: 15 loss: 0.5867 accuracy: 0.7279 val_loss: 0.3963 val_accuracy: 0.9082
+Epoch: 16 loss: 0.5905 accuracy: 0.7258 val_loss: 0.4253 val_accuracy: 0.9082
+
+Epoch 00016: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 17 loss: 0.5878 accuracy: 0.7279 val_loss: 0.4261 val_accuracy: 0.9082
+Epoch: 18 loss: 0.5896 accuracy: 0.7250 val_loss: 0.3957 val_accuracy: 0.9082
+Epoch: 19 loss: 0.5872 accuracy: 0.7273 val_loss: 0.4110 val_accuracy: 0.9082
+Epoch: 20 loss: 0.5878 accuracy: 0.7264 val_loss: 0.4569 val_accuracy: 0.9082
+Epoch: 21 loss: 0.5843 accuracy: 0.7294 val_loss: 0.3683 val_accuracy: 0.9082
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

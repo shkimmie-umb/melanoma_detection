@@ -1,0 +1,101 @@
+Thu 09 May 2024 05:14:53 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20']
+IMG_SIZE: [384, 384]
+CLASSIFIER: Xception
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 8 dbs
+Combining 2th db out of 8 dbs
+Combining 3th db out of 8 dbs
+Combining 4th db out of 8 dbs
+Combining 5th db out of 8 dbs
+Combining 6th db out of 8 dbs
+Combining 7th db out of 8 dbs
+Combining 8th db out of 8 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+xception (Functional)        (None, 2048)              20861480  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 22,045,482
+Trainable params: 1,182,466
+Non-trainable params: 20,863,016
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_aug_Xception_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_aug_Xception_384h_384w_None
+Epoch: 1 loss: 0.9154 accuracy: 0.8336 val_loss: 0.7620 val_accuracy: 0.8932
+Epoch: 2 loss: 0.7296 accuracy: 0.8805 val_loss: 0.6491 val_accuracy: 0.9107
+Epoch: 3 loss: 0.6381 accuracy: 0.8931 val_loss: 0.6439 val_accuracy: 0.8800
+Epoch: 4 loss: 0.5626 accuracy: 0.9025 val_loss: 0.5546 val_accuracy: 0.8984
+Epoch: 5 loss: 0.5019 accuracy: 0.9109 val_loss: 0.5267 val_accuracy: 0.8971
+Epoch: 6 loss: 0.4526 accuracy: 0.9180 val_loss: 0.4768 val_accuracy: 0.9051
+Epoch: 7 loss: 0.4143 accuracy: 0.9224 val_loss: 0.4670 val_accuracy: 0.8977
+Epoch: 8 loss: 0.3839 accuracy: 0.9258 val_loss: 0.4453 val_accuracy: 0.8998
+Epoch: 9 loss: 0.3568 accuracy: 0.9299 val_loss: 0.4279 val_accuracy: 0.9020
+Epoch: 10 loss: 0.3297 accuracy: 0.9354 val_loss: 0.4185 val_accuracy: 0.8984
+Epoch: 11 loss: 0.3145 accuracy: 0.9361 val_loss: 0.3660 val_accuracy: 0.9248
+Epoch: 12 loss: 0.2962 accuracy: 0.9399 val_loss: 0.3601 val_accuracy: 0.9238
+Epoch: 13 loss: 0.2884 accuracy: 0.9401 val_loss: 0.3854 val_accuracy: 0.9047
+Epoch: 14 loss: 0.2726 accuracy: 0.9436 val_loss: 0.3520 val_accuracy: 0.9283
+Epoch: 15 loss: 0.2671 accuracy: 0.9438 val_loss: 0.3830 val_accuracy: 0.9038
+Epoch: 16 loss: 0.2510 accuracy: 0.9478 val_loss: 0.3585 val_accuracy: 0.9160
+Epoch: 17 loss: 0.2423 accuracy: 0.9496 val_loss: 0.3487 val_accuracy: 0.9144
+Epoch: 18 loss: 0.2339 accuracy: 0.9502 val_loss: 0.3200 val_accuracy: 0.9234
+Epoch: 19 loss: 0.2254 accuracy: 0.9526 val_loss: 0.3216 val_accuracy: 0.9272
+Epoch: 20 loss: 0.2197 accuracy: 0.9533 val_loss: 0.3161 val_accuracy: 0.9233
+Epoch: 21 loss: 0.2138 accuracy: 0.9542 val_loss: 0.3121 val_accuracy: 0.9244
+Epoch: 22 loss: 0.2101 accuracy: 0.9539 val_loss: 0.3167 val_accuracy: 0.9192
+Epoch: 23 loss: 0.1980 accuracy: 0.9582 val_loss: 0.3189 val_accuracy: 0.9258
+Epoch: 24 loss: 0.1963 accuracy: 0.9579 val_loss: 0.3032 val_accuracy: 0.9253
+Epoch: 25 loss: 0.1924 accuracy: 0.9591 val_loss: 0.3062 val_accuracy: 0.9258
+Epoch: 26 loss: 0.1883 accuracy: 0.9597 val_loss: 0.3105 val_accuracy: 0.9236
+Epoch: 27 loss: 0.1905 accuracy: 0.9574 val_loss: 0.3222 val_accuracy: 0.9206
+Epoch: 28 loss: 0.1821 accuracy: 0.9604 val_loss: 0.3399 val_accuracy: 0.9101
+Epoch: 29 loss: 0.1788 accuracy: 0.9615 val_loss: 0.3205 val_accuracy: 0.9247
+
+Epoch 00029: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 30 loss: 0.1610 accuracy: 0.9675 val_loss: 0.2836 val_accuracy: 0.9352
+Epoch: 31 loss: 0.1606 accuracy: 0.9678 val_loss: 0.3206 val_accuracy: 0.9179
+Epoch: 32 loss: 0.1523 accuracy: 0.9704 val_loss: 0.3185 val_accuracy: 0.9251
+Epoch: 33 loss: 0.1526 accuracy: 0.9694 val_loss: 0.3040 val_accuracy: 0.9311
+Epoch: 34 loss: 0.1464 accuracy: 0.9715 val_loss: 0.2817 val_accuracy: 0.9377
+Epoch: 35 loss: 0.1454 accuracy: 0.9716 val_loss: 0.2786 val_accuracy: 0.9363
+Epoch: 36 loss: 0.1445 accuracy: 0.9719 val_loss: 0.3438 val_accuracy: 0.9153
+Epoch: 37 loss: 0.1404 accuracy: 0.9733 val_loss: 0.2937 val_accuracy: 0.9341
+Epoch: 38 loss: 0.1392 accuracy: 0.9727 val_loss: 0.2970 val_accuracy: 0.9349
+Epoch: 39 loss: 0.1370 accuracy: 0.9741 val_loss: 0.3133 val_accuracy: 0.9255
+Epoch: 40 loss: 0.1359 accuracy: 0.9743 val_loss: 0.3009 val_accuracy: 0.9298
+
+Epoch 00040: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 41 loss: 0.1233 accuracy: 0.9787 val_loss: 0.2987 val_accuracy: 0.9380
+Epoch: 42 loss: 0.1190 accuracy: 0.9794 val_loss: 0.2947 val_accuracy: 0.9391
+Epoch: 43 loss: 0.1195 accuracy: 0.9794 val_loss: 0.2928 val_accuracy: 0.9354
+Epoch: 44 loss: 0.1162 accuracy: 0.9804 val_loss: 0.3047 val_accuracy: 0.9348
+Epoch: 45 loss: 0.1154 accuracy: 0.9801 val_loss: 0.3051 val_accuracy: 0.9342
+
+Epoch 00045: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+End of augmented training
+Finish
+Job ended!

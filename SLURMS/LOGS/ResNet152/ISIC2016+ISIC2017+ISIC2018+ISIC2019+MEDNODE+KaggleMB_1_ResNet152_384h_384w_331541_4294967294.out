@@ -1,0 +1,75 @@
+Thu 02 May 2024 11:21:25 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152 (Functional)       (None, 2048)              58370944  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,554,946
+Trainable params: 1,182,466
+Non-trainable params: 58,372,480
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+MEDNODE+KaggleMB_aug_ResNet152_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+MEDNODE+KaggleMB_aug_ResNet152_384h_384w_None
+Epoch: 1 loss: 0.9714 accuracy: 0.6078 val_loss: 0.9107 val_accuracy: 0.2033
+Epoch: 2 loss: 0.7814 accuracy: 0.6467 val_loss: 0.6347 val_accuracy: 0.7989
+Epoch: 3 loss: 0.7040 accuracy: 0.6918 val_loss: 0.6114 val_accuracy: 0.7663
+Epoch: 4 loss: 0.6793 accuracy: 0.6974 val_loss: 0.6103 val_accuracy: 0.7624
+Epoch: 5 loss: 0.6859 accuracy: 0.6859 val_loss: 0.6578 val_accuracy: 0.7958
+Epoch: 6 loss: 0.6465 accuracy: 0.7078 val_loss: 0.5654 val_accuracy: 0.7973
+Epoch: 7 loss: 0.6192 accuracy: 0.7208 val_loss: 0.6339 val_accuracy: 0.7216
+Epoch: 8 loss: 0.6588 accuracy: 0.6772 val_loss: 0.5398 val_accuracy: 0.7975
+Epoch: 9 loss: 0.6174 accuracy: 0.7007 val_loss: 0.5835 val_accuracy: 0.7996
+Epoch: 10 loss: 0.5966 accuracy: 0.7120 val_loss: 1.3467 val_accuracy: 0.2108
+Epoch: 11 loss: 0.5773 accuracy: 0.7235 val_loss: 0.5367 val_accuracy: 0.8017
+Epoch: 12 loss: 0.5928 accuracy: 0.7035 val_loss: 2.6482 val_accuracy: 0.2003
+Epoch: 13 loss: 0.6132 accuracy: 0.6868 val_loss: 0.4922 val_accuracy: 0.7877
+Epoch: 14 loss: 0.5854 accuracy: 0.7035 val_loss: 0.5179 val_accuracy: 0.7999
+Epoch: 15 loss: 0.5760 accuracy: 0.7091 val_loss: 3.8150 val_accuracy: 0.2003
+Epoch: 16 loss: 0.5681 accuracy: 0.7192 val_loss: 0.5029 val_accuracy: 0.8020
+Epoch: 17 loss: 0.5905 accuracy: 0.6999 val_loss: 0.5434 val_accuracy: 0.7546
+Epoch: 18 loss: 0.5695 accuracy: 0.7158 val_loss: 0.5451 val_accuracy: 0.7997
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 19 loss: 0.5510 accuracy: 0.7298 val_loss: 3.0312 val_accuracy: 0.2009
+Epoch: 20 loss: 0.5500 accuracy: 0.7306 val_loss: 0.5441 val_accuracy: 0.7999
+Epoch: 21 loss: 0.5416 accuracy: 0.7373 val_loss: 0.5468 val_accuracy: 0.8001
+Epoch: 22 loss: 0.5356 accuracy: 0.7436 val_loss: 0.5402 val_accuracy: 0.8015
+Epoch: 23 loss: 0.5347 accuracy: 0.7432 val_loss: 0.5156 val_accuracy: 0.7793
+
+Epoch 00023: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

@@ -1,0 +1,37 @@
+2024-05-03 19:53:56.962918: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2024-05-03 19:54:04.100261: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcuda.so.1
+2024-05-03 19:54:04.229120: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1733] Found device 0 with properties: 
+pciBusID: 0000:07:00.0 name: A100-SXM4-40GB computeCapability: 8.0
+coreClock: 1.41GHz coreCount: 108 deviceMemorySize: 39.59GiB deviceMemoryBandwidth: 1.41TiB/s
+2024-05-03 19:54:04.229171: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2024-05-03 19:54:04.233409: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcublas.so.11
+2024-05-03 19:54:04.233478: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcublasLt.so.11
+2024-05-03 19:54:04.234764: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcufft.so.10
+2024-05-03 19:54:04.235326: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcurand.so.10
+2024-05-03 19:54:04.235964: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcusolver.so.11
+2024-05-03 19:54:04.236753: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcusparse.so.11
+2024-05-03 19:54:04.237028: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudnn.so.8
+2024-05-03 19:54:04.242251: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1871] Adding visible gpu devices: 0
+2024-05-03 19:54:04.242617: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-05-03 19:54:04.245394: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1733] Found device 0 with properties: 
+pciBusID: 0000:07:00.0 name: A100-SXM4-40GB computeCapability: 8.0
+coreClock: 1.41GHz coreCount: 108 deviceMemorySize: 39.59GiB deviceMemoryBandwidth: 1.41TiB/s
+2024-05-03 19:54:04.250426: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1871] Adding visible gpu devices: 0
+2024-05-03 19:54:04.250457: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2024-05-03 19:54:04.716148: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1258] Device interconnect StreamExecutor with strength 1 edge matrix:
+2024-05-03 19:54:04.716194: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1264]      0 
+2024-05-03 19:54:04.716202: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1277] 0:   N 
+2024-05-03 19:54:04.725124: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1418] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 38425 MB memory) -> physical GPU (device: 0, name: A100-SXM4-40GB, pci bus id: 0000:07:00.0, compute capability: 8.0)
+Traceback (most recent call last):
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/train.py", line 143, in <module>
+    model = mel.CNN.transfer(commondata.classifierDict[CLASSIFIER], CFG)
+  File "/home/sanghyuk.kim001/MELANOMA/melanoma-detection-CNN/melanoma/cnn.py", line 176, in transfer
+    model.add(network(
+  File "/home/sanghyuk.kim001/anaconda3/envs/clean_chimera_env/lib/python3.9/site-packages/tensorflow/python/keras/applications/nasnet.py", line 462, in NASNetLarge
+    return NASNet(
+  File "/home/sanghyuk.kim001/anaconda3/envs/clean_chimera_env/lib/python3.9/site-packages/tensorflow/python/keras/applications/nasnet.py", line 173, in NASNet
+    input_shape = imagenet_utils.obtain_input_shape(
+  File "/home/sanghyuk.kim001/anaconda3/envs/clean_chimera_env/lib/python3.9/site-packages/tensorflow/python/keras/applications/imagenet_utils.py", line 343, in obtain_input_shape
+    raise ValueError('When setting `include_top=True` '
+ValueError: When setting `include_top=True` and loading `imagenet` weights, `input_shape` should be (331, 331, 3).

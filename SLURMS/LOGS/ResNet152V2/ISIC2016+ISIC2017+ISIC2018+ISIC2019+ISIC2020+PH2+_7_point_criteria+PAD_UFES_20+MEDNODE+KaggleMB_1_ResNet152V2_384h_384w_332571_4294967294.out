@@ -1,0 +1,101 @@
+Mon 06 May 2024 08:16:06 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet152V2
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 10 dbs
+Combining 2th db out of 10 dbs
+Combining 3th db out of 10 dbs
+Combining 4th db out of 10 dbs
+Combining 5th db out of 10 dbs
+Combining 6th db out of 10 dbs
+Combining 7th db out of 10 dbs
+Combining 8th db out of 10 dbs
+Combining 9th db out of 10 dbs
+Combining 10th db out of 10 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet152v2 (Functional)     (None, 2048)              58331648  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 59,515,650
+Trainable params: 1,182,466
+Non-trainable params: 58,333,184
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_aug_ResNet152V2_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_aug_ResNet152V2_384h_384w_None
+Epoch: 1 loss: 0.8538 accuracy: 0.8309 val_loss: 0.7217 val_accuracy: 0.8711
+Epoch: 2 loss: 0.6429 accuracy: 0.8841 val_loss: 0.6001 val_accuracy: 0.8943
+Epoch: 3 loss: 0.5456 accuracy: 0.9012 val_loss: 0.5784 val_accuracy: 0.8777
+Epoch: 4 loss: 0.4760 accuracy: 0.9137 val_loss: 0.4903 val_accuracy: 0.9037
+Epoch: 5 loss: 0.4291 accuracy: 0.9207 val_loss: 0.4451 val_accuracy: 0.9144
+Epoch: 6 loss: 0.3891 accuracy: 0.9288 val_loss: 0.4554 val_accuracy: 0.9004
+Epoch: 7 loss: 0.3596 accuracy: 0.9333 val_loss: 0.4330 val_accuracy: 0.9033
+Epoch: 8 loss: 0.3323 accuracy: 0.9388 val_loss: 0.3948 val_accuracy: 0.9146
+Epoch: 9 loss: 0.3151 accuracy: 0.9413 val_loss: 0.3853 val_accuracy: 0.9175
+Epoch: 10 loss: 0.2923 accuracy: 0.9454 val_loss: 0.3704 val_accuracy: 0.9190
+Epoch: 11 loss: 0.2777 accuracy: 0.9484 val_loss: 0.3493 val_accuracy: 0.9258
+Epoch: 12 loss: 0.2668 accuracy: 0.9490 val_loss: 0.3429 val_accuracy: 0.9250
+Epoch: 13 loss: 0.2521 accuracy: 0.9533 val_loss: 0.3442 val_accuracy: 0.9224
+Epoch: 14 loss: 0.2400 accuracy: 0.9552 val_loss: 0.3365 val_accuracy: 0.9226
+Epoch: 15 loss: 0.2326 accuracy: 0.9572 val_loss: 0.3470 val_accuracy: 0.9166
+Epoch: 16 loss: 0.2269 accuracy: 0.9571 val_loss: 0.3279 val_accuracy: 0.9243
+Epoch: 17 loss: 0.2150 accuracy: 0.9606 val_loss: 0.3514 val_accuracy: 0.9159
+Epoch: 18 loss: 0.2093 accuracy: 0.9611 val_loss: 0.3498 val_accuracy: 0.9130
+Epoch: 19 loss: 0.2053 accuracy: 0.9618 val_loss: 0.3438 val_accuracy: 0.9182
+Epoch: 20 loss: 0.2005 accuracy: 0.9625 val_loss: 0.3197 val_accuracy: 0.9271
+Epoch: 21 loss: 0.1940 accuracy: 0.9639 val_loss: 0.3353 val_accuracy: 0.9174
+Epoch: 22 loss: 0.1910 accuracy: 0.9642 val_loss: 0.3675 val_accuracy: 0.9019
+Epoch: 23 loss: 0.1837 accuracy: 0.9657 val_loss: 0.3231 val_accuracy: 0.9250
+Epoch: 24 loss: 0.1833 accuracy: 0.9662 val_loss: 0.3501 val_accuracy: 0.9142
+Epoch: 25 loss: 0.1781 accuracy: 0.9668 val_loss: 0.3230 val_accuracy: 0.9249
+
+Epoch 00025: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 26 loss: 0.1649 accuracy: 0.9712 val_loss: 0.3220 val_accuracy: 0.9234
+Epoch: 27 loss: 0.1596 accuracy: 0.9728 val_loss: 0.3146 val_accuracy: 0.9295
+Epoch: 28 loss: 0.1545 accuracy: 0.9734 val_loss: 0.3130 val_accuracy: 0.9256
+Epoch: 29 loss: 0.1536 accuracy: 0.9732 val_loss: 0.3222 val_accuracy: 0.9199
+Epoch: 30 loss: 0.1502 accuracy: 0.9748 val_loss: 0.3007 val_accuracy: 0.9300
+Epoch: 31 loss: 0.1430 accuracy: 0.9762 val_loss: 0.3008 val_accuracy: 0.9345
+Epoch: 32 loss: 0.1437 accuracy: 0.9758 val_loss: 0.3020 val_accuracy: 0.9345
+Epoch: 33 loss: 0.1422 accuracy: 0.9760 val_loss: 0.2949 val_accuracy: 0.9361
+Epoch: 34 loss: 0.1376 accuracy: 0.9772 val_loss: 0.3062 val_accuracy: 0.9292
+Epoch: 35 loss: 0.1387 accuracy: 0.9766 val_loss: 0.3214 val_accuracy: 0.9228
+Epoch: 36 loss: 0.1369 accuracy: 0.9765 val_loss: 0.3092 val_accuracy: 0.9329
+Epoch: 37 loss: 0.1334 accuracy: 0.9774 val_loss: 0.3031 val_accuracy: 0.9336
+Epoch: 38 loss: 0.1330 accuracy: 0.9781 val_loss: 0.3080 val_accuracy: 0.9315
+
+Epoch 00038: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 39 loss: 0.1217 accuracy: 0.9812 val_loss: 0.2986 val_accuracy: 0.9401
+Epoch: 40 loss: 0.1214 accuracy: 0.9811 val_loss: 0.3098 val_accuracy: 0.9350
+Epoch: 41 loss: 0.1176 accuracy: 0.9823 val_loss: 0.3093 val_accuracy: 0.9375
+Epoch: 42 loss: 0.1153 accuracy: 0.9833 val_loss: 0.3237 val_accuracy: 0.9308
+Epoch: 43 loss: 0.1152 accuracy: 0.9827 val_loss: 0.3105 val_accuracy: 0.9348
+
+Epoch 00043: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+End of augmented training
+Finish
+Job ended!

@@ -1,0 +1,73 @@
+Mon 06 May 2024 07:04:09 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016']
+IMG_SIZE: [384, 384]
+CLASSIFIER: ResNet101V2
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+resnet101v2 (Functional)     (None, 2048)              42626560  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 43,810,562
+Trainable params: 1,182,466
+Non-trainable params: 42,628,096
+_________________________________________________________________
+Fitting ISIC2016_aug_ResNet101V2_384h_384w_None model...
+model_name: ISIC2016_aug_ResNet101V2_384h_384w_None
+Epoch: 1 loss: 1.3570 accuracy: 0.6372 val_loss: 1.2846 val_accuracy: 0.5611
+Epoch: 2 loss: 1.0802 accuracy: 0.7639 val_loss: 1.0977 val_accuracy: 0.7389
+Epoch: 3 loss: 0.9548 accuracy: 0.8307 val_loss: 1.0452 val_accuracy: 0.8000
+Epoch: 4 loss: 0.9321 accuracy: 0.8542 val_loss: 1.0048 val_accuracy: 0.7944
+Epoch: 5 loss: 0.8549 accuracy: 0.8707 val_loss: 0.9785 val_accuracy: 0.8167
+Epoch: 6 loss: 0.8188 accuracy: 0.8837 val_loss: 0.9688 val_accuracy: 0.8111
+Epoch: 7 loss: 0.7597 accuracy: 0.9219 val_loss: 0.9649 val_accuracy: 0.7778
+Epoch: 8 loss: 0.7559 accuracy: 0.9158 val_loss: 0.9372 val_accuracy: 0.8167
+Epoch: 9 loss: 0.7075 accuracy: 0.9401 val_loss: 0.9167 val_accuracy: 0.8056
+Epoch: 10 loss: 0.7036 accuracy: 0.9384 val_loss: 0.9096 val_accuracy: 0.7833
+Epoch: 11 loss: 0.6799 accuracy: 0.9384 val_loss: 0.9114 val_accuracy: 0.8000
+Epoch: 12 loss: 0.6569 accuracy: 0.9601 val_loss: 0.8792 val_accuracy: 0.8333
+Epoch: 13 loss: 0.6373 accuracy: 0.9575 val_loss: 0.8699 val_accuracy: 0.8167
+Epoch: 14 loss: 0.6315 accuracy: 0.9601 val_loss: 0.8890 val_accuracy: 0.8278
+Epoch: 15 loss: 0.6006 accuracy: 0.9748 val_loss: 0.8765 val_accuracy: 0.8222
+Epoch: 16 loss: 0.5888 accuracy: 0.9766 val_loss: 0.8690 val_accuracy: 0.8333
+Epoch: 17 loss: 0.5675 accuracy: 0.9809 val_loss: 0.8920 val_accuracy: 0.8000
+Epoch: 18 loss: 0.5610 accuracy: 0.9800 val_loss: 0.8896 val_accuracy: 0.8222
+Epoch: 19 loss: 0.5583 accuracy: 0.9835 val_loss: 0.8880 val_accuracy: 0.8444
+Epoch: 20 loss: 0.5476 accuracy: 0.9870 val_loss: 0.8953 val_accuracy: 0.8167
+Epoch: 21 loss: 0.5432 accuracy: 0.9870 val_loss: 0.8822 val_accuracy: 0.8111
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 22 loss: 0.5372 accuracy: 0.9852 val_loss: 0.8871 val_accuracy: 0.8389
+Epoch: 23 loss: 0.5270 accuracy: 0.9913 val_loss: 0.9012 val_accuracy: 0.8222
+Epoch: 24 loss: 0.5179 accuracy: 0.9922 val_loss: 0.9033 val_accuracy: 0.8111
+Epoch: 25 loss: 0.5150 accuracy: 0.9913 val_loss: 0.9024 val_accuracy: 0.8222
+Epoch: 26 loss: 0.5050 accuracy: 0.9957 val_loss: 0.8926 val_accuracy: 0.8389
+
+Epoch 00026: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

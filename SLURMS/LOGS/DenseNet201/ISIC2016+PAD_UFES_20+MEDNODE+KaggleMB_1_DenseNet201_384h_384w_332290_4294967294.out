@@ -1,0 +1,70 @@
+Sat 04 May 2024 08:47:17 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'PAD_UFES_20', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: DenseNet201
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 4 dbs
+Combining 2th db out of 4 dbs
+Combining 3th db out of 4 dbs
+Combining 4th db out of 4 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet201 (Functional)     (None, 1920)              18321984  
+_________________________________________________________________
+dense (Dense)                (None, 512)               983552    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 19,440,450
+Trainable params: 1,116,930
+Non-trainable params: 18,323,520
+_________________________________________________________________
+Fitting ISIC2016+PAD_UFES_20+MEDNODE+KaggleMB_aug_DenseNet201_384h_384w_None model...
+model_name: ISIC2016+PAD_UFES_20+MEDNODE+KaggleMB_aug_DenseNet201_384h_384w_None
+Epoch: 1 loss: 1.0313 accuracy: 0.7656 val_loss: 0.9132 val_accuracy: 0.8286
+Epoch: 2 loss: 0.7625 accuracy: 0.8658 val_loss: 0.7475 val_accuracy: 0.8428
+Epoch: 3 loss: 0.6589 accuracy: 0.8865 val_loss: 0.7027 val_accuracy: 0.8536
+Epoch: 4 loss: 0.6045 accuracy: 0.9034 val_loss: 0.6837 val_accuracy: 0.8652
+Epoch: 5 loss: 0.5471 accuracy: 0.9228 val_loss: 0.6809 val_accuracy: 0.8577
+Epoch: 6 loss: 0.5351 accuracy: 0.9219 val_loss: 0.6533 val_accuracy: 0.8652
+Epoch: 7 loss: 0.5101 accuracy: 0.9319 val_loss: 0.6710 val_accuracy: 0.8602
+Epoch: 8 loss: 0.4727 accuracy: 0.9451 val_loss: 0.7042 val_accuracy: 0.8461
+Epoch: 9 loss: 0.4593 accuracy: 0.9470 val_loss: 0.6611 val_accuracy: 0.8619
+Epoch: 10 loss: 0.4438 accuracy: 0.9515 val_loss: 0.6374 val_accuracy: 0.8719
+Epoch: 11 loss: 0.4335 accuracy: 0.9553 val_loss: 0.6608 val_accuracy: 0.8719
+Epoch: 12 loss: 0.4133 accuracy: 0.9637 val_loss: 0.6661 val_accuracy: 0.8561
+Epoch: 13 loss: 0.3963 accuracy: 0.9682 val_loss: 0.6522 val_accuracy: 0.8727
+Epoch: 14 loss: 0.3834 accuracy: 0.9712 val_loss: 0.6757 val_accuracy: 0.8652
+Epoch: 15 loss: 0.3809 accuracy: 0.9674 val_loss: 0.6609 val_accuracy: 0.8727
+
+Epoch 00015: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 16 loss: 0.3642 accuracy: 0.9762 val_loss: 0.6612 val_accuracy: 0.8727
+Epoch: 17 loss: 0.3610 accuracy: 0.9729 val_loss: 0.6682 val_accuracy: 0.8686
+Epoch: 18 loss: 0.3409 accuracy: 0.9828 val_loss: 0.6541 val_accuracy: 0.8827
+Epoch: 19 loss: 0.3407 accuracy: 0.9816 val_loss: 0.6797 val_accuracy: 0.8785
+Epoch: 20 loss: 0.3270 accuracy: 0.9846 val_loss: 0.6956 val_accuracy: 0.8719
+
+Epoch 00020: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

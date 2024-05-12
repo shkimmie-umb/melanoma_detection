@@ -1,0 +1,74 @@
+Fri 03 May 2024 05:55:02 PM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2019', 'ISIC2020']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB3
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 3 dbs
+Combining 2th db out of 3 dbs
+Combining 3th db out of 3 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb3 (Functional)  (None, 1536)              10783535  
+_________________________________________________________________
+dense (Dense)                (None, 512)               786944    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 11,705,393
+Trainable params: 920,322
+Non-trainable params: 10,785,071
+_________________________________________________________________
+Fitting ISIC2016+ISIC2019+ISIC2020_aug_EfficientNetB3_384h_384w_None model...
+model_name: ISIC2016+ISIC2019+ISIC2020_aug_EfficientNetB3_384h_384w_None
+Epoch: 1 loss: 1.0994 accuracy: 0.6490 val_loss: 0.7117 val_accuracy: 0.9108
+Epoch: 2 loss: 0.9529 accuracy: 0.7084 val_loss: 0.6629 val_accuracy: 0.9108
+Epoch: 3 loss: 0.8706 accuracy: 0.7216 val_loss: 0.5874 val_accuracy: 0.9108
+Epoch: 4 loss: 0.7999 accuracy: 0.7247 val_loss: 0.6103 val_accuracy: 0.9108
+Epoch: 5 loss: 0.7357 accuracy: 0.7274 val_loss: 0.4818 val_accuracy: 0.9108
+Epoch: 6 loss: 0.6893 accuracy: 0.7272 val_loss: 0.4150 val_accuracy: 0.9108
+Epoch: 7 loss: 0.6566 accuracy: 0.7282 val_loss: 0.3931 val_accuracy: 0.9108
+Epoch: 8 loss: 0.6363 accuracy: 0.7279 val_loss: 0.4377 val_accuracy: 0.9108
+Epoch: 9 loss: 0.6263 accuracy: 0.7253 val_loss: 0.4399 val_accuracy: 0.9108
+Epoch: 10 loss: 0.6163 accuracy: 0.7264 val_loss: 0.4119 val_accuracy: 0.9108
+Epoch: 11 loss: 0.6094 accuracy: 0.7273 val_loss: 0.4062 val_accuracy: 0.9108
+Epoch: 12 loss: 0.6065 accuracy: 0.7266 val_loss: 0.3934 val_accuracy: 0.9108
+
+Epoch 00012: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 13 loss: 0.6022 accuracy: 0.7272 val_loss: 0.3792 val_accuracy: 0.9108
+Epoch: 14 loss: 0.6006 accuracy: 0.7265 val_loss: 0.4143 val_accuracy: 0.9108
+Epoch: 15 loss: 0.5979 accuracy: 0.7275 val_loss: 0.4678 val_accuracy: 0.9108
+Epoch: 16 loss: 0.5966 accuracy: 0.7275 val_loss: 0.4308 val_accuracy: 0.9108
+Epoch: 17 loss: 0.5942 accuracy: 0.7283 val_loss: 0.3920 val_accuracy: 0.9108
+Epoch: 18 loss: 0.5968 accuracy: 0.7250 val_loss: 0.4593 val_accuracy: 0.9108
+
+Epoch 00018: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+Epoch: 19 loss: 0.5933 accuracy: 0.7271 val_loss: 0.4132 val_accuracy: 0.9108
+Epoch: 20 loss: 0.5927 accuracy: 0.7269 val_loss: 0.4147 val_accuracy: 0.9108
+Epoch: 21 loss: 0.5905 accuracy: 0.7288 val_loss: 0.3858 val_accuracy: 0.9108
+Epoch: 22 loss: 0.5908 accuracy: 0.7278 val_loss: 0.3920 val_accuracy: 0.9108
+Epoch: 23 loss: 0.5908 accuracy: 0.7271 val_loss: 0.3961 val_accuracy: 0.9108
+
+Epoch 00023: ReduceLROnPlateau reducing learning rate to 5.119999987073243e-05.
+End of augmented training
+Finish
+Job ended!

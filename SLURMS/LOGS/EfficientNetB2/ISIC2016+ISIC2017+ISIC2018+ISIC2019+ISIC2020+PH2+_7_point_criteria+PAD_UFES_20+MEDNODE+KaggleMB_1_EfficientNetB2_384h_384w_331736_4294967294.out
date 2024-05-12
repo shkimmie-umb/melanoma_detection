@@ -1,0 +1,75 @@
+Fri 03 May 2024 07:24:16 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB2
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 10 dbs
+Combining 2th db out of 10 dbs
+Combining 3th db out of 10 dbs
+Combining 4th db out of 10 dbs
+Combining 5th db out of 10 dbs
+Combining 6th db out of 10 dbs
+Combining 7th db out of 10 dbs
+Combining 8th db out of 10 dbs
+Combining 9th db out of 10 dbs
+Combining 10th db out of 10 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb2 (Functional)  (None, 1408)              7768569   
+_________________________________________________________________
+dense (Dense)                (None, 512)               721408    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 8,624,891
+Trainable params: 854,786
+Non-trainable params: 7,770,105
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_aug_EfficientNetB2_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_aug_EfficientNetB2_384h_384w_None
+Epoch: 1 loss: 1.0728 accuracy: 0.6408 val_loss: 0.7154 val_accuracy: 0.8940
+Epoch: 2 loss: 0.9165 accuracy: 0.6984 val_loss: 0.7010 val_accuracy: 0.8940
+Epoch: 3 loss: 0.8253 accuracy: 0.7093 val_loss: 0.5931 val_accuracy: 0.8940
+Epoch: 4 loss: 0.7423 accuracy: 0.7152 val_loss: 0.4861 val_accuracy: 0.8940
+Epoch: 5 loss: 0.6871 accuracy: 0.7126 val_loss: 0.5407 val_accuracy: 0.8940
+Epoch: 6 loss: 0.6532 accuracy: 0.7121 val_loss: 0.4895 val_accuracy: 0.8940
+Epoch: 7 loss: 0.6378 accuracy: 0.7118 val_loss: 0.4263 val_accuracy: 0.8940
+Epoch: 8 loss: 0.6268 accuracy: 0.7127 val_loss: 0.4297 val_accuracy: 0.8940
+Epoch: 9 loss: 0.6196 accuracy: 0.7142 val_loss: 0.4087 val_accuracy: 0.8940
+Epoch: 10 loss: 0.6154 accuracy: 0.7143 val_loss: 0.4556 val_accuracy: 0.8940
+Epoch: 11 loss: 0.6125 accuracy: 0.7143 val_loss: 0.4283 val_accuracy: 0.8940
+Epoch: 12 loss: 0.6107 accuracy: 0.7142 val_loss: 0.5623 val_accuracy: 0.8940
+Epoch: 13 loss: 0.6098 accuracy: 0.7137 val_loss: 0.4408 val_accuracy: 0.8940
+Epoch: 14 loss: 0.6052 accuracy: 0.7168 val_loss: 0.4284 val_accuracy: 0.8940
+
+Epoch 00014: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 15 loss: 0.6066 accuracy: 0.7139 val_loss: 0.4368 val_accuracy: 0.8940
+Epoch: 16 loss: 0.6065 accuracy: 0.7128 val_loss: 0.4565 val_accuracy: 0.8940
+Epoch: 17 loss: 0.6040 accuracy: 0.7147 val_loss: 0.4369 val_accuracy: 0.8940
+Epoch: 18 loss: 0.6008 accuracy: 0.7175 val_loss: 0.4848 val_accuracy: 0.8940
+Epoch: 19 loss: 0.6039 accuracy: 0.7134 val_loss: 0.4778 val_accuracy: 0.8940
+
+Epoch 00019: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

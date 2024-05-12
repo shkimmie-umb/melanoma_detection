@@ -1,0 +1,74 @@
+Tue 07 May 2024 05:08:48 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: EfficientNetB5
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 7 dbs
+Combining 2th db out of 7 dbs
+Combining 3th db out of 7 dbs
+Combining 4th db out of 7 dbs
+Combining 5th db out of 7 dbs
+Combining 6th db out of 7 dbs
+Combining 7th db out of 7 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+efficientnetb5 (Functional)  (None, 2048)              28513527  
+_________________________________________________________________
+dense (Dense)                (None, 512)               1049088   
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 29,697,529
+Trainable params: 1,182,466
+Non-trainable params: 28,515,063
+_________________________________________________________________
+Fitting ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+MEDNODE+KaggleMB_aug_EfficientNetB5_384h_384w_None model...
+model_name: ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+MEDNODE+KaggleMB_aug_EfficientNetB5_384h_384w_None
+Epoch: 1 loss: 1.1114 accuracy: 0.6600 val_loss: 0.8661 val_accuracy: 0.8941
+Epoch: 2 loss: 0.9492 accuracy: 0.7048 val_loss: 0.7529 val_accuracy: 0.8941
+Epoch: 3 loss: 0.8502 accuracy: 0.7061 val_loss: 0.6240 val_accuracy: 0.8941
+Epoch: 4 loss: 0.7664 accuracy: 0.7095 val_loss: 0.5882 val_accuracy: 0.8941
+Epoch: 5 loss: 0.7091 accuracy: 0.7090 val_loss: 0.4781 val_accuracy: 0.8941
+Epoch: 6 loss: 0.6724 accuracy: 0.7107 val_loss: 0.4671 val_accuracy: 0.8941
+Epoch: 7 loss: 0.6553 accuracy: 0.7074 val_loss: 0.5062 val_accuracy: 0.8941
+Epoch: 8 loss: 0.6383 accuracy: 0.7127 val_loss: 0.4746 val_accuracy: 0.8941
+Epoch: 9 loss: 0.6322 accuracy: 0.7097 val_loss: 0.4533 val_accuracy: 0.8941
+Epoch: 10 loss: 0.6262 accuracy: 0.7103 val_loss: 0.4408 val_accuracy: 0.8941
+Epoch: 11 loss: 0.6236 accuracy: 0.7086 val_loss: 0.3887 val_accuracy: 0.8941
+Epoch: 12 loss: 0.6172 accuracy: 0.7119 val_loss: 0.4410 val_accuracy: 0.8941
+Epoch: 13 loss: 0.6143 accuracy: 0.7127 val_loss: 0.4565 val_accuracy: 0.8941
+Epoch: 14 loss: 0.6154 accuracy: 0.7089 val_loss: 0.4651 val_accuracy: 0.8941
+Epoch: 15 loss: 0.6120 accuracy: 0.7109 val_loss: 0.4414 val_accuracy: 0.8941
+Epoch: 16 loss: 0.6102 accuracy: 0.7117 val_loss: 0.4440 val_accuracy: 0.8941
+
+Epoch 00016: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 17 loss: 0.6091 accuracy: 0.7112 val_loss: 0.4192 val_accuracy: 0.8941
+Epoch: 18 loss: 0.6062 accuracy: 0.7139 val_loss: 0.4526 val_accuracy: 0.8941
+Epoch: 19 loss: 0.6072 accuracy: 0.7121 val_loss: 0.4534 val_accuracy: 0.8941
+Epoch: 20 loss: 0.6079 accuracy: 0.7107 val_loss: 0.4112 val_accuracy: 0.8941
+Epoch: 21 loss: 0.6043 accuracy: 0.7136 val_loss: 0.4311 val_accuracy: 0.8941
+
+Epoch 00021: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!

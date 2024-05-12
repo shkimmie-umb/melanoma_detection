@@ -1,0 +1,70 @@
+Sun 05 May 2024 01:02:38 AM EDT
+Python 3.9.7
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2019 NVIDIA Corporation
+Built on Sun_Jul_28_19:07:16_PDT_2019
+Cuda compilation tools, release 10.1, V10.1.243
+My SLURM_ARRAY_TASK_ID: 
+DB: ['ISIC2016', 'PAD_UFES_20', 'MEDNODE', 'KaggleMB']
+IMG_SIZE: [384, 384]
+CLASSIFIER: DenseNet169
+JOB_INDEX: None
+Start training augmented images
+Combining...
+Combining 1th db out of 4 dbs
+Combining 2th db out of 4 dbs
+Combining 3th db out of 4 dbs
+Combining 4th db out of 4 dbs
+Stacking data
+Combining complete
+Model: "sequential"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+densenet169 (Functional)     (None, 1664)              12642880  
+_________________________________________________________________
+dense (Dense)                (None, 512)               852480    
+_________________________________________________________________
+dropout (Dropout)            (None, 512)               0         
+_________________________________________________________________
+batch_normalization (BatchNo (None, 512)               2048      
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               131328    
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024      
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 514       
+=================================================================
+Total params: 13,630,274
+Trainable params: 985,858
+Non-trainable params: 12,644,416
+_________________________________________________________________
+Fitting ISIC2016+PAD_UFES_20+MEDNODE+KaggleMB_aug_DenseNet169_384h_384w_None model...
+model_name: ISIC2016+PAD_UFES_20+MEDNODE+KaggleMB_aug_DenseNet169_384h_384w_None
+Epoch: 1 loss: 1.0274 accuracy: 0.7744 val_loss: 0.8692 val_accuracy: 0.8328
+Epoch: 2 loss: 0.7753 accuracy: 0.8556 val_loss: 0.7596 val_accuracy: 0.8502
+Epoch: 3 loss: 0.6756 accuracy: 0.8865 val_loss: 0.7335 val_accuracy: 0.8378
+Epoch: 4 loss: 0.6157 accuracy: 0.9014 val_loss: 0.7059 val_accuracy: 0.8353
+Epoch: 5 loss: 0.5774 accuracy: 0.9136 val_loss: 0.6788 val_accuracy: 0.8502
+Epoch: 6 loss: 0.5370 accuracy: 0.9224 val_loss: 0.6770 val_accuracy: 0.8602
+Epoch: 7 loss: 0.5183 accuracy: 0.9290 val_loss: 0.6852 val_accuracy: 0.8502
+Epoch: 8 loss: 0.4835 accuracy: 0.9416 val_loss: 0.6724 val_accuracy: 0.8586
+Epoch: 9 loss: 0.4807 accuracy: 0.9399 val_loss: 0.6770 val_accuracy: 0.8619
+Epoch: 10 loss: 0.4544 accuracy: 0.9525 val_loss: 0.6453 val_accuracy: 0.8644
+Epoch: 11 loss: 0.4423 accuracy: 0.9547 val_loss: 0.6576 val_accuracy: 0.8686
+Epoch: 12 loss: 0.4342 accuracy: 0.9571 val_loss: 0.6679 val_accuracy: 0.8469
+Epoch: 13 loss: 0.4164 accuracy: 0.9585 val_loss: 0.6560 val_accuracy: 0.8652
+Epoch: 14 loss: 0.4018 accuracy: 0.9667 val_loss: 0.6998 val_accuracy: 0.8486
+Epoch: 15 loss: 0.3860 accuracy: 0.9716 val_loss: 0.6612 val_accuracy: 0.8577
+
+Epoch 00015: ReduceLROnPlateau reducing learning rate to 7.999999797903001e-05.
+Epoch: 16 loss: 0.3817 accuracy: 0.9694 val_loss: 0.6794 val_accuracy: 0.8627
+Epoch: 17 loss: 0.3732 accuracy: 0.9766 val_loss: 0.6694 val_accuracy: 0.8727
+Epoch: 18 loss: 0.3610 accuracy: 0.9770 val_loss: 0.6685 val_accuracy: 0.8644
+Epoch: 19 loss: 0.3502 accuracy: 0.9813 val_loss: 0.6529 val_accuracy: 0.8694
+Epoch: 20 loss: 0.3452 accuracy: 0.9805 val_loss: 0.6836 val_accuracy: 0.8602
+
+Epoch 00020: ReduceLROnPlateau reducing learning rate to 6.399999838322402e-05.
+End of augmented training
+Finish
+Job ended!
