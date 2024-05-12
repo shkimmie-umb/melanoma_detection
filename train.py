@@ -74,10 +74,10 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.python.keras.callbacks import EarlyStopping
 # from mel import SilentTrainingCallback as silent_callback
 
-# optimizer1 = Adam(learning_rate=0.001)
-optimizer2 = Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
-red_lr= ReduceLROnPlateau(monitor='val_accuracy', patience=3 , verbose=1, factor=0.7)
-cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 20)
+# optimizer1 = Adam(learning_rate=1e-5)
+optimizer2 = Adam(learning_rate=1e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
+red_lr= ReduceLROnPlateau(monitor='val_loss', patience=5 , verbose=1, factor=0.8)
+cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 10)
 
 CFG = dict(
 			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
@@ -89,8 +89,8 @@ CFG = dict(
       apply_aug             = True,
 
 			# Images sizes
-			img_height = 640,   # Original: (450h, 600w)
-      img_width = 640,
+			img_height = img_size[0],   # Original: (450h, 600w)
+      img_width = img_size[1],
 
 			# Images augs
 			ROTATION_RANGE        =   0.0,
@@ -106,7 +106,7 @@ CFG = dict(
 			# loss='binary_crossentropy',
 			loss='categorical_crossentropy',
 			metrics=['accuracy'],
-			callbacks = [mel.SilentTrainingCallback()],
+			callbacks = [mel.SilentTrainingCallback(), red_lr, cb_early_stopper],
 
 			# Postprocessing
 			stopper_patience      =  0,   # 0.01; 0.05; 0.1; 0.2;

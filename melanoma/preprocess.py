@@ -110,15 +110,18 @@ class Preprocess:
 
     def squareImgs(self, path, square_size):
         img = load_img(path=path, target_size=None)
-        img_width, img_height = img.size
-        left = img.size[0]/2 - min(img_width, img_height)/2
-        upper = img.size[1]/2 - min(img_width, img_height)/2
-        right = img.size[0]/2 + min(img_width, img_height)/2
-        bottom = img.size[1]/2 + min(img_width, img_height)/2
+        if square_size is not None:
+            img_width, img_height = img.size
+            left = img.size[0]/2 - min(img_width, img_height)/2
+            upper = img.size[1]/2 - min(img_width, img_height)/2
+            right = img.size[0]/2 + min(img_width, img_height)/2
+            bottom = img.size[1]/2 + min(img_width, img_height)/2
 
-        squared_img = img.crop((left, upper, right, bottom))
-        # Make squares and resize them
-        squared_img = squared_img.resize(size=(square_size, square_size), resample=Image.LANCZOS)
+            squared_img = img.crop((left, upper, right, bottom))
+            # Make squares and resize them
+            squared_img = squared_img.resize(size=(square_size, square_size), resample=Image.LANCZOS)
+        elif square_size is None:
+            squared_img = img
 
         return squared_img
     

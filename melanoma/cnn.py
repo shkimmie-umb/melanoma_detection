@@ -13,6 +13,7 @@ from tensorflow.keras.layers import (
     GlobalAveragePooling2D, GlobalMaxPooling2D, add, average
 )
 from keras.layers.merge import concatenate
+from tensorflow.keras.regularizers import l2
 
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.vgg19 import VGG19
@@ -181,11 +182,14 @@ class CNN(Base_Model):
                 weights=CFG['pretrained_weights']
         ))
         # model.add(Flatten())
-        model.add(Dense(512, activation='relu'))
+        model.add(Dense(512, activation='relu', kernel_regularizer=l2(0.0005)))
         model.add(Dropout(0.2))
         model.add(BatchNormalization())
-        model.add(Dense(256, activation='relu'))
-        model.add(Dropout(0.2))
+        # model.add(Dropout(0.2))
+        # model.add(BatchNormalization())
+        # model.add(Dense(256, activation='relu'))
+        model.add(Dense(256, activation='relu', kernel_regularizer=l2(0.0005)))
+        # model.add(Dropout(0.2))
         model.add(BatchNormalization())
         # model.add(Dense(1, activation='sigmoid'))
         model.add(Dense(2, activation='softmax'))

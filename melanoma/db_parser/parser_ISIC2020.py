@@ -3,7 +3,7 @@ from .parser import *
 
 class parser_ISIC2020(Parser):
 
-    def __init__(self, base_dir, square_size, pseudo_num = 2, split_ratio=0.2, 
+    def __init__(self, base_dir, square_size=None, pseudo_num = 2, split_ratio=0.2, 
                  image_resize=(None, None), networktype = None, uniform_normalization=True):
         super().__init__(base_dir = base_dir, square_size = square_size, pseudo_num = pseudo_num,
                          split_ratio = split_ratio, image_resize = image_resize, networktype = networktype,
@@ -118,6 +118,7 @@ class parser_ISIC2020(Parser):
 
         trainids = list(map(lambda x:x[1].stem, trainset_ISIC2020['image'])) # Filter out only pixel from the list
         validationids = list(map(lambda x:x[1].stem, validationset_ISIC2020['image']))
+        testids = list(map(lambda x:x[1].stem, testset_ISIC2020['image']))
         
 
         # trainimages_ISIC2020 = preprocessor.normalizeImgs(trainpixels_ISIC2020, networktype)
@@ -142,10 +143,10 @@ class parser_ISIC2020(Parser):
         filename = f'{datasetname}_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
         self.generateHDF5(path=self.path, filename=filename, 
                         trainpxs=trainpixels_ISIC2020,
-                        testpxs=[],
+                        testpxs=testpixels_ISIC2020,
                         validationpxs=validationpixels_ISIC2020,
                         trainids=trainids, 
-                        testids=[],
+                        testids=testids,
                         validationids=validationids,
                         trainlabels=trainlabels_binary_ISIC2020,
                         testlabels=[],
@@ -188,12 +189,81 @@ class parser_ISIC2020(Parser):
             # create HDF5 file
             self.generateHDF5(path=self.path, filename=filename_aug, 
                             trainpxs=trainpixels_ISIC2020_augmented, 
-                            testpxs=[],
+                            testpxs=testpixels_ISIC2020,
                             validationpxs=validationpixels_ISIC2020,
                             trainids=trainids_new, 
-                            testids=[],
+                            testids=testids,
                             validationids=validationids,
                             trainlabels=trainlabels_binary_ISIC2020_augmented,
                             testlabels=[],
                             validationlabels=validationlabels_binary_ISIC2020
                             )
+            
+    @staticmethod
+    def open_H5(h5file):
+        
+        hf = h5py.File(name=h5file, mode='r', track_order=True)
+        
+        trainimages_key = np.array(hf.get('trainimages'))
+        trainlabels_key = np.array(hf.get('trainlabels'))
+        trainids_key = np.array(hf.get('trainids'))
+        validationimages_key = np.array(hf.get('validationimages'))
+        validationlabels_key = np.array(hf.get('validationlabels'))
+        validationids_key = np.array(hf.get('validationids'))
+        testimages_key = np.array(hf.get('testimages'))
+        # testlabels_key = np.array(hf.get('testlabels'))
+        testids_key = np.array(hf.get('testids'))
+
+        assert (trainimages_key == trainlabels_key).all() == True
+        assert (trainimages_key == trainids_key).all() == True
+        assert (validationimages_key == validationlabels_key).all() == True
+        assert (validationimages_key == validationids_key).all() == True
+        # assert (testimages_key == testlabels_key).all() == True
+        assert (testimages_key == testids_key).all() == True
+
+        trainimages_list = []
+        trainlabels_list = []
+        trainids_list = []
+        validationimages_list = []
+        validationlabels_list = []
+        validationids_list = []
+        testimages_list = []
+        # testlabels_list = []
+        testids_list = []
+
+        for key in trainimages_key:
+            trainimages_list.append(np.array(hf.get('trainimages')[key]))
+            trainlabels_list.append(np.array(hf.get('trainlabels')[key]))
+            trainids_list.append(np.array(hf.get('trainids')[key]))
+
+        for key in validationimages_key:
+            validationimages_list.append(np.array(hf.get('validationimages')[key]))
+            validationlabels_list.append(np.array(hf.get('validationlabels')[key]))
+            validationids_list.append(np.array(hf.get('validationids')[key]))
+
+        for key in testimages_key:
+            testimages_list.append(np.array(hf.get('testimages')[key]))
+            # testlabels_list.append(np.array(hf.get('testlabels')[key]))
+            testids_list.append(np.array(hf.get('testids')[key]))
+        
+        traindata = {"trainimages": trainimages_list,
+                     "trainlabels": trainlabels_list,
+                     "trainids": trainids_list
+                    }
+        
+        validationdata = {"validationimages": validationimages_list,
+                     "validationlabels": validationlabels_list,
+                     "validationids": validationids_list
+                    }
+        
+        testdata = {"testimages": testimages_list,
+                    #  "testlabels": testlabels_list,
+                     "testids": testids_list
+                    }
+
+
+        
+
+        hf.close()
+        
+        return traindata, validationdata, testdata

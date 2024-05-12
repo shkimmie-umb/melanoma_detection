@@ -151,6 +151,16 @@ class Model:
                 index = np.arange(len(images)-1)
                 reordered_indexes = np.random.permutation(index)
                 yield slice_data(images, labels, reordered_indexes, batch_size)
+
+        def convert_imgs(images):
+            img_array = []
+            for idx, img in enumerate(images):
+                decoded_img = img_to_array(mel.Parser.decode(img))
+                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
+                img_array.append(decoded_img)
+            img_array = np.array(img_array) # Convert list to numpy
+
+            return img_array
         
         valimg_array = []
             
@@ -160,20 +170,20 @@ class Model:
             valimg_array.append(decoded_img)
         valimg_array = np.array(valimg_array)
 
-        # data_gen = ImageDataGenerator(
-        #     featurewise_center=False,  # set input mean to 0 over the dataset
-        #     samplewise_center=False,  # set each sample mean to 0
-        #     featurewise_std_normalization=False,  # divide inputs by std of the dataset
-        #     samplewise_std_normalization=False,  # divide each input by its std
-        #     zca_whitening=False,  # apply ZCA whitening
-        #     rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
-        #     zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
-        #     width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
-        #     height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
-        #     horizontal_flip=CFG['HFLIP'],  # randomly flip images
-        #     vertical_flip=CFG['VFLIP'], # randomly flip images
-        #     rescale=1./255
-        # )  
+        data_gen = ImageDataGenerator(
+            featurewise_center=False,  # set input mean to 0 over the dataset
+            samplewise_center=False,  # set each sample mean to 0
+            featurewise_std_normalization=False,  # divide inputs by std of the dataset
+            samplewise_std_normalization=False,  # divide each input by its std
+            zca_whitening=False,  # apply ZCA whitening
+            rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
+            zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
+            width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
+            height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
+            horizontal_flip=CFG['HFLIP'],  # randomly flip images
+            vertical_flip=CFG['VFLIP'], # randomly flip images
+            # rescale=1./255
+        )  
         snapshot_path = CFG['snapshot_path']
         early_stopper_patience = CFG['stopper_patience']
         
@@ -200,6 +210,8 @@ class Model:
         # steps_per_epoch = len(trainimages) // CFG['batch_size']
         my_batch_generator = batch_generator(trainimages, trainlabels, CFG['batch_size'])
 
+        # trainimages = convert_imgs(trainimages)
+
         history = model.fit(
             # data_gen.flow(trainimages, trainlabels, batch_size = CFG['batch_size'], shuffle=True),
             my_batch_generator,
@@ -216,6 +228,60 @@ class Model:
 
         return history
     
+    @staticmethod
+    def evaluate_leaderboard(model_name, model_path, dbpath, dbname_ISIC2020):
+        
+        DBtypes = [db.name for db in mel.DatasetType]
+        combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
+        assert len(combined_DBs) >= 1
+
+        # ISIC2020
+        # trainimages, testimages, validationimages, \
+		# 	trainlabels, _, validationlabels, num_classes, testimages_id = pickle.load(open(dbpath_ISIC2020, 'rb'))
+        traindata, validationdata, testdata = mel.parser_ISIC2020.open_H5(os.path.join(dbpath, dbname_ISIC2020))
+        assert len(testdata['testimages']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
+        assert len(testdata['testids']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
+        print('Testing on ISIC2020 DB')
+
+        model = load_model(model_path+'/'+model_name)
+        target_network = model.layers[0].name
+
+        test_pred, test_pred_classes = mel.Model.predict_testimages(
+            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2020.name, \
+                testimages = testdata['testimages']
+        )
+
+        import csv
+
+        # field names
+        fields = ['image_name', 'target']
+        
+        # name of csv file
+        if not os.path.exists(f'{dbpath}/leaderboard/{target_network}'):
+            os.makedirs(f'{dbpath}/leaderboard/{target_network}', exist_ok=True)
+        filename = f'{dbpath}/leaderboard/{target_network}/{model_name}_ISIC2020leaderboard.csv'
+        
+        
+
+        with open(filename, 'w') as csvfile:
+            # creating a csv writer object
+            csvwriter = csv.writer(csvfile)
+        
+            # writing the fields
+            csvwriter.writerow(fields)
+        
+            
+            assert len(testdata['testimages']) == len(test_pred_classes)
+            assert len(testdata['testimages']) == len(test_pred)
+            # assert len(testdata['testlabels']) == len(test_pred_classes)
+            # assert len(testdata['testlabels']) == len(test_pred)
+            assert len(testdata['testids']) == len(test_pred_classes)
+            assert len(testdata['testids']) == len(test_pred)
+
+            # writing the data rows
+            for idx, id in enumerate(testdata['testids']):
+
+                csvwriter.writerow([id.item().decode('utf-8'), test_pred[idx][1]])
 
     def evaluate_model_onAll(self, model_name, model_path, network_name, dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, dbpath_ISIC2018, \
         dbpath_7pointcriteria, dbpath_ISIC2020, leaderboard_only = False):
@@ -556,10 +622,17 @@ class Model:
 
         return train_pred, train_pred_classes, test_pred, test_pred_classes
     
-    def predict_testimages(self, model, model_name, target_db, testimages):
+    @staticmethod
+    def predict_testimages(model, model_name, target_db, testimages):
         print(f'Computing predictions for {model_name} on {target_db}...')
-       
-        test_pred = model.predict(testimages)
+
+        testimages_decoded = []
+        for idx, img in enumerate(testimages):
+                decoded_img = img_to_array(mel.Parser.decode(img))
+                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
+                testimages_decoded.append(decoded_img)
+        testimages_decoded = np.array(testimages_decoded) # Convert list to numpy
+        test_pred = model.predict(testimages_decoded)
         # Convert predictions classes to one hot vectors
         test_pred_classes = np.argmax(test_pred,axis = 1)
 

@@ -3,7 +3,7 @@ from .parser import *
 
 class parser_ISIC2017(Parser):
 
-    def __init__(self, base_dir, square_size, pseudo_num = 2, split_ratio=0.2, 
+    def __init__(self, base_dir, square_size=None, pseudo_num = 2, split_ratio=0.2, 
                  image_resize=(None, None), networktype = None, uniform_normalization=True):
         super().__init__(base_dir = base_dir, square_size = square_size, pseudo_num = pseudo_num,
                          split_ratio = split_ratio, image_resize = image_resize, networktype = networktype,

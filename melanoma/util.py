@@ -421,9 +421,13 @@ class Util:
 			combined_data['trainlabels'].append(traindata['trainlabels'])
 			combined_data['trainids'].append(traindata['trainids'])
 
-			combined_data['validationimages'].append(validationdata['validationimages'])
-			combined_data['validationlabels'].append(validationdata['validationlabels'])
-			combined_data['validationids'].append(validationdata['validationids'])
+			
+			if len(validationdata['validationimages']) > 0:
+				assert len(validationdata['validationimages']) == len(validationdata['validationlabels']) and \
+					len(validationdata['validationlabels']) == len(validationdata['validationids'])
+				combined_data['validationimages'].append(validationdata['validationimages'])
+				combined_data['validationlabels'].append(validationdata['validationlabels'])
+				combined_data['validationids'].append(validationdata['validationids'])
 
 
 

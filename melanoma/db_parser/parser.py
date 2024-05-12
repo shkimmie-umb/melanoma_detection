@@ -18,7 +18,7 @@ import melanoma as mel
 
 class Parser:
     
-    def __init__(self, base_dir, square_size, pseudo_num = 2, split_ratio=0.2, 
+    def __init__(self, base_dir, square_size=None, pseudo_num = 2, split_ratio=0.2, 
                  image_resize=(None, None), networktype=None, uniform_normalization=True):
         self.base_dir = pathlib.Path(base_dir)
 
