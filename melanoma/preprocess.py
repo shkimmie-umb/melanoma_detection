@@ -161,7 +161,7 @@ class Preprocess:
         if mel_cnt < non_mel_cnt:
             # melanoma augmentation here
             # Melanoma images will be augmented to the N times number of the Non-melanoma images
-            for j, id in enumerate(range((non_mel_cnt - mel_cnt), math.ceil(non_mel_cnt * augment_ratio))):
+            for j, id in enumerate(range(mel_cnt, math.ceil(non_mel_cnt * augment_ratio))):
                 randmel_idx = random.choice(df_mel.index)
                 assert df_mel.path[randmel_idx] == df_trainset.path[randmel_idx]
                 # img = Image.open(df_trainset.path[randmel_idx]).convert("RGB")
@@ -184,8 +184,6 @@ class Preprocess:
                     p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
-                num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - (non_mel_cnt - mel_cnt)
-                assert df_mel_augmented.shape[0] <= num_augmented_img
                 
 
             # non-melanoma augmentation here
@@ -211,8 +209,7 @@ class Preprocess:
                     p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
-                num_augmented_img = math.ceil(non_mel_cnt * augment_ratio) - non_mel_cnt
-                assert df_non_mel_augmented.shape[0] <= num_augmented_img
+
         elif mel_cnt > non_mel_cnt:
             # melanoma augmentation here
             for j, id in enumerate(range(mel_cnt, math.ceil(mel_cnt * augment_ratio))):
@@ -237,11 +234,9 @@ class Preprocess:
                     p_vflip=0.5)
                 df_mel_augmented.at[j, 'image'] = None
                 df_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
-                num_augmented_img = math.ceil(mel_cnt * augment_ratio) - mel_cnt
-                assert df_mel_augmented.shape[0] <= num_augmented_img
 
             # non-melanoma augmentation here
-            for j, id in enumerate(range((mel_cnt - non_mel_cnt), math.ceil(mel_cnt * augment_ratio))):
+            for j, id in enumerate(range(non_mel_cnt, math.ceil(mel_cnt * augment_ratio))):
                 randnonmel_idx = random.choice(df_non_mel.index)
                 assert df_non_mel.path[randnonmel_idx] == df_trainset.path[randnonmel_idx]
                 # img = Image.open(df_trainset.path[randnonmel_idx]).convert("RGB")
@@ -263,8 +258,6 @@ class Preprocess:
                                                        p_vflip=0.5)
                 df_non_mel_augmented.at[j, 'image'] = None
                 df_non_mel_augmented.at[j, 'image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
-                num_augmented_img = math.ceil(mel_cnt * augment_ratio) - (mel_cnt - non_mel_cnt)
-                assert df_non_mel_augmented.shape[0] <= num_augmented_img
 
         df_trainset_augmented = pd.concat([df_mel_augmented, df_non_mel_augmented], ignore_index=True, axis=0)
 

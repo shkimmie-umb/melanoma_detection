@@ -41,7 +41,12 @@ class crop_flip(AugmentationStrategy):
             A.RandomCrop(width=crop_width, height=crop_height),
             A.VerticalFlip(p=p_vflip),
             A.HorizontalFlip(p=p_hflip),
+            # A.FromFloat(dtype='uint8'),
+            A.Equalize(mode='pil'),
+            # A.ToFloat(max_value=255.0)
         ])
+
+        input_img = input_img.astype('uint8')
 
         transformed = transform(image=input_img)
 

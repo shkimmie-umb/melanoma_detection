@@ -10,7 +10,7 @@ from tensorflow.keras.models import Model, Sequential, load_model
 from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from tensorflow.keras.layers import (
     Input, Dense, Conv2D, Activation, Dropout, BatchNormalization,
-    GlobalAveragePooling2D, GlobalMaxPooling2D, add, average
+    GlobalAveragePooling2D, GlobalMaxPooling2D, ZeroPadding2D, add, average
 )
 from keras.layers.merge import concatenate
 from tensorflow.keras.regularizers import l2
@@ -199,6 +199,27 @@ class CNN(Base_Model):
 
         model.compile(optimizer=CFG['model_optimizer'], loss=CFG['loss'], metrics=CFG['metrics'])
 
+        return model
+    @staticmethod
+    def melanet(CFG):
+        # Define model with different applications
+        model = Sequential()
+        model.add(Input(shape=(CFG['img_height'], CFG['img_width'], 3)))
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(layers.Conv2D(32,(7,7),padding='same',activation='relu', strides=4))
+        model.add(layers.Conv2D(32,(7,7),padding='valid',activation='relu', strides=1))
+        model.add(layers.Conv2D(32,(7,7),padding='valid',activation='relu', strides=1))
+        model.add(layers.MaxPooling2D((2, 2), strides=None, name='block1_pool'))
+        model.add(layers.Conv2D(64,(13,13),padding='valid',activation='relu', strides=1))
+        model.add(layers.MaxPooling2D((2, 2), strides=None, name='block2_pool'))
+        model.add(Dense(2304, activation=None))
+        model.add(Dense(128, activation='sigmoid'))
+        model.add(Dense(2, activation='softmax'))
+
+        model.summary()
+
+        model.compile(optimizer=CFG['model_optimizer'], loss=CFG['loss'], metrics=CFG['metrics'])
+       
         return model
 
     

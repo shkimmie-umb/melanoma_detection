@@ -164,3 +164,64 @@ class parser_KaggleMB(Parser):
                             testlabels=testlabels_binary,
                             validationlabels=validationlabels_binary
                             )
+            
+    @staticmethod
+    def evaluate(dbpath, model_path, model_name):
+        traindata, validationdata, testdata = mel.Parser.open_H5(dbpath)
+        assert len(traindata['trainimages'])+len(validationdata['validationimages'])+len(testdata['testimages']) \
+            == mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['trainimages'] + \
+                mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['validationimages'] + \
+                    mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['testimages']
+        assert len(traindata['trainlabels'])+len(validationdata['validationlabels'])+len(testdata['testlabels']) \
+            == mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['trainimages'] + \
+                mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['validationimages'] + \
+                    mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['testimages']
+        assert len(traindata['trainids'])+len(validationdata['validationids'])+len(testdata['testids']) \
+            == mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['trainimages'] + \
+                mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['validationimages'] + \
+                    mel.CommonData().dbNumImgs[mel.DatasetType.KaggleMB]['testimages']
+
+        testimages_decoded = []
+        for idx, img in enumerate(testdata['testimages']):
+                decoded_img = img_to_array(mel.Parser.decode(img))
+                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
+                testimages_decoded.append(decoded_img)
+        testimages_decoded = np.array(testimages_decoded) # Convert list to numpy
+        
+
+        print('Testing on KaggleMB DB')
+        print(f'Evaluating {model_name} model on {mel.DatasetType.KaggleMB.name}...\n')
+        model = load_model(model_path+'/'+model_name + '.hdf5')
+        # model, _, _ = mel.Model.evaluate_model(
+        #     model_name=model_name,
+        #     model_path=model_path,
+        #     target_db=mel.DatasetType.KaggleMB.name,
+        #     trainimages=None,
+        #     trainlabels=None,
+        #     validationimages=None,
+        #     validationlabels=None,
+        #     testimages=testimages_decoded,
+        #     testlabels=np.array(testdata['testlabels']),
+        #     )
+        target_network = model.layers[0].name
+
+        test_pred, test_pred_classes = mel.Model.computing_prediction(
+            model = model, model_name = model_name, target_db=mel.DatasetType.KaggleMB.name, \
+            testimages = testimages_decoded)
+        
+        test_report = mel.Model.model_report(
+            model_name = model_name, model_path=model_path, target_db=mel.DatasetType.KaggleMB.name, \
+                target_network = target_network, \
+                    testlabels = np.array(testdata['testlabels']), test_pred_classes = test_pred_classes
+        )
+
+        performance = {
+            'y_pred': test_pred_classes.tolist(),
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['macro avg']['precision'],
+            'sensitivity': test_report['Malignant']['recall'],
+            'specificity': test_report['Benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+
+        return performance
