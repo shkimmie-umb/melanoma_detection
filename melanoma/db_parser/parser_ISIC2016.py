@@ -189,7 +189,10 @@ class parser_ISIC2016(Parser):
         # 	assert label == df_test_ISIC2016.cell_type_binary[order]
         # 	img.save(f"{test_feature_folder}/{label}/{testset_ISIC2016.image[order][2].stem}.jpg", quality=100, subsampling=0)
 
-        filename = f'{datasetname}_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
+        if self.square_size is None:
+            filename = f'{datasetname}_nonsquared_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
+        elif self.square_size is not None:
+            filename = f'{datasetname}_{self.square_size}_squared_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
 
         # assert len(trainimages_bytes) + len(validationimages_bytes) == 900
         # assert len(trainimages_bytes) == df_training_ISIC2016.shape[0]*(1-split_ratio)
@@ -225,35 +228,35 @@ class parser_ISIC2016(Parser):
         if augment_ratio is not None and augment_ratio >= 1.0:
 
 
-            df_mel_augmented, df_non_mel_augmented, trainpixels_ISIC2016_augmented, \
-            trainlabels_binary_ISIC2016_augmented, trainids_augmented = \
+            mel_cnt, non_mel_cnt, trainimages_augmented, \
+            trainlabels_augmented, trainids_augmented = \
             self.preprocessor.augmentation(
                 train_rgb_folder=self.train_rgb_folder, 
-                labels=labels, 
-                trainimages=trainpixels_ISIC2016, 
-                trainlabels=trainlabels_binary_ISIC2016,
                 square_size = self.square_size, 
                 resize_width = self.resize_width, 
                 resize_height = self.resize_height, 
                 augment_ratio = augment_ratio, 
-                df_trainset = df_training_ISIC2016
+                df_trainset = trainset_ISIC2016
             )
 
-            trainids_new = trainids + trainids_augmented
+            
+            assert len(trainimages_augmented) == len(trainlabels_augmented) and \
+                    len(trainlabels_augmented) == len(trainids_augmented)
+            
 
 
-            filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
+            filename_aug = f'{datasetname}_augmentedWith_{mel_cnt}Melanoma_{non_mel_cnt}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
 
 
             # create HDF5 file
             self.generateHDF5(path=self.path, filename=filename_aug, 
-                            trainpxs=trainpixels_ISIC2016_augmented, 
+                            trainpxs=trainimages_augmented, 
                             testpxs=testpixels_ISIC2016, 
                             validationpxs=validationpixels_ISIC2016,
-                            trainids=trainids_new, 
+                            trainids=trainids_augmented, 
                             testids=testids,
                             validationids=validationids,
-                            trainlabels=trainlabels_binary_ISIC2016_augmented,
+                            trainlabels=trainlabels_augmented,
                             testlabels=testlabels_binary_ISIC2016,
                             validationlabels=validationlabels_binary_ISIC2016
                             )
