@@ -5,26 +5,30 @@ import Augmentor as am
 import albumentations as A
 import pathlib
 import os
+import cv2
+# import torchvision.transforms as transforms
 
 class AugmentationStrategy:
     # def augmentation(self, img_height, img_width, rotation, zoom):
     #     pass
-    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
+    def augmentation(self, input_img=None, square_size=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
         pass
     def augment_and_save(self):
         pass
 
 class crop_flip_brightnesscontrast(AugmentationStrategy):
     @staticmethod
-    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip,
+    def augmentation(input_img, square_size, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip,
     p_randomBrightnessContrast):
         center_crop_size = min(input_img.shape[0:-1]) # (height, width, channel)
         transform = A.Compose([
+            # A.Equalize(),
             A.CenterCrop(height=center_crop_size, width=center_crop_size),
-            A.Resize(height=256, width=256),
-            A.Rotate(limit=(-90, 90), p=p_rotation),
-            A.Affine(scale=(zoomout, zoomin), p=p_scaling),
+            A.Resize(height=256, width=256, interpolation=cv2.INTER_LANCZOS4),
+            A.Rotate(limit=(-45, 45), p=p_rotation, interpolation=cv2.INTER_LANCZOS4),
+            A.Affine(scale=(zoomout, zoomin), p=p_scaling, interpolation=cv2.INTER_LANCZOS4),
             A.RandomCrop(width=crop_width, height=crop_height),
+            # A.Normalize(),
             A.VerticalFlip(p=p_vflip),
             A.HorizontalFlip(p=p_hflip),
             # A.RandomBrightnessContrast(p=p_randomBrightnessContrast),
@@ -32,11 +36,24 @@ class crop_flip_brightnesscontrast(AugmentationStrategy):
 
         transformed = transform(image=input_img)
 
+        # transform = transforms.Compose([
+        #     # A.CenterCrop(height=center_crop_size, width=center_crop_size),
+        #     transforms.Resize(size=(256, 256)),
+        #     transforms.Rotate(limit=(-30, 30), p=p_rotation),
+        #     transforms.Affine(scale=(zoomout, zoomin), p=p_scaling, keep_ratio=True),
+        #     transforms.RandomCrop(width=crop_width, height=crop_height),
+        #     # A.Equalize(),
+        #     # A.VerticalFlip(p=p_vflip),
+        #     # A.HorizontalFlip(p=p_hflip),
+        # ])
+
+        # transformed = transform(input_img)
+
         return transformed
 
 class crop_flip(AugmentationStrategy):
     @staticmethod
-    def augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast):
+    def augmentation(input_img, square_size, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast):
 
         transform = A.Compose([
             A.Rotate(limit=(-45, 45), p=p_rotation),
@@ -102,8 +119,8 @@ class Augmentation:
     def __init__(self, strategy):
         self._strategy = strategy
 
-    def augmentation(self, input_img=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
-        return self._strategy.augmentation(input_img, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast)
+    def augmentation(self, input_img=None, square_size=None, crop_height=None, crop_width=None, zoomout=None, zoomin=None, p_scaling=None, p_rotation=None, p_hflip=None, p_vflip=None, p_randomBrightnessContrast=None):
+        return self._strategy.augmentation(input_img, square_size, crop_height, crop_width, zoomout, zoomin, p_scaling, p_rotation, p_hflip, p_vflip, p_randomBrightnessContrast)
     
     def augment_and_save(self, class_names, path, numSamplesToAdd, probability=0.7, max_left_rotation=10, max_right_rotation=10):
         return self._strategy.augment_and_save(class_names, path, numSamplesToAdd, probability, max_left_rotation, max_right_rotation)

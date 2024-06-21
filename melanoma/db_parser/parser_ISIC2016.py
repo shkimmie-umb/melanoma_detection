@@ -91,6 +91,7 @@ class parser_ISIC2016(Parser):
         lambda x:(
             img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
                                                          resize_width=self.resize_width, resize_height=self.resize_height)),
+            # img := self.encode(load_img(path=x, target_size=(self.resize_height, self.resize_width))),
             currentPath := pathlib.Path(x), # [1]: PosixPath
             )
         )
@@ -100,6 +101,7 @@ class parser_ISIC2016(Parser):
         lambda x:(
             img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
                                                 resize_width=self.resize_width, resize_height=self.resize_height)),
+            # img := self.encode(load_img(path=x, target_size=(self.resize_height, self.resize_width))),
             currentPath := pathlib.Path(x), # [1]: PosixPath
             )
         )
@@ -132,6 +134,7 @@ class parser_ISIC2016(Parser):
         self.preprocessor.saveNumpyImagesToFiles(trainset_ISIC2016, df_training_ISIC2016, self.train_rgb_folder)
         self.preprocessor.saveNumpyImagesToFiles(validationset_ISIC2016, df_training_ISIC2016, self.val_rgb_folder)
         self.preprocessor.saveNumpyImagesToFiles(testset_ISIC2016, df_test_ISIC2016, self.test_rgb_folder)
+        self.preprocessor.saveNumpyImagesToFiles(df_training_ISIC2016, df_training_ISIC2016, self.whole_rgb_folder)
 
 
         # ISIC2016 binary images/labels

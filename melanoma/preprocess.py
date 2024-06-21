@@ -131,14 +131,24 @@ class Preprocess:
         # This makes images square
         
         if square_size is not None:
-            img = self.squareImgs(path, square_size)
+            # img = self.squareImgs(path, square_size)
+            img = load_img(path=path, target_size=None)
+            np_img = img_to_array(img=img, dtype='uint8')
+            center_crop_size = min(np_img.shape[0:-1]) # (height, width, channel)
+            transform = A.Compose([
+            A.CenterCrop(height=center_crop_size, width=center_crop_size),
+            A.Resize(width=resize_width, height=resize_height),
+            ])
+            transformed = transform(image=np_img)
+
+            return array_to_img(transformed['image']).convert('RGB')
         elif square_size is None:
             img = load_img(path=path, target_size=None)
         
-        if resize_width is not None and resize_height is not None:
+        # if resize_width is not None and resize_height is not None:
             
-            # This resizes all square images into desired size
-            img = img.resize(size=(resize_width, resize_height), resample=Image.NEAREST)
+        #     # This resizes all square images into desired size
+        #     img = img.resize(size=(resize_width, resize_height), resample=Image.NEAREST)
 
         return img
 
@@ -147,11 +157,11 @@ class Preprocess:
 
     
     def augmentation(self, train_rgb_folder, square_size, resize_width, resize_height, augment_ratio, df_trainset):
-        def aug_logic(df_mel, df_non_mel):
+        def aug_logic(df_mel, df_non_mel, make_50_50=False):
             augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
 
-            df_smaller_augmented = pd.DataFrame(data=None, columns=df_trainset.columns)
-            df_larger_augmented = pd.DataFrame(data=None, columns=df_trainset.columns)
+            df_augmented_cls0 = pd.DataFrame(data=None, columns=df_trainset.columns)
+            df_augmented_cls1 = pd.DataFrame(data=None, columns=df_trainset.columns)
 
             mel_cnt = df_mel.shape[0]
             non_mel_cnt = df_non_mel.shape[0]
@@ -163,64 +173,57 @@ class Preprocess:
                 larger_cls = df_non_mel
                 smaller_cls = df_mel
 
-            for i in range(smaller_cls.shape[0], math.ceil(larger_cls.shape[0] * augment_ratio)):
-                random_idx = random.choice(smaller_cls.index)
-                assert smaller_cls.path[random_idx] == df_trainset.path[random_idx]
+            def do_augmentation(each_df, df_augmented, df_trainset, square_size, resize_width, resize_height):
+                random_idx = random.choice(each_df.index)
+                assert each_df.path[random_idx] == df_trainset.path[random_idx]
 
-                img = self.squareImgs(path=df_trainset.path[random_idx], square_size=square_size)
-                np_img = img_to_array(img)
+                # img = self.squareImgs(path=df_trainset.path[random_idx], square_size=square_size)
+                # Center crop & Resize
+                img = load_img(path=df_trainset.path[random_idx], target_size=None)
+                np_img = img_to_array(img=img, dtype='uint8')
                 # df_mel_augmented.iloc[j] = df_trainset.loc[randmel_idx]
-                df_smaller_augmented = pd.concat([df_smaller_augmented, df_trainset.loc[[random_idx]]], ignore_index=True)
+                df_augmented = pd.concat([df_augmented, df_trainset.loc[[random_idx]]], ignore_index=True)
                 augmented_img = augMethod.augmentation(
                     input_img=np_img,
+                    square_size=square_size,
                     crop_height=resize_height, 
                     crop_width=resize_width, 
                     zoomout=1.0, 
-                    zoomin=1.1, 
+                    zoomin=1.2, 
                     p_scaling=0.5, 
                     p_rotation=0.5, 
                     p_hflip=0.5, 
                     p_vflip=0.5,
                     p_randomBrightnessContrast=0.5)
                 pil_aug = mel.Parser.encode(array_to_img(augmented_img['image']))
-                # df_smaller_augmented.loc[df_smaller_augmented.index[-1], 'image'] = None
-                df_smaller_augmented.loc[df_smaller_augmented.index[-1], 'image'] = pil_aug
-                # df_mel_augmented.tail(1)['image'] = mel.Parser.encode(array_to_img(augmented_img['image']))
-                
+                df_augmented.loc[df_augmented.index[-1], 'image'] = pil_aug
 
-            # non-melanoma augmentation here
+                return df_augmented
+                
+            # Whatever the class with less images, we augment to the # of other class X augment_ratio
+            for i in range(smaller_cls.shape[0], math.ceil(larger_cls.shape[0] * augment_ratio)):
+                df_augmented_cls0 = do_augmentation(
+                                each_df=smaller_cls,
+                                df_augmented=df_augmented_cls0,
+                                df_trainset=df_trainset,
+                                square_size=square_size,
+                                resize_width=resize_width,
+                                resize_height=resize_height)
+            # Whatever the class with more images, we augment to the # of the class itself X augment_ratio
             for i in range(larger_cls.shape[0], math.ceil(larger_cls.shape[0] * augment_ratio)):
-                random_idx = random.choice(larger_cls.index)
-                assert larger_cls.path[random_idx] == df_trainset.path[random_idx]
-                # img = Image.open(df_trainset.path[randnonmel_idx]).convert("RGB")
-                # img = load_img(path=df_trainset.path[randnonmel_idx], target_size=None)
-                img = self.squareImgs(path=df_trainset.path[random_idx], square_size=square_size)
-                np_img = img_to_array(img)
-                
-                df_larger_augmented = pd.concat([df_larger_augmented, df_trainset.loc[[random_idx]]], ignore_index=True)
-                
-                augmented_img = augMethod.augmentation(
-                    input_img=np_img, 
-                    crop_height=resize_height, 
-                    crop_width=resize_width, 
-                    zoomout=1.0, 
-                    zoomin=1.1, 
-                    p_scaling=0.5, 
-                    p_rotation=0.5, 
-                    p_hflip=0.5, 
-                    p_vflip=0.5,
-                    p_randomBrightnessContrast=0.5)
-                
-                pil_aug = mel.Parser.encode(array_to_img(augmented_img['image']))
-                # df_larger_augmented.loc[df_larger_augmented.index[-1], 'image'] = None
-                df_larger_augmented.loc[df_larger_augmented.index[-1], 'image'] = pil_aug
+                df_augmented_cls1 = do_augmentation(
+                                each_df=larger_cls,
+                                df_augmented=df_augmented_cls1,
+                                df_trainset=df_trainset,
+                                square_size=square_size,
+                                resize_width=resize_width,
+                                resize_height=resize_height)
 
-            df_augmented = pd.concat([df_smaller_augmented, df_larger_augmented], ignore_index=True, axis=0)
+            df_augmented = pd.concat([df_augmented_cls0, df_augmented_cls1], ignore_index=True, axis=0)
             # df_mel_augmented = df_augmented[df_augmented.cell_type_binary == 'Melanoma']
             # df_non_mel_augmented = df_augmented[df_augmented.cell_type_binary == 'Non-Melanoma']
 
             return df_augmented
-        # df_trainset = df_trainset.reset_index()
 
 
         df_mel = df_trainset[df_trainset.cell_type_binary=='Melanoma']

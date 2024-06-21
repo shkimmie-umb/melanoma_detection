@@ -81,7 +81,7 @@ cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = 10)
 
 CFG = dict(
 			batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  100,   # 5; 10; 20;
+			epochs                =  180,   # 5; 10; 20;
 			last_trainable_layers =   0,
 			verbose               =   0,   # 0; 1
 			fontsize              =  14,
@@ -119,7 +119,7 @@ CFG = dict(
 			experiment_aug = f'{DBname}_aug_{CLASSIFIER}_{IMG_SIZE[0]}h_{IMG_SIZE[1]}w_{JOB_INDEX}',
 		)
 # base_model = mel.CNN(CFG=CFG)
-commondata = mel.CommonData()
+# commondata = mel.CommonData()
 
 
 # Training DBs with Networks
@@ -140,7 +140,8 @@ combined_data = mel.Util.combineDatasets(aug_dbs)
 
 # Original images training (No augmentation)
 model_name = CFG['experiment_aug']
-model = mel.CNN.transfer(commondata.classifierDict[CLASSIFIER], CFG)
+# model = mel.CNN.transfer(commondata.classifierDict[CLASSIFIER], CFG)
+model = mel.CommonData.model_caller(CLASSIFIER, CFG)
 
 trainimages = combined_data['trainimages']
 trainlabels = combined_data['trainlabels']
