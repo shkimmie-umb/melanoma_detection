@@ -25,14 +25,16 @@ class Parser:
 
         self.logger = logging.getLogger('Melanoma classification')
         self.logger.setLevel(logging.DEBUG)
-        self.square_size = square_size
         self.pseudo_num = pseudo_num
-        self.resize_width = image_resize[1]
-        self.resize_height = image_resize[0]
+        if square_size is not None:
+            self.square_size = square_size
+        if image_resize is not (None, None):
+            self.resize_width = image_resize[1]
+            self.resize_height = image_resize[0]
         self.split_ratio = split_ratio
         self.uniform_normalization = uniform_normalization
 
-        self.classes_melanoma_binary = ['Non-Melanoma', 'Melanoma']
+        self.classes_melanoma_binary = ['benign', 'malignant']
 
         if uniform_normalization is False:
             networkname = networktype.name
@@ -40,8 +42,8 @@ class Parser:
             networkname = 'uniform01'
 
         self.common_binary_label = {
-			0.0: 'Non-Melanoma',
-			1.0: 'Melanoma',
+			0.0: 'benign',
+			1.0: 'malignant',
 		}
 
         self.path = str(self.base_dir) + '/melanomaDB' + '/customDB' + '/' + networkname

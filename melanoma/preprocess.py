@@ -129,28 +129,18 @@ class Preprocess:
     
     def squareImgsAndResize(self, path, square_size, resize_width, resize_height):
         # This makes images square
-        
-        if square_size is not None:
-            # img = self.squareImgs(path, square_size)
-            img = load_img(path=path, target_size=None)
-            np_img = img_to_array(img=img, dtype='uint8')
-            center_crop_size = min(np_img.shape[0:-1]) # (height, width, channel)
-            transform = A.Compose([
+
+        # img = self.squareImgs(path, square_size)
+        img = load_img(path=path, target_size=None)
+        np_img = img_to_array(img=img, dtype='uint8')
+        center_crop_size = min(np_img.shape[0:-1]) # (height, width, channel)
+        transform = A.Compose([
             A.CenterCrop(height=center_crop_size, width=center_crop_size),
             A.Resize(width=resize_width, height=resize_height),
-            ])
-            transformed = transform(image=np_img)
+        ])
+        transformed = transform(image=np_img)
 
-            return array_to_img(transformed['image']).convert('RGB')
-        elif square_size is None:
-            img = load_img(path=path, target_size=None)
-        
-        # if resize_width is not None and resize_height is not None:
-            
-        #     # This resizes all square images into desired size
-        #     img = img.resize(size=(resize_width, resize_height), resample=Image.NEAREST)
-
-        return img
+        return array_to_img(transformed['image']).convert('RGB')
 
 
 
@@ -289,15 +279,6 @@ class Preprocess:
 
 
     def saveNumpyImagesToFiles(self, df, original_df, base_path):
-        # def assert_(cond): assert cond
-        # return df.index.map(lambda x: (
-        #         print(df.image[x][1]),
-        #         img := load_img(path=df.image[x][1], target_size=None),
-		# 		currentPath_train := pathlib.Path(df.image[x][1]), # [0]: Encoded PIL obj, [1]: PosixPath
-		# 		label := df.cell_type_binary[x],
-		# 		assert_(label == original_df.cell_type_binary[x]),
-		# 		img.save(f"{base_path}/{label}/{currentPath_train.name}", quality=100, subsampling=0)
-		# 	))
         for idx, sliced_idx in enumerate(df.index):
             # Print will make the logic fail
             # print(df.image[sliced_idx][1])

@@ -9,7 +9,11 @@ class parser_ISIC2018(Parser):
                          split_ratio = split_ratio, image_resize = image_resize, networktype = networktype,
                            uniform_normalization = uniform_normalization)
         
-        
+        # ISIC2018
+        self.classes_training_ISIC2018 = {
+            'benign' : 'benign',
+            'malignant' : 'malignant',
+        }
 
 
     def saveDatasetToFile(self, augment_ratio=None):
@@ -17,9 +21,9 @@ class parser_ISIC2018(Parser):
 
         self.makeFolders(datasetname)
 
-        ISIC2018_training_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Training_Input')
-        ISIC2018_val_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Validation_Input')
-        ISIC2018_test_path = pathlib.Path.joinpath(self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Test_Input')
+        ISIC2018_training_path = pathlib.Path.joinpath(self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Training_Input')
+        ISIC2018_val_path = pathlib.Path.joinpath(self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Validation_Input')
+        ISIC2018_test_path = pathlib.Path.joinpath(self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Test_Input')
 
         num_train_img_ISIC2018 = len(list(ISIC2018_training_path.glob('./*.jpg'))) # counts all ISIC2018 training images
         num_val_img_ISIC2018 = len(list(ISIC2018_val_path.glob('./*.jpg'))) # counts all ISIC2018 validation images
@@ -34,20 +38,20 @@ class parser_ISIC2018(Parser):
         self.logger.debug('%s %s', f"Images available in {datasetname} test dataset:", num_test_img_ISIC2018)
 
         # ISIC2018: Dictionary for Image Names
-        imageid_path_training_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_training_path, '*.jpg'))}
-        imageid_path_val_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_val_path, '*.jpg'))}
-        imageid_path_test_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_test_path, '*.jpg'))}
+        imageid_path_training_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_training_path, '*.*'))}
+        imageid_path_val_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_val_path, '*.*'))}
+        imageid_path_test_dict_ISIC2018 = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(ISIC2018_test_path, '*.*'))}
 
         
         # ISIC2018_columns = ['image_id', 'label']
         df_training_ISIC2018 = pd.read_csv(str(pathlib.Path.joinpath(
-            self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Training_GroundTruth', './ISIC2018_Task3_Training_GroundTruth.csv')),
+            self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Training_GroundTruth', './ISIC2018_Task3_Training_GroundTruth.csv')),
             header=0)
         df_val_ISIC2018 = pd.read_csv(str(pathlib.Path.joinpath(
-            self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Validation_GroundTruth', './ISIC2018_Task3_Validation_GroundTruth.csv')),
+            self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Validation_GroundTruth', './ISIC2018_Task3_Validation_GroundTruth.csv')),
             header=0)
         df_test_ISIC2018 = pd.read_csv(str(pathlib.Path.joinpath(
-            self.base_dir, './melanomaDB', f'./{datasetname}', './ISIC2018_Task3_Test_GroundTruth', './ISIC2018_Task3_Test_GroundTruth.csv')),
+            self.base_dir, f'./{datasetname}', './ISIC2018_Task3_Test_GroundTruth', './ISIC2018_Task3_Test_GroundTruth.csv')),
             header=0)
 
         assert df_training_ISIC2018.shape[0] == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2018]['trainimages']
@@ -88,28 +92,22 @@ class parser_ISIC2018(Parser):
         
         df_training_ISIC2018['image'] = df_training_ISIC2018.path.map(
             lambda x:(
-                img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
-                                                            resize_width=self.resize_width, resize_height=self.resize_height)),
+                img := self.encode(load_img(path=x, target_size=None)),
                 currentPath := pathlib.Path(x), # [1]: PosixPath
-            )
-        )
+            ))
         
         df_val_ISIC2018['image'] = df_val_ISIC2018.path.map(
             lambda x:(
-                img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
-                                                            resize_width=self.resize_width, resize_height=self.resize_height)),
+                img := self.encode(load_img(path=x, target_size=None)),
                 currentPath := pathlib.Path(x), # [1]: PosixPath
-            )
-        )
+            ))
 
         
         df_test_ISIC2018['image'] = df_test_ISIC2018.path.map(
             lambda x:(
-                img := self.encode(self.preprocessor.squareImgsAndResize(path=x, square_size=self.square_size,
-                                                            resize_width=self.resize_width, resize_height=self.resize_height)),
+                img := self.encode(load_img(path=x, target_size=None)),
                 currentPath := pathlib.Path(x), # [1]: PosixPath
-            )
-        )
+            ))
 
 
 
@@ -174,7 +172,12 @@ class parser_ISIC2018(Parser):
         # assert testimages_ISIC2018.shape[0] == testlabels_binary_ISIC2018.shape[0]
         # trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
 
-        filename = f'{datasetname}_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
+        # if self.square_size is None:
+        #     filename = f'{datasetname}_nonsquared_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
+        # elif self.square_size is not None:
+        #     filename = f'{datasetname}_{self.square_size}_squared_{self.resize_height}h_{self.resize_height}w_binary.h5' # height x width
+        filename = f'{datasetname}_binary.h5' # height x width
+
         self.generateHDF5(path=self.path, filename=filename, 
                         trainpxs=trainpixels_ISIC2018,
                         testpxs=testpixels_ISIC2018,
@@ -200,35 +203,35 @@ class parser_ISIC2018(Parser):
 
         if augment_ratio is not None and augment_ratio >= 1.0:
 
-            df_mel_augmented, df_non_mel_augmented, trainpixels_ISIC2018_augmented, \
-            trainlabels_binary_ISIC2018_augmented, trainids_augmented = \
+            mel_cnt, non_mel_cnt, trainimages_augmented, \
+            trainlabels_augmented, trainids_augmented = \
             self.preprocessor.augmentation(
                 train_rgb_folder=self.train_rgb_folder, 
-                labels=labels, 
-                trainimages=trainpixels_ISIC2018,
-                trainlabels=trainlabels_binary_ISIC2018,
                 square_size = self.square_size, 
                 resize_width = self.resize_width, 
                 resize_height = self.resize_height, 
                 augment_ratio = augment_ratio, 
-                df_trainset = df_training_ISIC2018
+                df_trainset = trainset_ISIC2018
             )
 
-            trainids_new = trainids + trainids_augmented
+            
+            assert len(trainimages_augmented) == len(trainlabels_augmented) and \
+                    len(trainlabels_augmented) == len(trainids_augmented)
+            
 
 
-            filename_aug = f'{datasetname}_augmentedWith_{df_mel_augmented.shape[0]}Melanoma_{df_non_mel_augmented.shape[0]}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
+            filename_aug = f'{datasetname}_augmentedWith_{mel_cnt}Melanoma_{non_mel_cnt}Non-Melanoma_{self.resize_height}h_{self.resize_width}w_binary.h5'
 
 
             # create HDF5 file
             self.generateHDF5(path=self.path, filename=filename_aug, 
-                            trainpxs=trainpixels_ISIC2018_augmented, 
-                            testpxs=testpixels_ISIC2018,
+                            trainpxs=trainimages_augmented, 
+                            testpxs=testpixels_ISIC2018, 
                             validationpxs=validationpixels_ISIC2018,
-                            trainids=trainids_new, 
+                            trainids=trainids_augmented, 
                             testids=testids,
                             validationids=validationids,
-                            trainlabels=trainlabels_binary_ISIC2018_augmented,
+                            trainlabels=trainlabels_augmented,
                             testlabels=testlabels_binary_ISIC2018,
                             validationlabels=validationlabels_binary_ISIC2018
                             )
