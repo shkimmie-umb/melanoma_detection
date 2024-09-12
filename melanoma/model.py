@@ -9,7 +9,7 @@ from tensorflow.keras.layers import (
     Input, Dense, Conv2D, Flatten, Activation, Dropout, BatchNormalization,
     MaxPooling2D, AveragePooling2D, ZeroPadding2D, GlobalAveragePooling2D, GlobalMaxPooling2D, add
 )
-from keras.layers.merge import concatenate
+# from keras.layers.merge import concatenate
 
 from tensorflow.python.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.preprocessing import image
@@ -33,7 +33,7 @@ from sklearn.utils import class_weight
 from collections import Counter
 
 from warnings import filterwarnings
-from keras.preprocessing.image import img_to_array
+# from keras.preprocessing.image import img_to_array
 
 import gc
 

@@ -12,7 +12,7 @@ from tensorflow.keras.layers import (
     Input, Dense, Conv2D, Activation, Dropout, BatchNormalization,
     GlobalAveragePooling2D, GlobalMaxPooling2D, ZeroPadding2D, add, average
 )
-from keras.layers.merge import concatenate
+# from keras.layers.merge import concatenate
 from tensorflow.keras.regularizers import l2
 
 from tensorflow.keras.applications.vgg16 import VGG16

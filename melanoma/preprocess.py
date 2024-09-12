@@ -18,7 +18,7 @@ from glob import glob
 import albumentations as A
 import io
 
-from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
+# from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
 
 
 	
@@ -277,15 +277,15 @@ class Preprocess:
     
 
 
-
-    def saveNumpyImagesToFiles(self, df, original_df, base_path):
+    @staticmethod
+    def saveNumpyImagesToFiles(df, base_path):
         for idx, sliced_idx in enumerate(df.index):
             # Print will make the logic fail
             # print(df.image[sliced_idx][1])
             img = mel.Parser.decode(df['image'][sliced_idx][0])
             currentPath = pathlib.Path(df['image'][sliced_idx][1])
             label = df.cell_type_binary[sliced_idx]
-            assert label == original_df.cell_type_binary[sliced_idx]
+            # assert label == original_df.cell_type_binary[sliced_idx]
             img.save(f"{base_path}/{label}/{currentPath.stem}.jpg")
 
     

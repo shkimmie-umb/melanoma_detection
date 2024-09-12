@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 import h5py
 from sklearn.model_selection import train_test_split
-from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
-from keras.preprocessing.image import img_to_array, load_img, array_to_img
+# from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
+# from keras.preprocessing.image import img_to_array, load_img, array_to_img
 from tensorflow.keras.models import load_model
 
 
@@ -19,50 +19,32 @@ import melanoma as mel
 
 class Parser:
     
-    def __init__(self, base_dir, square_size=None, pseudo_num = 2, split_ratio=0.2, 
-                 image_resize=(None, None), networktype=None, uniform_normalization=True):
-        self.base_dir = pathlib.Path(base_dir)
+    def __init__(self, base_dir, pseudo_num = 2, split_ratio=0.2):
+        # self.base_dir = pathlib.Path(base_dir)
 
+        self.base_dir = base_dir
         self.logger = logging.getLogger('Melanoma classification')
         self.logger.setLevel(logging.DEBUG)
         self.pseudo_num = pseudo_num
-        if square_size is not None:
-            self.square_size = square_size
-        if image_resize is not (None, None):
-            self.resize_width = image_resize[1]
-            self.resize_height = image_resize[0]
         self.split_ratio = split_ratio
-        self.uniform_normalization = uniform_normalization
+        
 
         self.classes_melanoma_binary = ['benign', 'malignant']
 
-        if uniform_normalization is False:
-            networkname = networktype.name
-        elif uniform_normalization is True:
-            networkname = 'uniform01'
+        
 
         self.common_binary_label = {
 			0.0: 'benign',
 			1.0: 'malignant',
 		}
 
-        self.path = str(self.base_dir) + '/melanomaDB' + '/customDB' + '/' + networkname
-		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
-        isExist = os.path.exists(self.path)
-        if not isExist :
-            os.makedirs(self.path)
-        else:
-            pass
-
-        print("path: ", self.base_dir)
+        
 		
 		# Dataset path define
 		
-        now = datetime.now() # current date and time
+        
 
-        self.date_time = now.strftime("%m_%d_%Y_%H:%M")
-
-        self.preprocessor = mel.Preprocess()
+        # self.preprocessor = mel.Preprocess()
 
     @staticmethod
     def encode(img_pil):
@@ -243,28 +225,32 @@ class Parser:
 
     def makeFolders(self, datasetname):
         
-        
-        debug_rgb_folder = self.path + f'/debug/{datasetname}/RGB_resized/'+f'{self.resize_height}h_{self.resize_width}w_{self.date_time}'
-        debug_feature_folder = self.path + f'/debug/{datasetname}/feature/'+f'{self.resize_height}h_{self.resize_width}w_{self.date_time}'
-        debugRgbFolderExist = os.path.exists(debug_rgb_folder)
-        debugFeatureFolderExist = os.path.exists(debug_feature_folder)
-        if not debugRgbFolderExist :
-            os.makedirs(debug_rgb_folder)
+        path = os.path.join(self.base_dir, 'data', 'melanomaDB', datasetname)
+		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
+        isExist = os.path.exists(path)
+        if not isExist :
+            os.makedirs(path)
         else:
             pass
-        if not debugFeatureFolderExist :
-            os.makedirs(debug_feature_folder)
-        else:
-            pass
-        self.whole_rgb_folder = debug_rgb_folder + '/Whole'
-        self.train_rgb_folder = debug_rgb_folder + '/Train'
-        self.val_rgb_folder = debug_rgb_folder + '/Val'
-        self.test_rgb_folder = debug_rgb_folder + '/Test'
 
-        self.whole_feature_folder = debug_feature_folder + '/Whole'
-        self.train_feature_folder = debug_feature_folder + '/Train'
-        self.val_feature_folder = debug_feature_folder + '/Val'
-        self.test_feature_folder = debug_feature_folder + '/Test'
+        print("path: ", path)
+
+        now = datetime.now() # current date and time
+
+        date_time = now.strftime("%m_%d_%Y_%H:%M")
+        
+        rgb_folder = os.path.join(path, date_time)
+        rgbFolderExist = os.path.exists(rgb_folder)
+        
+        if not rgbFolderExist :
+            os.makedirs(rgb_folder)
+        else:
+            pass
+        
+        self.whole_rgb_folder = rgb_folder + '/Whole'
+        self.train_rgb_folder = rgb_folder + '/Train'
+        self.val_rgb_folder = rgb_folder + '/Val'
+        self.test_rgb_folder = rgb_folder + '/Test'
 
 
 
@@ -272,20 +258,8 @@ class Parser:
         self.isTrainRGBExist = os.path.exists(self.train_rgb_folder)
         self.isValRGBExist = os.path.exists(self.val_rgb_folder)
         self.isTestRGBExist = os.path.exists(self.test_rgb_folder)
-        self.isWholeFeatureExist = os.path.exists(self.whole_feature_folder)
-        self.isTrainFeatureExist = os.path.exists(self.train_feature_folder)
-        self.isValFeatureExist = os.path.exists(self.val_feature_folder)
-        self.isTestFeatureExist = os.path.exists(self.test_feature_folder)
-
-        pd.set_option('display.max_columns', 500)
-
-        # Given lesion types
-
-
-        # Not required for pickled data
-        # resize() order: (width, height)
         
         
 
-    def saveDatasetToFile(self, augment_ratio=None):
+    def saveDatasetToFile(self):
         pass

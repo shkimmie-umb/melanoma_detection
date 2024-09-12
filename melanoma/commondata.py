@@ -136,8 +136,14 @@ class CommonData:
                   },
             mel.DatasetType.ISIC2018: {
                   "trainimages": 10015,
+                  "trainimgs_benign": 8902,
+                  "trainimgs_malignant": 1113,
                   "validationimages": 193,
-                  "testimages": 1512
+                  "validationimgs_benign": 172,
+                  "validationimgs_malignant": 21,
+                  "testimages": 1512,
+                  "testimgs_benign": 1341,
+                  "testimgs_malignant": 171
                   },
             mel.DatasetType.ISIC2019: {
                   "trainimages": 25331,
