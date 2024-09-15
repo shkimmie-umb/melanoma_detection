@@ -126,8 +126,12 @@ class CommonData:
             },
             mel.DatasetType.ISIC2016: {
                   "trainimages": 900,
+                  "trainimgs_benign": 727,
+                  "trainimgs_malignant": 173,
                   "validationimages": 0,
                   "testimages": 379
+                  "testimgs_benign": 75,
+                  "testimgs_malignant": 304 
                   },
             mel.DatasetType.ISIC2017: {
                   "trainimages": 2000,

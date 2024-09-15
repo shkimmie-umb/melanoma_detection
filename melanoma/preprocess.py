@@ -286,7 +286,7 @@ class Preprocess:
             currentPath = pathlib.Path(df['image'][sliced_idx][1])
             label = df.cell_type_binary[sliced_idx]
             # assert label == original_df.cell_type_binary[sliced_idx]
-            img.save(f"{base_path}/{label}/{currentPath.stem}.jpg")
+            img.save(f"{base_path}/{label}/{currentPath.stem}.jpg", quality=95)
 
     
     # def saveNumpyImagesToFilesWithoutLabel(self, df, base_path):
