@@ -20,4 +20,4 @@ from .augmentationStrategy import *
 # from .util import NetworkType
 from .callback import SilentTrainingCallback
 from .preprocess import Preprocess
-from .commondata import *
+from .commondata import DatasetType, NetworkType, CommonData

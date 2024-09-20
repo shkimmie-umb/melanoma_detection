@@ -129,14 +129,20 @@ class CommonData:
                   "trainimgs_benign": 727,
                   "trainimgs_malignant": 173,
                   "validationimages": 0,
-                  "testimages": 379
+                  "testimages": 379,
                   "testimgs_benign": 75,
                   "testimgs_malignant": 304 
                   },
             mel.DatasetType.ISIC2017: {
                   "trainimages": 2000,
+                  "trainimgs_benign": 1626,
+                  "trainimgs_malignant": 374,
                   "validationimages": 150,
-                  "testimages": 600
+                  "validationimgs_benign": 120,
+                  "validationimgs_malignant": 30,
+                  "testimages": 600,
+                  "testimgs_benign": 483,
+                  "testimgs_malignant": 117
                   },
             mel.DatasetType.ISIC2018: {
                   "trainimages": 10015,
@@ -151,13 +157,17 @@ class CommonData:
                   },
             mel.DatasetType.ISIC2019: {
                   "trainimages": 25331,
+                  "trainimgs_benign": 20809,
+                  "trainimgs_malignant": 4522,
                   "validationimages": 0,
                   "testimages": 8238 # No ground truth
                   },
             mel.DatasetType.ISIC2020: {
                   "trainimages": 33126,
+                  "trainimgs_benign": 32542,
+                  "trainimgs_malignant": 584,
                   "validationimages": 0,
-                  "testimages": 10982
+                  "testimages": 10982 # No ground truth
                   },
             mel.DatasetType.PH2: {
                   "trainimages": 200,
@@ -166,24 +176,38 @@ class CommonData:
                   },
             mel.DatasetType._7_point_criteria: {
                   "trainimages": 413,
+                  "trainimgs_benign": 323,
+                  "trainimgs_malignant": 90,
                   "validationimages": 203,
-                  "testimages": 395
+                  "validationimgs_benign": 142,
+                  "validationimgs_malignant": 61,
+                  "testimages": 395,
+                  "testimgs_benign": 294,
+                  "testimgs_malignant": 101
                   },
             mel.DatasetType.PAD_UFES_20: {
                   "trainimages": 2298,
+                  "trainimgs_benign": 2246,
+                  "trainimgs_malignant": 52,
                   "validationimages": 0,
                   "testimages": 0
                   },
             mel.DatasetType.KaggleMB: {
             # train: 1440 benign, 1197 malignant; 
             # test: 360 benign + 300 malignant
-                  "trainimages": 1440+1197,
+                  "trainimages": 2637,
+                  "trainimgs_benign": 1440,
+                  "trainimgs_malignant": 1197,
                   "validationimages": 0,
-                  "testimages": 360+300
+                  "testimages": 660,
+                  "testimgs_benign": 360,
+                  "testimgs_malignant": 300
                   },
             mel.DatasetType.MEDNODE: {
-            # train: 70 melanoma, 100 naevus
-                  "trainimages": 70+100,
+            # train: 100 naevus, 70 melanoma
+                  "trainimages": 170,
+                  "trainimgs_benign": 100,
+                  "trainimgs_malignant": 70,
                   "validationimages": 0,
                   "testimages": 0
                   },

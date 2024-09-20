@@ -14,15 +14,20 @@ class parser_ISIC2019(Parser):
         self.makeFolders(datasetname)
 
         training_path = pathlib.Path(self.base_dir).joinpath('data', f'./{datasetname}', 'ISIC_2019_Training_Input')
+        test_path = pathlib.Path(self.base_dir).joinpath('data', f'./{datasetname}', 'ISIC_2019_Test_Input')
 
         num_train_img = len(list(training_path.glob('./*.jpg'))) # counts all ISIC2019 training images
+        num_test_img = len(list(test_path.glob('./*.jpg'))) # counts all ISIC2019 test images
 
         assert num_train_img == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2019]['trainimages']
+        assert num_test_img == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2019]['testimages']
 
         self.logger.debug('%s %s', f"Images available in {datasetname} train dataset:", num_train_img)
+        self.logger.debug('%s %s', f"Images available in {datasetname} test dataset:", num_test_img)
 
         # ISIC2019: Dictionary for Image Names
         imageid_path_training_dict = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(training_path, '*.*'))}
+        imageid_path_test_dict = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(test_path, '*.*'))}
 
         
         # ISIC2018_columns = ['image_id', 'label']

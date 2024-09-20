@@ -8,11 +8,7 @@ from PIL import Image
 from datetime import datetime
 import pandas as pd
 import numpy as np
-import h5py
 from sklearn.model_selection import train_test_split
-# from keras.utils.np_utils import to_categorical # convert to one-hot-encoding
-# from keras.preprocessing.image import img_to_array, load_img, array_to_img
-from tensorflow.keras.models import load_model
 
 
 import melanoma as mel
