@@ -51,7 +51,6 @@ class parser_KaggleMB(Parser):
 
         if not self.isWholeRGBExist or not self.isTrainRGBExist or not self.isValRGBExist or not self.isTestRGBExist:
             for i in labels:
-                os.makedirs(f"{self.whole_rgb_folder}/{i}", exist_ok=True)
                 os.makedirs(f"{self.train_rgb_folder}/{i}", exist_ok=True)
                 os.makedirs(f"{self.val_rgb_folder}/{i}", exist_ok=True)
                 os.makedirs(f"{self.test_rgb_folder}/{i}", exist_ok=True)

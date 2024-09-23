@@ -34,13 +34,13 @@ class CNN(Base_Model):
         
         model_ft = network(weights=weights)
 
-        for param in model_ft.parameters():
-            param.requires_grad = False
+        # for param in model_ft.parameters():
+        #     param.requires_grad = False
 
         # Freeze only the convolutional layers of the pre-trained model
-        # for param in model_ft.parameters():
-        #     if isinstance(param, nn.Conv2d):
-        #         param.requires_grad = False
+        for param in model_ft.parameters():
+            if isinstance(param, nn.Conv2d):
+                param.requires_grad = False
 
         num_ftrs = model_ft.fc.in_features
         # Here the size of each output sample is set to 2.

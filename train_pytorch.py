@@ -19,12 +19,7 @@ CLI.add_argument(
   type=str,
   default=[],  # default if nothing is provided
 )
-CLI.add_argument(
-  "--IMG_SIZE",
-  nargs="+",
-  type=int,  # any type/callable can be used here
-  action="store"
-)
+
 CLI.add_argument(
   "--CLASSIFIER",
   nargs="?",
@@ -48,19 +43,15 @@ assert set(args.DB).issubset(check_DBs)
 assert any(args.CLASSIFIER in item for item in check_Classifiers)
 
 print(f"DB: {args.DB}")
-print(f"IMG_SIZE: {args.IMG_SIZE}")
 print(f"CLASSIFIER: {args.CLASSIFIER}")
 print(f"JOB_INDEX: {args.JOB_INDEX}")
 
 DB = args.DB
-IMG_SIZE = tuple(args.IMG_SIZE)
 CLASSIFIER = args.CLASSIFIER
 JOB_INDEX = args.JOB_INDEX
 
 
 DBname = '+'.join(DB)
-
-img_size = IMG_SIZE # height, width
 
 # optimizer1 = Adam(learning_rate=1e-5)
 # optimizer2 = Adam(learning_rate=1e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-6, amsgrad=False)
@@ -71,7 +62,7 @@ CFG = dict(
       
       device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
 			# batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  100,   # 5; 10; 20;
+			epochs                =  30,   # 5; 10; 20;
 
 			# Model settings
       num_classes = None,
@@ -128,7 +119,7 @@ data_transforms = {
 
 print("Start training augmented images")
 
-dbs = list(itertools.chain.from_iterable([glob.glob(f'{CFG['db_path']}/{db}/final', recursive=True) for db in DB]))
+dbs = list(itertools.chain.from_iterable([glob.glob(f'{CFG["db_path"]}/{db}/final', recursive=True) for db in DB]))
 
 dataloaders, dataset_sizes = mel.Util.combineDatasets(dbs, preprocessing=data_transforms)
 CFG['num_classes'] = len(dataloaders['Train'].dataset.datasets[0].classes)

@@ -64,11 +64,8 @@ class parser_ISIC2019(Parser):
 
         if not self.isWholeRGBExist or not self.isTrainRGBExist or not self.isValRGBExist or not self.isTestRGBExist:
             for i in labels:
-                os.makedirs(f"{self.whole_rgb_folder}/{i}", exist_ok=True)
                 os.makedirs(f"{self.train_rgb_folder}/{i}", exist_ok=True)
                 os.makedirs(f"{self.val_rgb_folder}/{i}", exist_ok=True)
-                os.makedirs(f"{self.test_rgb_folder}/{i}", exist_ok=True)
-
         # Dividing ISIC2019 into train/val set
         trainset, validationset = train_test_split(df_training, test_size=0.2, random_state = self.pseudo_num)
 
