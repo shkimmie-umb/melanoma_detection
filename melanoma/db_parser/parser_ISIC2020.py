@@ -18,8 +18,8 @@ class parser_ISIC2020(Parser):
 
         self.makeFolders(datasetname)
 
-        training_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, './train')
-        test_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, './ISIC_2020_Test_Input')
+        training_path = pathlib.Path(self.base_dir).joinpath(datasetname, './train')
+        test_path = pathlib.Path(self.base_dir).joinpath(datasetname, './ISIC_2020_Test_Input')
 
         num_train_img = len(list(training_path.glob('./*.jpg'))) # counts all ISIC2020 training images
         num_test_img = len(list(test_path.glob('./*.jpg')))
@@ -37,7 +37,7 @@ class parser_ISIC2020(Parser):
         
         
         df_training = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(
-            'data', datasetname, './ISIC_2020_Training_GroundTruth.csv')), header=0)
+            datasetname, './ISIC_2020_Training_GroundTruth.csv')), header=0)
         # df_test = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(
         #     'data', datasetname, './ISIC_2020_Test_Metadata.csv')), header=0)
 

@@ -214,7 +214,7 @@ class Parser:
 
     def makeFolders(self, datasetname):
         
-        path = os.path.join(self.base_dir, 'data', 'melanomaDB', datasetname)
+        path = os.path.join(self.base_dir, 'melanomaDB', datasetname)
 		# data_gen_HAM10000, HAM10000_multiclass, HAM10000_binaryclass, data_gen_ISIC2016, ISIC2016_binaryclass = self.load(mode)
         isExist = os.path.exists(path)
         if not isExist :
