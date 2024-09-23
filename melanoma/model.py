@@ -1,34 +1,10 @@
 
 # Superclass
-import tensorflow as tf
-
-from tensorflow.keras import layers, regularizers
-from tensorflow.keras.models import Model, Sequential, load_model
-from tensorflow.keras.optimizers import Adam, SGD, RMSprop
-from tensorflow.keras.layers import (
-    Input, Dense, Conv2D, Flatten, Activation, Dropout, BatchNormalization,
-    MaxPooling2D, AveragePooling2D, ZeroPadding2D, GlobalAveragePooling2D, GlobalMaxPooling2D, add
-)
-# from keras.layers.merge import concatenate
-
-from tensorflow.python.keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-from tensorflow.keras.utils import plot_model
-
-from tensorflow.keras.applications.vgg16 import VGG16
-from tensorflow.keras.applications.vgg16 import preprocess_input
-from tensorflow.keras.applications.vgg19 import VGG19
-from tensorflow.keras.applications.vgg19 import preprocess_input
-from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from tensorflow.keras.applications.inception_v3 import InceptionV3
-from tensorflow.keras.applications.inception_v3 import preprocess_input
-
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
+
+import torch
 
 from collections import Counter
 
@@ -52,189 +28,93 @@ import openpyxl
 import itertools
 import glob
 import pathlib
+import time
+from tempfile import TemporaryDirectory
 
 import melanoma as mel
 
 
 class Model:
-    # img_height, img_width, class_names
-    
-    def __init__(self, CFG, train_images, train_labels, val_images, val_labels, test_images, test_labels):
+    def __init__(self):
         
-        # self.train_ds = train_ds
-        # self.val_ds = val_ds
-        self.train_images = train_images
-        self.train_labels = train_labels
-        self.val_images = val_images
-        self.val_labels = val_labels
-        self.test_images = test_images
-        self.test_labels = test_labels
-        self.CFG = CFG
-        # self.img_size = (CFG['img_height'], CFG['img_width'])
-        # self.image_shape = (CFG['img_height'], CFG['img_width'], 3)
-        # self.num_classes = CFG['num_classes']
-        
-        
-        
+        pass
 
-        # self.CFG_last_trainable_layers = self.CFG['last_trainable_layers']
-        # self.CFG_early_stopper_patience = self.CFG['stopper_patience']
-        # self.CFG_epochs = self.CFG['epochs']
-        # self.CFG_batch_size = self.CFG['batch_size']
-
-    def build_model(self,
-        base_model,
-        base_model_name,
-        model_optimizer,
-        raw_model = False,
-        last_trainable_layers = None,
-        model_loss = 'sparse_categorical_crossentropy'):
-            if last_trainable_layers is None:
-                last_trainable_layers = self.CFG['last_trainable_layers']
-            print(f'Building {base_model_name} model...')
-
-            # We reduce significantly number of trainable parameters by freezing certain layers,
-            # excluding from training, i.e. their weights will never be updated
-            for layer in base_model.layers:
-                layer.trainable = False
-
-            if 0 < last_trainable_layers < len(base_model.layers):
-                for layer in base_model.layers[-last_trainable_layers:]:
-                    layer.trainable = True
-
-            if raw_model == True:
-                model = base_model
-            else:
-                model = Sequential([
-                    base_model,
-
-                    Dropout(0.5),
-                    Dense(128, activation="relu", kernel_regularizer=regularizers.l2(0.02)),
-
-                    Dropout(0.5),
-                    Dense(self.num_classes, activation='softmax', kernel_regularizer=regularizers.l2(0.02)) # num classes = 9
-                ])
-
-            model.compile(
-                optimizer = model_optimizer,
-            # loss = tf.keras.losses.BinaryCrossentropy(label_smoothing = CFG['label_smooth_fac']),
-                loss = model_loss,
-                metrics=['accuracy']
-            )
-            
-            return model
-    
     @staticmethod
-    def fit_model( CFG, model, model_name, trainimages, trainlabels, validationimages, validationlabels):
-        def slice_data(images, labels, idxes, batch_size):
-            # start = idx
-            # end = start + batch_size
-            from operator import itemgetter
-            assert len(idxes) > 1 and batch_size > 1
-            
-            batch_idxes = random.choices(idxes, k=batch_size)
+    def train_model(conf, network, data, dataset_sizes):
+        since = time.time()
 
-            sliced_images = images[batch_idxes]
-            sliced_labels = labels[batch_idxes]
+        # Create a temporary directory to save training checkpoints
+        with TemporaryDirectory() as tempdir:
+            best_model_params_path = os.path.join(tempdir, 'best_model_params.pt')
 
-            # sliced_images = images[start:end]
-            # sliced_labels = labels[start:end]
+            torch.save(network.state_dict(), best_model_params_path)
+            best_acc = 0.0
 
-            assert len(sliced_images) == len(sliced_labels)
+            for epoch in range(conf['epochs']):
+                print(f"Epoch {epoch}/{conf['epochs'] - 1}")
+                print('-' * 10)
 
-            img_array = []
-            
-            for idx, img in enumerate(sliced_images):
-                decoded_img = img_to_array(mel.Parser.decode(img))
-                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
-                img_array.append(decoded_img)
-            img_array = np.array(img_array) # Convert list to numpy
+                # Each epoch has a training and validation phase
+                for phase in ['Train', 'Val']:
+                    if phase == 'Train':
+                        network.train()  # Set model to training mode
+                    else:
+                        network.eval()   # Set model to evaluate mode
 
-            return (img_array, sliced_labels)
+                    running_loss = 0.0
+                    running_corrects = 0
 
-        def batch_generator(images, labels, batch_size):
-            while True:
+                    # Iterate over data.
+                    for inputs, labels in data[phase]:
+                        inputs = inputs.to(conf['device'])
+                        labels = labels.to(conf['device'])
 
-                # index= random.randint(0, len(images)-1)
-                index = np.arange(len(images)-1)
-                reordered_indexes = np.random.permutation(index)
-                yield slice_data(images, labels, reordered_indexes, batch_size)
+                        # zero the parameter gradients
+                        conf['optimizer'].zero_grad()
 
-        def convert_imgs(images):
-            img_array = []
-            for idx, img in enumerate(images):
-                decoded_img = img_to_array(mel.Parser.decode(img))
-                decoded_img = mel.Preprocess.normalizeImg(decoded_img)
-                img_array.append(decoded_img)
-            img_array = np.array(img_array) # Convert list to numpy
+                        # forward
+                        # track history if only in train
+                        with torch.set_grad_enabled(phase == 'Train'):
+                            outputs = network(inputs)
+                            _, preds = torch.max(outputs, 1)
+                            loss = conf['criterion'](outputs, labels)
 
-            return img_array
-        
-        valimg_array = []
-            
-        for idx, img in enumerate(validationimages):
-            decoded_img = img_to_array(mel.Parser.decode(img))
-            decoded_img = mel.Preprocess.normalizeImg(decoded_img)
-            valimg_array.append(decoded_img)
-        valimg_array = np.array(valimg_array)
+                            # backward + optimize only if in training phase
+                            if phase == 'Train':
+                                loss.backward()
+                                conf['optimizer'].step()
 
-        data_gen = ImageDataGenerator(
-            featurewise_center=False,  # set input mean to 0 over the dataset
-            samplewise_center=False,  # set each sample mean to 0
-            featurewise_std_normalization=False,  # divide inputs by std of the dataset
-            samplewise_std_normalization=False,  # divide each input by its std
-            zca_whitening=False,  # apply ZCA whitening
-            rotation_range=CFG['ROTATION_RANGE'],  # randomly rotate images in the range (degrees, 0 to 180)
-            zoom_range = CFG['ZOOM_RANGE'], # Randomly zoom image 
-            width_shift_range=CFG['WSHIFT_RANGE'],  # randomly shift images horizontally (fraction of total width)
-            height_shift_range=CFG['HSHIFT_RANGE'],  # randomly shift images vertically (fraction of total height)
-            horizontal_flip=CFG['HFLIP'],  # randomly flip images
-            vertical_flip=CFG['VFLIP'], # randomly flip images
-            # rescale=1./255
-        )  
-        snapshot_path = CFG['snapshot_path']
-        early_stopper_patience = CFG['stopper_patience']
-        
-        
-        # tf.function - decorated function tried to create variables on non-first call'. 
-        # tf.config.run_functions_eagerly(self.CFG['run_functions_eagerly']) # otherwise error
+                        # statistics
+                        running_loss += loss.item() * inputs.size(0)
+                        running_corrects += torch.sum(preds == labels.data)
+                    if phase == 'Train':
+                        conf['scheduler'].step()
 
+                    epoch_loss = running_loss / dataset_sizes[phase]
+                    epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-        print(f'Fitting {model_name} model...')
-        # https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/ModelCheckpoint
-        
-        # cb_early_stopper_loss = EarlyStopping(monitor = 'loss', patience = early_stopper_patience)
-        print("model_name: " + f"{model_name}")
-        cb_checkpointer  = ModelCheckpoint(
-            filepath=f'{snapshot_path}/{model_name}.hdf5',
-            monitor  = 'val_loss',
-            save_best_only=True, 
-            mode='min'
-        )
+                    print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-        # callbacks_list = [cb_checkpointer, cb_early_stopper_val_loss, silent_training_callback()]
-        extracallbacks = CFG['callbacks']
+                    # deep copy the model
+                    if phase == 'Val' and epoch_acc > best_acc:
+                        best_acc = epoch_acc
+                        torch.save(network.state_dict(), best_model_params_path)
 
-        # steps_per_epoch = len(trainimages) // CFG['batch_size']
-        my_batch_generator = batch_generator(trainimages, trainlabels, CFG['batch_size'])
+                print()
 
-        # trainimages = convert_imgs(trainimages)
+            time_elapsed = time.time() - since
+            print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+            print(f'Best val Acc: {best_acc:4f}')
 
-        history = model.fit(
-            # data_gen.flow(trainimages, trainlabels, batch_size = CFG['batch_size'], shuffle=True),
-            my_batch_generator,
-            epochs = CFG['epochs'],
-            # validation_data = data_gen.flow(validationimages, validationlabels, batch_size = batch_size),
-            validation_data = (valimg_array, validationlabels),
-            verbose = CFG['verbose'],
-            steps_per_epoch=len(trainimages) // CFG['batch_size'],
-            callbacks=[cb_checkpointer, extracallbacks], # We can add GCCollectCallback() to save memory
-        )
-
-        
-        gc.collect()
-
-        return history
+            # load best model weights
+            network.load_state_dict(torch.load(best_model_params_path))
+            isExist = os.path.exists(conf['snapshot_path'])
+            if not isExist :
+                os.makedirs(conf['snapshot_path'])
+            else:
+                pass
+            torch.save(network.state_dict(), os.path.join(conf['snapshot_path'], f"{conf['model_file_name']}.pt"))
+        return network
     
     @staticmethod
     def evaluate_leaderboard(model_name, model_path, dbpath, dbname_ISIC2020):
@@ -729,23 +609,3 @@ class Model:
         plt.close()
 
         return test_report
-
-	
-    def trainData(self):
-		# The `image_batch` is a tensor of the shape `(32, 180, 180, 3)`. This is a batch of 32 images of shape `180x180x3` (the last dimension refers to color channels RGB).
-		# The `label_batch` is a tensor of the shape `(32,)`, these are corresponding labels to the 32 images.
-		# `Dataset.cache()` keeps the images in memory after they're loaded off disk during the first epoch.
-		# `Dataset.prefetch()` overlaps data preprocessing and model execution while training.
-        # 
-        pass
-        # AUTOTUNE = tf.data.experimental.AUTOTUNE
-        # train_ds = train_ds_input.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-        # val_ds = val_ds_input.cache().prefetch(buffer_size=AUTOTUNE)
-		# cnnmd1 = Model.Model()
-		# img_width = 180
-		# img_height = 180
-		##ToDo: change img size passing logic
-        # model = cnnmd1.CNN(img_width, img_height, self.class_names) # Get CNN model to use
-		# Compiling the model
-
-        # return history

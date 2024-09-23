@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 import melanoma as mel
 
 class Parser:
+    classes_melanoma_binary = ['benign', 'malignant']
     
     def __init__(self, base_dir, pseudo_num = 2, split_ratio=0.2):
         # self.base_dir = pathlib.Path(base_dir)
@@ -25,7 +26,7 @@ class Parser:
         self.split_ratio = split_ratio
         
 
-        self.classes_melanoma_binary = ['benign', 'malignant']
+        
 
         
 
@@ -33,14 +34,6 @@ class Parser:
 			0.0: 'benign',
 			1.0: 'malignant',
 		}
-
-        
-		
-		# Dataset path define
-		
-        
-
-        # self.preprocessor = mel.Preprocess()
 
     @staticmethod
     def encode(img_pil):

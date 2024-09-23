@@ -31,121 +31,8 @@ class Preprocess:
         # if image_size is not None:
         #     self.img_width = image_size[1]
         #     self.img_height = image_size[0]
+        pass
 
-        self.preprMethodDict = {
-            # RGB to BGR
-            mel.NetworkType.ResNet50.name: tf.keras.applications.resnet.preprocess_input,
-            mel.NetworkType.ResNet101.name: tf.keras.applications.resnet.preprocess_input,
-            mel.NetworkType.ResNet152.name: tf.keras.applications.resnet.preprocess_input,
-            mel.NetworkType.Xception.name: tf.keras.applications.xception.preprocess_input,
-            mel.NetworkType.InceptionV3.name: tf.keras.applications.inception_v3.preprocess_input,
-            mel.NetworkType.VGG16.name: tf.keras.applications.vgg16.preprocess_input,
-            mel.NetworkType.VGG19.name: tf.keras.applications.vgg19.preprocess_input,
-            mel.NetworkType.EfficientNetB0.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB1.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB2.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB3.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB4.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB5.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB6.name: tf.keras.applications.efficientnet.preprocess_input,
-            mel.NetworkType.EfficientNetB7.name: tf.keras.applications.efficientnet.preprocess_input,
-
-            mel.NetworkType.ResNet50V2.name: tf.keras.applications.resnet_v2.preprocess_input,
-            mel.NetworkType.ResNet101V2.name: tf.keras.applications.resnet_v2.preprocess_input,
-            mel.NetworkType.ResNet152V2.name: tf.keras.applications.resnet_v2.preprocess_input,
-
-            mel.NetworkType.MobileNet.name: tf.keras.applications.mobilenet.preprocess_input,
-            mel.NetworkType.MobileNetV2.name: tf.keras.applications.mobilenet_v2.preprocess_input,
-
-            mel.NetworkType.DenseNet121.name: tf.keras.applications.densenet.preprocess_input,
-            mel.NetworkType.DenseNet169.name: tf.keras.applications.densenet.preprocess_input,
-            mel.NetworkType.DenseNet201.name: tf.keras.applications.densenet.preprocess_input,
-
-            mel.NetworkType.NASNetMobile.name: tf.keras.applications.nasnet.preprocess_input,
-            mel.NetworkType.NASNetLarge.name: tf.keras.applications.nasnet.preprocess_input,
-        }
-
-    @staticmethod
-    def normalizeImg(img):
-        img = img/255.0
-
-        return img
-        
-    
-    def normalizeImgs(self, imgs, networktype, uniform_normalization):
-        imgList = []
-        for img in imgs:
-            img = np.expand_dims(img, axis=0)
-            if uniform_normalization is False:
-                transformed_img = self.preprMethodDict[networktype.name](img)
-            elif uniform_normalization is True:
-                norm = A.Normalize(mean=0.0, std=1.0)
-                transformed_img = norm(image=img)['image']
-            # transformed_img = tf.keras.applications.resnet.preprocess_input(img) # RGB to BGR
-            # imgList.append(transformed_img/255.)
-            imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-
-    def Dataset_loader(self, imgPath, networktype, debug_path=None):
-        imgList = []
-        read = lambda imname: load_img(path=imname, target_size=(self.img_height, self.img_width))
-        imgPathList = os.listdir(imgPath)
-        for idx, IMAGE_NAME in enumerate(tqdm(imgPathList)):
-            PATH = os.path.join(imgPath,IMAGE_NAME)
-            _, ftype = os.path.splitext(PATH)
-            
-            label = os.path.basename(os.path.normpath(imgPath)) # Extract label from folder name
-            if ftype.lower() == ".jpg" or ftype.lower() == ".jpeg" or ftype.lower() == ".bmp" or ftype.lower() == ".png":
-                img = read(PATH)
-                img.save(f"{debug_path}/{label}/{IMAGE_NAME}", quality=100, subsampling=0)
-                img = np.expand_dims(img, axis=0)
-                transformed_img = self.preprMethodDict[networktype.name](img)
-                # transformed_img = tf.keras.applications.resnet.preprocess_input(img)
-                # imgList.append(transformed_img/255.)
-                imgList.append(transformed_img)
-        IMG = np.vstack(imgList)
-        return IMG
-    
-
-    def squareImgs(self, path, square_size):
-        img = load_img(path=path, target_size=None)
-
-        if square_size is not None:
-
-            img_width, img_height = img.size
-            left = img.size[0]/2 - min(img_width, img_height)/2
-            upper = img.size[1]/2 - min(img_width, img_height)/2
-            right = img.size[0]/2 + min(img_width, img_height)/2
-            bottom = img.size[1]/2 + min(img_width, img_height)/2
-
-            img = img.crop((left, upper, right, bottom))
-            # Make squares and resize them
-            img = img.resize(size=(square_size, square_size), resample=Image.NEAREST)
-        
-
-
-        return img
-    
-    def squareImgsAndResize(self, path, square_size, resize_width, resize_height):
-        # This makes images square
-
-        # img = self.squareImgs(path, square_size)
-        img = load_img(path=path, target_size=None)
-        np_img = img_to_array(img=img, dtype='uint8')
-        center_crop_size = min(np_img.shape[0:-1]) # (height, width, channel)
-        transform = A.Compose([
-            A.CenterCrop(height=center_crop_size, width=center_crop_size),
-            A.Resize(width=resize_width, height=resize_height),
-        ])
-        transformed = transform(image=np_img)
-
-        return array_to_img(transformed['image']).convert('RGB')
-
-
-
-
-    
     def augmentation(self, train_rgb_folder, square_size, resize_width, resize_height, augment_ratio, df_trainset):
         def aug_logic(df_mel, df_non_mel, make_50_50=False):
             augMethod = aug.Augmentation(aug.crop_flip_brightnesscontrast())
@@ -244,7 +131,7 @@ class Preprocess:
             currentPath = pathlib.Path(df_augmented.path[idx])
             label = df_augmented.cell_type_binary[idx]
             img.save(f"{augmentation_folder}/{label}/{idx}_{currentPath.stem}.jpg")
-    
+
         trainimages = list(map(lambda x:x[0], df_trainset['image'])) # Filter out only pixel from the list
         trainimages_augmented_only = list(map(lambda x:x, df_augmented['image'])) # Filter out only pixel from the list
 
@@ -271,7 +158,7 @@ class Preprocess:
 
         # df_mel_augmented = df_augmented[df_augmented.cell_type_binary=='Melanoma']
         # df_non_mel_augmented = df_augmented[df_augmented.cell_type_binary=='Non-Melanoma']
-    
+
         
         return df_mel_augmented_cnt, df_non_mel_augmented_cnt, trainimages_augmented, trainlabels_augmented, trainids_augmented
     
