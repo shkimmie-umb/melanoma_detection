@@ -96,11 +96,11 @@ class parser_ISIC2020(Parser):
         # ISIC2020 binary images/labels
         trainpixels = list(map(lambda x:x[0], trainset['image'])) # Filter out only pixel from the list
         validationpixels = list(map(lambda x:x[0], validationset['image'])) # Filter out only pixel from the list
-        testpixels = list(map(lambda x:x[0], df_test['image']))
+        # testpixels = list(map(lambda x:x[0], df_test['image']))
 
         trainids = list(map(lambda x:x[1].stem, trainset['image'])) # Filter out only pixel from the list
         validationids = list(map(lambda x:x[1].stem, validationset['image']))
-        testids = list(map(lambda x:x[1].stem, df_test['image']))
+        # testids = list(map(lambda x:x[1].stem, df_test['image']))
         
 
         trainlabels_binary = np.asarray(trainset.cell_type_binary_idx, dtype='float64')
