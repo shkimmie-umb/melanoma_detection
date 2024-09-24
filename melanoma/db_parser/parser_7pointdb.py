@@ -14,7 +14,7 @@ class parser_7pointdb(Parser):
 
         self.makeFolders(datasetname)
 
-        img_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'release_v0', 'images')
+        img_path = pathlib.Path(self.base_dir).joinpath(datasetname, 'release_v0', 'images')
 
         num_imgs = len(list(img_path.glob('*/*.[jpg][JPG]'))) # counts all 7-point db training images
 

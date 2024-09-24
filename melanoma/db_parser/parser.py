@@ -8,6 +8,7 @@ from PIL import Image
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import h5py
 from sklearn.model_selection import train_test_split
 
 
@@ -193,11 +194,11 @@ class Parser:
             validationimages_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=img)
 
         for idx, label in enumerate(trainlabels):
-            trainlabels_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
+            trainlabels_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
         for idx, label in enumerate(testlabels):
-            testlabels_grp.create_dataset(f'{testids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
+            testlabels_grp.create_dataset(f'{testids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
         for idx, label in enumerate(validationlabels):
-            validationlabels_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(2, ), maxshape=(None, ), compression='gzip', data=label)
+            validationlabels_grp.create_dataset(f'{validationids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=label)
 
         for idx, id in enumerate(trainids):
             trainids_grp.create_dataset(f'{trainids[idx]}_{idx}', track_order=True, shape=(1, ), maxshape=(None, ), compression='gzip', data=id)
@@ -252,3 +253,4 @@ class Parser:
 
     def saveDatasetToFile(self):
         pass
+

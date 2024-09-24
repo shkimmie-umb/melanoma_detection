@@ -29,9 +29,9 @@ class parser_ISIC2017(Parser):
 
         self.makeFolders(datasetname)
 
-        training_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Training_Data')
-        val_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Validation_Data')
-        test_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Test_v2_Data')
+        training_path = pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Training_Data')
+        val_path = pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Validation_Data')
+        test_path = pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Test_v2_Data')
 
         num_train_img = len(list(training_path.glob('./*.jpg'))) # counts all ISIC2017 training images
         num_val_img = len(list(val_path.glob('./*.jpg'))) # counts all ISIC2017 validation images
@@ -51,9 +51,9 @@ class parser_ISIC2017(Parser):
         imageid_path_test_dict = {os.path.splitext(os.path.basename(x))[0]: x for x in glob(os.path.join(test_path, '*.jpg'))}
 
 
-        df_training = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Training_Part3_GroundTruth.csv')))
-        df_val = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Validation_Part3_GroundTruth.csv')))
-        df_test = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath('data', datasetname, 'ISIC-2017_Test_v2_Part3_GroundTruth.csv')))
+        df_training = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Training_Part3_GroundTruth.csv')))
+        df_val = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Validation_Part3_GroundTruth.csv')))
+        df_test = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(datasetname, 'ISIC-2017_Test_v2_Part3_GroundTruth.csv')))
 
 
         self.logger.debug("Let's check ISIC2017 metadata briefly")

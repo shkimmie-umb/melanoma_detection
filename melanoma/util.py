@@ -3,8 +3,11 @@ import os
 import pathlib
 import torch
 import torchvision
+import torchtune
+from collections import defaultdict
 
 import io
+import numpy as np
 
 import melanoma as mel
 from sklearn.model_selection import train_test_split
@@ -47,7 +50,7 @@ class Util:
 
 	@staticmethod
 	def combineDatasets(*args, preprocessing):
-		from collections import defaultdict
+		
 		
 		dataloaders = defaultdict(list)
 		image_folders = defaultdict(list)
@@ -86,16 +89,18 @@ class Util:
 		print('Stacking data')
 		for idx, phase in enumerate(list(image_folders.keys())):
 			combined_data[phase] = torch.utils.data.ConcatDataset(image_folders[phase])
+			# combined_data[phase] = torchtune.datasets.ConcatDataset(image_folders[phase])
 
 		dataloaders = {}
 		dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
-			sampler=ImbalancedDatasetSampler(combined_data['Train']), shuffle=False, num_workers=4)
+			sampler=ImbalancedDatasetSampler(combined_data['Train']), shuffle=False, pin_memory=True,
+			drop_last=True)
 		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
 		# 	shuffle=True, num_workers=32, pin_memory=True)
 		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
 		# 	shuffle=False, num_workers=4)
 		dataloaders['Val'] = torch.utils.data.DataLoader(combined_data['Val'], batch_size=32,
-													shuffle=True, num_workers=4)
+													shuffle=True, pin_memory=True)
 
 
 		dataset_sizes = {x: len(combined_data[x]) for x in ['Train', 'Val']}
@@ -103,6 +108,47 @@ class Util:
 		print('Combining complete')
 
 		return dataloaders, dataset_sizes
+	
+	@staticmethod
+	def combineDatasets_hdf5(*args):
+		combined_data = defaultdict(list)
+
+		print('Combining...')
+		for idx, h5_file in enumerate(args[0]):
+			
+			traindata, validationdata, testdata = mel.Parser.open_H5(h5_file)
+			print(f'Combining {idx+1}th db out of {len(args[0])} dbs')
+
+			combined_data['trainimages'].append(traindata['trainimages'])
+			combined_data['trainlabels'].append(traindata['trainlabels'])
+			combined_data['trainids'].append(traindata['trainids'])
+
+			
+			if len(validationdata['validationimages']) > 0:
+				assert len(validationdata['validationimages']) == len(validationdata['validationlabels']) and \
+					len(validationdata['validationlabels']) == len(validationdata['validationids'])
+				combined_data['validationimages'].append(validationdata['validationimages'])
+				combined_data['validationlabels'].append(validationdata['validationlabels'])
+				combined_data['validationids'].append(validationdata['validationids'])
+
+
+
+		print('Stacking data')
+		combined_data['trainimages'] = np.vstack(combined_data['trainimages'])
+		combined_data['trainlabels'] = np.vstack(combined_data['trainlabels'])
+		combined_data['trainids'] = np.vstack(combined_data['trainids'])
+		combined_data['validationimages'] = np.vstack(combined_data['validationimages'])
+		combined_data['validationlabels'] = np.vstack(combined_data['validationlabels'])
+		combined_data['validationids'] = np.vstack(combined_data['validationids'])
+
+		assert len(combined_data['trainimages']) == len(combined_data['trainlabels']) \
+		and len(combined_data['trainlabels']) == len(combined_data['trainids'])
+		assert len(combined_data['validationimages']) == len(combined_data['validationlabels']) \
+		and len(combined_data['validationlabels']) == len(combined_data['validationids'])
+		
+		print('Combining complete')
+
+		return combined_data
 
 
 

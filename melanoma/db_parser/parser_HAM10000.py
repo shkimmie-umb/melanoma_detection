@@ -33,7 +33,7 @@ class parser_HAM10000(Parser):
 
         self.makeFolders(datasetname)
 
-        db_path = pathlib.Path(self.base_dir).joinpath('data', datasetname)
+        db_path = pathlib.Path(self.base_dir).joinpath(datasetname)
         num_train_img = len(list(db_path.glob('HAM10000_images_part_*/*.jpg'))) # counts all HAM10000 images
 
         self.logger.debug('%s %s', "Images available in HAM10000 train dataset:", num_train_img)

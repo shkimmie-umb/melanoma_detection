@@ -20,9 +20,9 @@ class parser_ISIC2018(Parser):
         # Set path values
         self.makeFolders(datasetname)
 
-        ISIC2018_training_path = pathlib.Path(self.base_dir).joinpath('data', f'./{datasetname}', './ISIC2018_Task3_Training_Input')
-        ISIC2018_val_path = pathlib.Path(self.base_dir).joinpath('data', f'./{datasetname}', './ISIC2018_Task3_Validation_Input')
-        ISIC2018_test_path = pathlib.Path(self.base_dir).joinpath('data', f'./{datasetname}', './ISIC2018_Task3_Test_Input')
+        ISIC2018_training_path = pathlib.Path(self.base_dir).joinpath(f'./{datasetname}', './ISIC2018_Task3_Training_Input')
+        ISIC2018_val_path = pathlib.Path(self.base_dir).joinpath(f'./{datasetname}', './ISIC2018_Task3_Validation_Input')
+        ISIC2018_test_path = pathlib.Path(self.base_dir).joinpath(f'./{datasetname}', './ISIC2018_Task3_Test_Input')
 
         num_train_img_ISIC2018 = len(list(ISIC2018_training_path.glob('./*.jpg'))) # counts all ISIC2018 training images
         num_val_img_ISIC2018 = len(list(ISIC2018_val_path.glob('./*.jpg'))) # counts all ISIC2018 validation images
@@ -44,13 +44,13 @@ class parser_ISIC2018(Parser):
         
         # ISIC2018_columns = ['image_id', 'label']
         df_training_ISIC2018 = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(
-            'data', f'./{datasetname}', './ISIC2018_Task3_Training_GroundTruth', './ISIC2018_Task3_Training_GroundTruth.csv')),
+            f'./{datasetname}', './ISIC2018_Task3_Training_GroundTruth', './ISIC2018_Task3_Training_GroundTruth.csv')),
             header=0)
         df_val_ISIC2018 = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(
-            'data', f'./{datasetname}', './ISIC2018_Task3_Validation_GroundTruth', './ISIC2018_Task3_Validation_GroundTruth.csv')),
+            f'./{datasetname}', './ISIC2018_Task3_Validation_GroundTruth', './ISIC2018_Task3_Validation_GroundTruth.csv')),
             header=0)
         df_test_ISIC2018 = pd.read_csv(str(pathlib.Path(self.base_dir).joinpath(
-            'data', f'./{datasetname}', './ISIC2018_Task3_Test_GroundTruth', './ISIC2018_Task3_Test_GroundTruth.csv')),
+            f'./{datasetname}', './ISIC2018_Task3_Test_GroundTruth', './ISIC2018_Task3_Test_GroundTruth.csv')),
             header=0)
 
         assert df_training_ISIC2018.shape[0] == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2018]['trainimages']

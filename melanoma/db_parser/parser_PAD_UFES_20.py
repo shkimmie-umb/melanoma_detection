@@ -14,7 +14,7 @@ class parser_PAD_UFES_20(Parser):
 
         self.makeFolders(datasetname)
 
-        db_path = pathlib.Path(self.base_dir).joinpath('data', datasetname)
+        db_path = pathlib.Path(self.base_dir).joinpath(datasetname)
         img_path = pathlib.Path(db_path).joinpath('images')
 
         num_imgs = len(list(img_path.glob('imgs_part_*/*.*'))) # counts all PAD_UFES_20 training images

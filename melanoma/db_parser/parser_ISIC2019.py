@@ -89,3 +89,24 @@ class parser_ISIC2019(Parser):
         assert len(validationpixels) == validationlabels_binary.shape[0]
 
         # trainimages_ISIC2017 = trainimages_ISIC2017.reshape(trainimages_ISIC2017.shape[0], *image_shape)
+        filename = f'{datasetname}.h5'
+        h5_path = os.path.join(self.base_dir, 'melanomaDB')
+        self.generateHDF5(path=h5_path, filename=filename, 
+                        trainpxs=trainpixels,
+                        testpxs=[],
+                        validationpxs=validationpixels,
+                        trainids=trainids,
+                        testids=[],
+                        validationids=validationids,
+                        trainlabels=trainlabels_binary,
+                        testlabels=[],
+                        validationlabels=validationlabels_binary
+                        )
+        
+        self.validate_h5(
+            path=h5_path,
+            filename=filename,
+            dbnumimgs=mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2019],
+            train_only=False,
+            val_exists=True, 
+            test_exists=False)

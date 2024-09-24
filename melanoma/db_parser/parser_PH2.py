@@ -14,7 +14,7 @@ class parser_PH2(Parser):
 
         self.makeFolders(datasetname)
 
-        img_path = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'PH2 Dataset images')
+        img_path = pathlib.Path(self.base_dir).joinpath(datasetname, 'PH2 Dataset images')
 
         num_imgs = len(list(img_path.glob('*/*_Dermoscopic_Image/*.bmp'))) # counts all PH2 training images
 

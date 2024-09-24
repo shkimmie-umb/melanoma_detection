@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 
 import torch
+from tqdm import tqdm
 
 from collections import Counter
 
@@ -42,6 +43,9 @@ class Model:
     @staticmethod
     def train_model(conf, network, data, dataset_sizes):
         since = time.time()
+        # dataset_sizes = {}
+        # dataset_sizes['Train'] = data['Train'].__len__()
+        # dataset_sizes['Val'] = data['Val'].__len__()
 
         # Create a temporary directory to save training checkpoints
         with TemporaryDirectory() as tempdir:
@@ -65,8 +69,10 @@ class Model:
                     running_corrects = 0
 
                     # Iterate over data.
-                    for inputs, labels in data[phase]:
+                    # for inputs, labels in tqdm(data[phase]):
+                    for inputs, labels in tqdm(data[phase], total=len(data[phase])):
                         inputs = inputs.to(conf['device'])
+                        # labels = torch.flatten(labels).to(conf['device'])
                         labels = labels.to(conf['device'])
 
                         # zero the parameter gradients
@@ -77,7 +83,7 @@ class Model:
                         with torch.set_grad_enabled(phase == 'Train'):
                             outputs = network(inputs)
                             _, preds = torch.max(outputs, 1)
-                            loss = conf['criterion'](outputs, labels)
+                            loss = conf['criterion'](outputs, labels.type(torch.int64))
 
                             # backward + optimize only if in training phase
                             if phase == 'Train':

@@ -14,7 +14,7 @@ class parser_MEDNODE(Parser):
 
         self.makeFolders(datasetname)
 
-        dbpath = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'complete_mednode_dataset')
+        dbpath = pathlib.Path(self.base_dir).joinpath(datasetname, 'complete_mednode_dataset')
 
         num_train_imgs = len(list(dbpath.glob('*/*.*'))) # counts all Kaggle Malignant Benign training images
 

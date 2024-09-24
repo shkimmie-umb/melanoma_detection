@@ -12,7 +12,7 @@ class parser_KaggleMB(Parser):
 
         self.makeFolders(datasetname)
 
-        dbpath = pathlib.Path(self.base_dir).joinpath('data', datasetname, 'Kaggle_malignant_benign_DB')
+        dbpath = pathlib.Path(self.base_dir).joinpath(datasetname, 'Kaggle_malignant_benign_DB')
 
         num_imgs = len(list(dbpath.glob('t*/*/*.*'))) # counts all Kaggle Malignant Benign training images
 
