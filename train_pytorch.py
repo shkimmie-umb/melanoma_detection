@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn as nn
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 CLI=argparse.ArgumentParser()
 CLI.add_argument(
@@ -62,7 +62,7 @@ CFG = dict(
       
       device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
 			# batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  30,   # 5; 10; 20;
+			epochs                =  None,   # 5; 10; 20;
 
 			# Model settings
       num_classes = None,
@@ -77,29 +77,42 @@ CFG = dict(
 			# run_functions_eagerly = False,
             
       # DB load
-      db_path = os.path.join(pathlib.Path.cwd(), 'data', 'melanomaDB'),
+      db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
       # save
-      snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
-      # snapshot_path = '/hpcstor6/scratch01/s/sanghyuk.kim001/snapshot',
+      # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
+      snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
       model_file_name = f'{DBname}_{CLASSIFIER}_{JOB_INDEX}',
 			
 		)
 
+epochs = {
+    "1": 30,
+    "2": 34,
+    "3": 36,
+    "4": 38,
+    "5": 40,
+    "6": 42,
+    "7": 44,
+    "8": 46,
+    "9": 48,
+    "10": 50,
+}
 
-
-
+CFG["epochs"] = epochs[str(len(DB))]
 
 
 data_transforms = {
     'Train': v2.Compose([
         v2.RandomResizedCrop(size=(224, 224), scale=(0.4, 1.0)),
+        # v2.Resize(256),
+        # v2.RandomCrop(224, 224),
         v2.RandomAffine(degrees=90, scale = (0.8, 1.2)),
         v2.RandomHorizontalFlip(),
         v2.RandomVerticalFlip(),
-        v2.ColorJitter(saturation=(0.7, 1.3), 
-                            hue=(-0.1, 0.1),
-                            brightness=(0.7, 1.3),
-                            contrast=(0.7, 1.3)),
+        # v2.ColorJitter(saturation=(0.7, 1.3), 
+        #                     hue=(-0.1, 0.1),
+        #                     brightness=(0.7, 1.3),
+        #                     contrast=(0.7, 1.3)),
         v2.ToTensor(),
         v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -117,15 +130,56 @@ data_transforms = {
     ]),
 }
 
+pre_transform = {
+    'Train': v2.Compose([
+        # v2.RandomResizedCrop(size=(224, 224), scale=(0.4, 1.0)),
+        v2.Resize(512),
+        # v2.CenterCrop(224),
+    ]),
+    'Val': v2.Compose([
+        v2.Resize(256),
+        v2.CenterCrop(224),
+    ]),
+    'Test': v2.Compose([
+        v2.Resize(256),
+        v2.CenterCrop(224),
+    ]),
+}
+
+post_transform = {
+    'Train': v2.Compose([
+        v2.RandomResizedCrop(size=(224, 224), scale=(0.4, 1.0)),
+        v2.RandomAffine(degrees=90, scale = (0.8, 1.2)),
+        v2.RandomHorizontalFlip(),
+        v2.RandomVerticalFlip(),
+        v2.ColorJitter(saturation=(0.7, 1.3), 
+                            hue=(-0.1, 0.1),
+                            brightness=(0.7, 1.3),
+                            contrast=(0.7, 1.3)),
+        v2.ToTensor(),
+        v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'Val': v2.Compose([
+        v2.ToTensor(),
+        v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'Test': v2.Compose([
+        v2.ToTensor(),
+        v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+}
+
 print("Start training augmented images")
 
 dbs = list(itertools.chain.from_iterable([glob.glob(f'{CFG["db_path"]}/{db}/final', recursive=True) for db in DB]))
 
 dataloaders, dataset_sizes = mel.Util.combineDatasets(dbs, preprocessing=data_transforms)
-CFG['num_classes'] = len(dataloaders['Train'].dataset.datasets[0].classes)
+# dataloaders, dataset_sizes = mel.Util.combineDatasets_fast(dbs, pre_transform=pre_transform, post_transform=post_transform)
+CFG['num_classes'] = 2
 
 network = mel.CNN.model_caller(CLASSIFIER)
 model_ft = mel.CNN.transfer(network=network, weights=True, CFG=CFG)
+model_ft = nn.DataParallel(model_ft)
 model_ft = model_ft.to(CFG['device'])
 CFG['optimizer'] = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
 # optimizer_ft = torch.optim.Adam(model.fc.parameters(), lr=0.001)

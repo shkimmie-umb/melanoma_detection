@@ -46,6 +46,26 @@ class Util:
 
 
 		return image_folders
+	
+	@staticmethod
+	def loadDatasetFromDirectory_fast(path, pre_transform, post_transform):
+		# path: A directory where 'Train', 'Val', 'Test' folders exist
+
+		data = {
+			'Train': None,
+			'Val': None
+		}
+
+		# image_folders = {x: torchvision.datasets.ImageFolder(os.path.join(path, x),
+		# 										preprocessing[x])
+		# 				for x in ['Train', 'Val'] if os.path.isdir(os.path.join(path, x))}
+		for x in ['Train', 'Val']:
+			folder_path = os.path.join(path, x)
+			if os.path.isdir(folder_path):
+				data[x] = mel.DataLoaderFast(folder_path, pre_transform[x], post_transform[x])
+
+
+		return data
 
 
 	@staticmethod
@@ -94,13 +114,14 @@ class Util:
 		dataloaders = {}
 		dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
 			sampler=ImbalancedDatasetSampler(combined_data['Train']), shuffle=False, pin_memory=True,
-			drop_last=True)
+			num_workers=4, prefetch_factor = 2, drop_last=True)
 		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
 		# 	shuffle=True, num_workers=32, pin_memory=True)
 		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
 		# 	shuffle=False, num_workers=4)
 		dataloaders['Val'] = torch.utils.data.DataLoader(combined_data['Val'], batch_size=32,
-													shuffle=True, pin_memory=True)
+													shuffle=True, pin_memory=True,
+													num_workers=4, prefetch_factor=2)
 
 
 		dataset_sizes = {x: len(combined_data[x]) for x in ['Train', 'Val']}
@@ -149,7 +170,68 @@ class Util:
 		print('Combining complete')
 
 		return combined_data
+	
 
+	@staticmethod
+	def combineDatasets_fast(*args, pre_transform, post_transform):
+		
+		
+		dataloaders = defaultdict(list)
+		data = defaultdict(list)
+		combined_data = defaultdict(list)
+		num_classes = defaultdict(list)
+
+		print('Combining...')
+		for idx, db_path in enumerate(args[0]):
+			dbname = pathlib.Path(db_path).parts[-2]
+			
+			print(f'Combining {idx+1}th db out of {len(args[0])} dbs')
+			datum = Util.loadDatasetFromDirectory_fast(path=db_path, pre_transform=pre_transform, post_transform=post_transform)
+
+			data['Train'].append(datum['Train'])
+			
+			
+			
+			if datum['Val'] is not None:
+				data['Val'].append(datum['Val'])
+
+				assert len(datum['Train']) + len(datum['Val']) == \
+				mel.CommonData().dbNumImgs[mel.DatasetType[dbname]]['trainimages'] + \
+				mel.CommonData().dbNumImgs[mel.DatasetType[dbname]]['validationimages']
+				# assert datum['Train'].classes == mel.Parser.classes_melanoma_binary
+				# assert datum['Val'].classes == mel.Parser.classes_melanoma_binary
+			elif datum['Val'] is None:
+				assert len(datum['Train']) == \
+				mel.CommonData().dbNumImgs[mel.DatasetType[dbname]]['trainimages'] + \
+				mel.CommonData().dbNumImgs[mel.DatasetType[dbname]]['validationimages']
+				# assert datum['Train'].classes == mel.Parser.classes_melanoma_binary
+			
+			
+
+
+
+		print('Stacking data')
+		for idx, phase in enumerate(list(data.keys())):
+			combined_data[phase] = torch.utils.data.ConcatDataset(data[phase])
+			# combined_data[phase] = torchtune.datasets.ConcatDataset(image_folders[phase])
+
+		dataloaders = {}
+		dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
+			sampler=ImbalancedDatasetSampler(combined_data['Train']), shuffle=False, pin_memory=True,
+			num_workers=4, prefetch_factor=2, drop_last=True)
+		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
+		# 	shuffle=True, num_workers=32, pin_memory=True)
+		# dataloaders['Train'] = torch.utils.data.DataLoader(combined_data['Train'], batch_size=32, 
+		# 	shuffle=False, num_workers=4)
+		dataloaders['Val'] = torch.utils.data.DataLoader(combined_data['Val'], batch_size=32,
+													shuffle=True, pin_memory=True)
+
+
+		dataset_sizes = {x: len(combined_data[x]) for x in ['Train', 'Val']}
+		
+		print('Combining complete')
+
+		return dataloaders, dataset_sizes
 
 
 
