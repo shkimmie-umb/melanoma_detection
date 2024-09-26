@@ -60,30 +60,30 @@ DBname = '+'.join(DB)
 
 CFG = dict(
       
-      device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
-			# batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
-			epochs                =  None,   # 5; 10; 20;
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
+    # batch_size            =  64,   # 8; 16; 32; 64; bigger batch size => moemry allocation issue
+    epochs                =  None,   # 5; 10; 20;
 
-			# Model settings
-      num_classes = None,
-			pretrained_weights = True,
-			criterion = nn.CrossEntropyLoss(),
-      optimizer = None,
-      scheduler = None,
+    # Model settings
+    num_classes = None,
+        pretrained_weights = True,
+        criterion = nn.CrossEntropyLoss(),
+    optimizer = None,
+    scheduler = None,
 
 
-			# Postprocessing
-			stopper_patience      =  0,   # 0.01; 0.05; 0.1; 0.2;
-			# run_functions_eagerly = False,
-            
-      # DB load
-      db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
-      # save
-      # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
-      snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
-      model_file_name = f'{DBname}_{CLASSIFIER}_{JOB_INDEX}',
+    # Postprocessing
+    stopper_patience      =  0,   # 0.01; 0.05; 0.1; 0.2;
+    # run_functions_eagerly = False,
+        
+    # DB load
+    db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
+    # save
+    # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
+    snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
+    model_file_name = f'{DBname}_{CLASSIFIER}_{JOB_INDEX}',
 			
-		)
+)
 
 epochs = {
     "1": 30,
@@ -178,7 +178,7 @@ dataloaders, dataset_sizes = mel.Util.combineDatasets(dbs, preprocessing=data_tr
 CFG['num_classes'] = 2
 
 network = mel.CNN.model_caller(CLASSIFIER)
-model_ft = mel.CNN.transfer(network=network, weights=True, CFG=CFG)
+model_ft = mel.CNN.transfer(network=network, network_name=CLASSIFIER, weights=True, CFG=CFG)
 model_ft = nn.DataParallel(model_ft)
 model_ft = model_ft.to(CFG['device'])
 CFG['optimizer'] = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)

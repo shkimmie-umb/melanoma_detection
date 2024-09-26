@@ -9,20 +9,24 @@ import os
 from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.models import resnet50, ResNet50_Weights
 from torchvision.models import vgg19, VGG19_Weights
+from torchvision.models import vgg19_bn, VGG19_BN_Weights
 from torchvision.models import wide_resnet50_2, Wide_ResNet50_2_Weights
 
 
 
 class CNN(Base_Model):
-
+    
     def __init__(self):
         super().__init__()
+        
+
 
     @staticmethod
     def model_caller(classifier):
         classifierDict = {
             mel.NetworkType.ResNet50.name: resnet50,
             mel.NetworkType.VGG19.name: vgg19,
+            mel.NetworkType.VGG19_bn.name: vgg19_bn,
             mel.NetworkType.WideResNet50_2.name: wide_resnet50_2,
         }
         model = classifierDict[classifier]
@@ -30,7 +34,7 @@ class CNN(Base_Model):
         return model
 
     @staticmethod
-    def transfer(network, weights, CFG):
+    def transfer(network, network_name, weights, CFG):
         
         model_ft = network(weights=weights)
 
@@ -41,17 +45,23 @@ class CNN(Base_Model):
         for param in model_ft.parameters():
             if isinstance(param, nn.Conv2d):
                 param.requires_grad = False
+        
+        if (network_name == mel.NetworkType.ResNet50.name):
+            num_ftrs = model_ft.fc.in_features
+            # Here the size of each output sample is set to 2.
+            # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
+            model_ft.fc = nn.Linear(num_ftrs, CFG['num_classes'])
+            # model_ft.fc = nn.Sequential(
+            #     nn.Linear(num_ftrs, 256),  # Additional linear layer with 256 output features
+            #     nn.ReLU(inplace=True),         # Activation function (you can choose other activation functions too)
+            #     nn.Dropout(0.5),               # Dropout layer with 50% probability
+            #     nn.Linear(256, num_classes)    # Final prediction fc layer
+            # )
+        elif (network_name == mel.NetworkType.VGG19.name):
+            num_ftrs = model_ft.classifier[-1].in_features
+            model_ft.classifier[-1] = nn.Linear(num_ftrs, CFG['num_classes'])
 
-        num_ftrs = model_ft.fc.in_features
-        # Here the size of each output sample is set to 2.
-        # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
-        model_ft.fc = nn.Linear(num_ftrs, CFG['num_classes'])
-        # model_ft.fc = nn.Sequential(
-        #     nn.Linear(num_ftrs, 256),  # Additional linear layer with 256 output features
-        #     nn.ReLU(inplace=True),         # Activation function (you can choose other activation functions too)
-        #     nn.Dropout(0.5),               # Dropout layer with 50% probability
-        #     nn.Linear(256, num_classes)    # Final prediction fc layer
-        # )
+        
 
         return model_ft
 
