@@ -1,9 +1,11 @@
 # import Model
 from .model import Model as Base_Model
 import melanoma as mel
+import torch
 import torch.nn as nn
 
 import os
+import pathlib
 # os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
 from torchvision.models import resnet18, ResNet18_Weights
@@ -19,7 +21,50 @@ class CNN(Base_Model):
     def __init__(self):
         super().__init__()
         
+    @staticmethod
+    def modifyOutputLayer(model_ft, model_name, num_classes):
+        if (model_name == mel.NetworkType.ResNet50.name):
+            num_ftrs = model_ft.fc.in_features
+            # Here the size of each output sample is set to 2.
+            # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
+            model_ft.fc = nn.Linear(num_ftrs, num_classes)
+            # model_ft.fc = nn.Sequential(
+            #     nn.Linear(num_ftrs, 256),  # Additional linear layer with 256 output features
+            #     nn.ReLU(inplace=True),         # Activation function (you can choose other activation functions too)
+            #     nn.Dropout(0.5),               # Dropout layer with 50% probability
+            #     nn.Linear(256, num_classes)    # Final prediction fc layer
+            # )
+        elif (model_name == mel.NetworkType.VGG19.name):
+            num_ftrs = model_ft.classifier[-1].in_features
+            model_ft.classifier[-1] = nn.Linear(num_ftrs, num_classes)
+        else:
+            raise AssertionError("Unknown network")
 
+        return model_ft
+    @staticmethod
+    def load_model(model_path, num_classes, device):
+        classifier_name = pathlib.Path(model_path).parent.name
+        network = mel.CNN.model_caller(classifier=classifier_name)
+        model_ft = network(weights=True)
+        model_ft = mel.CNN.modifyOutputLayer(model_ft=model_ft, model_name=classifier_name, num_classes=num_classes)
+
+        state_dict = torch.load(model_path, map_location=device)
+        
+        if (list(state_dict.keys())[0][:6] == 'module'):
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                name = k[7:] # remove 'module.' of dataparallel
+                new_state_dict[name]=v
+        
+            model_ft.load_state_dict(new_state_dict)
+        else:
+            model_ft.load_state_dict(state_dict)
+
+
+        model_ft.eval()
+        
+        return model_ft
 
     @staticmethod
     def model_caller(classifier):
@@ -46,20 +91,7 @@ class CNN(Base_Model):
             if isinstance(param, nn.Conv2d):
                 param.requires_grad = False
         
-        if (network_name == mel.NetworkType.ResNet50.name):
-            num_ftrs = model_ft.fc.in_features
-            # Here the size of each output sample is set to 2.
-            # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
-            model_ft.fc = nn.Linear(num_ftrs, CFG['num_classes'])
-            # model_ft.fc = nn.Sequential(
-            #     nn.Linear(num_ftrs, 256),  # Additional linear layer with 256 output features
-            #     nn.ReLU(inplace=True),         # Activation function (you can choose other activation functions too)
-            #     nn.Dropout(0.5),               # Dropout layer with 50% probability
-            #     nn.Linear(256, num_classes)    # Final prediction fc layer
-            # )
-        elif (network_name == mel.NetworkType.VGG19.name):
-            num_ftrs = model_ft.classifier[-1].in_features
-            model_ft.classifier[-1] = nn.Linear(num_ftrs, CFG['num_classes'])
+        model_ft = mel.CNN.modifyOutputLayer(model_ft=model_ft, model_name=network_name, num_classes=CFG['num_classes'])
 
         
 

@@ -7,10 +7,8 @@ from sklearn.utils import class_weight
 import torch
 from tqdm import tqdm
 
-from collections import Counter
-
-from warnings import filterwarnings
-# from keras.preprocessing.image import img_to_array
+from torchvision.transforms import v2
+import torchvision
 
 import gc
 
@@ -31,6 +29,8 @@ import glob
 import pathlib
 import time
 from tempfile import TemporaryDirectory
+from copy import deepcopy
+import torch.nn as nn
 
 import melanoma as mel
 
@@ -121,123 +121,378 @@ class Model:
                 pass
             torch.save(network.state_dict(), os.path.join(conf['snapshot_path'], f"{conf['model_file_name']}.pt"))
         return network
+
+    @staticmethod
+    def evaluate_model(model, dataloader, device):
+        all_labels = []
+        all_preds = []
+        all_scores = []
+        CM=0
+        model.to(device)
+        # model.eval()
+        # num_iters = len(dataloaders['Test'].dataset) / dataloaders['Test'].batch_size
+        with torch.no_grad():
+            for data in tqdm(dataloader['Test']):
+                
+
+                images, labels = data
+                images = images.to(device)
+                labels = labels.to(device)
+                
+                outputs = model(images) #file_name
+                smx = nn.Softmax(dim=1)
+                smx_output = smx(outputs.data)
+                # preds = torch.argmax(outputs.data, 1)
+                preds = torch.argmax(smx_output, 1)
+                CM+=confusion_matrix(labels.cpu(), preds.cpu(),labels=[0,1])
+
+                all_preds.extend(preds.cpu().tolist())
+                all_labels.extend(labels.cpu().tolist())
+                all_scores.extend(smx_output.cpu().tolist())
+
+                assert len(all_preds) == len(all_labels) and len(all_labels) == len(all_scores)
+
+
+                
+                
+            tn=CM[0][0]
+            tp=CM[1][1]
+            fp=CM[0][1]
+            fn=CM[1][0]
+            acc=np.sum(np.diag(CM)/np.sum(CM))
+            sensitivity=tp/(tp+fn)
+            precision=tp/(tp+fp)
+            
+            print('\nTestset Accuracy(mean): %f %%' % (100 * acc))
+            print()
+            print('Confusion Matirx : ')
+            print(CM)
+            print('- Sensitivity : ',(tp/(tp+fn))*100)
+            print('- Specificity : ',(tn/(tn+fp))*100)
+            print('- Precision: ',(tp/(tp+fp))*100)
+            print('- NPV: ',(tn/(tn+fn))*100)
+            print('- F1 : ',((2*sensitivity*precision)/(sensitivity+precision))*100)
+            print()
+
+            
+
+
+        test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+
+        performance = {
+            'y_pred': all_preds,
+            'y_scores': all_scores,
+            'accuracy': test_report['accuracy'],
+            'precision': test_report['macro avg']['precision'],
+            'sensitivity': test_report['malignant']['recall'],
+            'specificity': test_report['benign']['recall'],
+            'f1-score': test_report['macro avg']['f1-score'],
+        }
+            
+                    
+        return performance
+    
+    # @staticmethod
+    # def evaluate_leaderboard(model_name, model_path, dbpath, dbname_ISIC2020):
+        
+    #     DBtypes = [db.name for db in mel.DatasetType]
+    #     combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
+    #     assert len(combined_DBs) >= 1
+
+    #     # ISIC2020
+    #     # trainimages, testimages, validationimages, \
+	# 	# 	trainlabels, _, validationlabels, num_classes, testimages_id = pickle.load(open(dbpath_ISIC2020, 'rb'))
+    #     traindata, validationdata, testdata = mel.parser_ISIC2020.open_H5(os.path.join(dbpath, dbname_ISIC2020))
+    #     assert len(testdata['testimages']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
+    #     assert len(testdata['testids']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
+    #     print('Testing on ISIC2020 DB')
+
+    #     model = load_model(model_path+'/'+model_name)
+    #     target_network = model.layers[0].name
+
+    #     test_pred, test_pred_classes = mel.Model.predict_testimages(
+    #         model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2020.name, \
+    #             testimages = testdata['testimages']
+    #     )
+
+    #     import csv
+
+    #     # field names
+    #     fields = ['image_name', 'target']
+        
+    #     # name of csv file
+    #     if not os.path.exists(f'{dbpath}/leaderboard/{target_network}'):
+    #         os.makedirs(f'{dbpath}/leaderboard/{target_network}', exist_ok=True)
+    #     filename = f'{dbpath}/leaderboard/{target_network}/{model_name}_ISIC2020leaderboard.csv'
+        
+        
+
+    #     with open(filename, 'w') as csvfile:
+    #         # creating a csv writer object
+    #         csvwriter = csv.writer(csvfile)
+        
+    #         # writing the fields
+    #         csvwriter.writerow(fields)
+        
+            
+    #         assert len(testdata['testimages']) == len(test_pred_classes)
+    #         assert len(testdata['testimages']) == len(test_pred)
+    #         # assert len(testdata['testlabels']) == len(test_pred_classes)
+    #         # assert len(testdata['testlabels']) == len(test_pred)
+    #         assert len(testdata['testids']) == len(test_pred_classes)
+    #         assert len(testdata['testids']) == len(test_pred)
+
+    #         # writing the data rows
+    #         for idx, id in enumerate(testdata['testids']):
+
+    #             csvwriter.writerow([id.item().decode('utf-8'), test_pred[idx][1]])
     
     @staticmethod
-    def evaluate_leaderboard(model_name, model_path, dbpath, dbname_ISIC2020):
+    def evaluate_leaderboard(model, model_path, db_path, device):
+        all_preds = []
+        all_scores = []
+        all_ids = []
+
+        data_transform = {
+                'Test': v2.Compose([
+                v2.Resize(256),
+                v2.CenterCrop(224),
+                v2.ToTensor(),
+                v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+        }
+
+        paths = {
+            'ISIC2020': os.path.join(db_path, '..', mel.DatasetType.ISIC2020.name, 'ISIC_2020_Test_Input'),
+        }
+
+        datafolders = {
+            'ISIC2020': {
+                'Test': mel.ImageDataset(root_dir=paths['ISIC2020'], transform=data_transform['Test'])
+            },
+        }
+
+        dataloader = {
+            'ISIC2020': {
+                'Test': torch.utils.data.DataLoader(datafolders['ISIC2020']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            
+        }
+
+        model.to(device)
         
-        DBtypes = [db.name for db in mel.DatasetType]
-        combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
-        assert len(combined_DBs) >= 1
+        with torch.no_grad():
+            for data in tqdm(dataloader['ISIC2020']['Test']):
+                
 
-        # ISIC2020
-        # trainimages, testimages, validationimages, \
-		# 	trainlabels, _, validationlabels, num_classes, testimages_id = pickle.load(open(dbpath_ISIC2020, 'rb'))
-        traindata, validationdata, testdata = mel.parser_ISIC2020.open_H5(os.path.join(dbpath, dbname_ISIC2020))
-        assert len(testdata['testimages']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
-        assert len(testdata['testids']) == mel.CommonData().dbNumImgs[mel.DatasetType.ISIC2020]['testimages']
-        print('Testing on ISIC2020 DB')
+                images, filenames = data
+                images = images.to(device)
+                
+                
+                outputs = model(images) #file_name
+                smx = nn.Softmax(dim=1)
+                smx_output = smx(outputs.data)
+                # preds = torch.argmax(outputs.data, 1)
+                preds = torch.argmax(smx_output, 1)
+                
+                all_ids.extend(filenames)
+                all_preds.extend(preds.cpu().tolist())
+                all_scores.extend(smx_output.cpu().tolist())
 
-        model = load_model(model_path+'/'+model_name)
-        target_network = model.layers[0].name
+                assert len(all_preds) == len(all_ids) and len(all_preds) == len(all_scores) 
 
-        test_pred, test_pred_classes = mel.Model.predict_testimages(
-            model = model, model_name = model_name, target_db=mel.DatasetType.ISIC2020.name, \
-                testimages = testdata['testimages']
-        )
 
         import csv
-
         # field names
         fields = ['image_name', 'target']
         
         # name of csv file
-        if not os.path.exists(f'{dbpath}/leaderboard/{target_network}'):
-            os.makedirs(f'{dbpath}/leaderboard/{target_network}', exist_ok=True)
-        filename = f'{dbpath}/leaderboard/{target_network}/{model_name}_ISIC2020leaderboard.csv'
+        csv_path = os.path.join(pathlib.Path(model_path).parent, 'leaderboard')
+        full_filename = pathlib.Path(model_path).stem
+
+        if not os.path.exists(csv_path):
+            os.makedirs(csv_path)
+        csv_filename = f'{full_filename}_leaderboard.csv'
         
         
 
-        with open(filename, 'w') as csvfile:
+        with open(csv_filename, 'w') as csvfile:
             # creating a csv writer object
             csvwriter = csv.writer(csvfile)
         
             # writing the fields
             csvwriter.writerow(fields)
-        
-            
-            assert len(testdata['testimages']) == len(test_pred_classes)
-            assert len(testdata['testimages']) == len(test_pred)
-            # assert len(testdata['testlabels']) == len(test_pred_classes)
-            # assert len(testdata['testlabels']) == len(test_pred)
-            assert len(testdata['testids']) == len(test_pred_classes)
-            assert len(testdata['testids']) == len(test_pred)
 
             # writing the data rows
-            for idx, id in enumerate(testdata['testids']):
+            assert len(all_ids) == len(all_scores)
+            for idx, label in enumerate(all_scores):
+                csvwriter.writerow([all_ids[idx], all_scores[idx][1]])
+    @staticmethod
+    def evaluate_model_onAll(model, model_path, db_path, device):
+        data_transform = {
+                'Test': v2.Compose([
+                v2.Resize(256),
+                v2.CenterCrop(224),
+                v2.ToTensor(),
+                v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+        }
 
-                csvwriter.writerow([id.item().decode('utf-8'), test_pred[idx][1]])
+        paths = {
+            'HAM10000': os.path.join(db_path, mel.DatasetType.HAM10000.name, 'final', 'Test'),
+            'ISIC2016': os.path.join(db_path, mel.DatasetType.ISIC2016.name, 'final', 'Test'),
+            'ISIC2017': os.path.join(db_path, mel.DatasetType.ISIC2017.name, 'final', 'Test'),
+            'ISIC2018': os.path.join(db_path, mel.DatasetType.ISIC2018.name, 'final', 'Test'),
+            'KaggleMB': os.path.join(db_path, mel.DatasetType.KaggleMB.name, 'final', 'Test'),
+            '_7_point_criteria': os.path.join(db_path, mel.DatasetType._7_point_criteria.name, 'final', 'Test')
+        }
 
-    def evaluate_model_onAll(model_name, model_path, \
-                            dbpath_KaggleDB, dbpath_HAM10000, dbpath_ISIC2016, dbpath_ISIC2017, \
-                            dbpath_ISIC2018, dbpath_7pointcriteria):
-        model = load_model(model_path+'/'+model_name + '.hdf5')
+        datafolders = {
+            'HAM10000': {
+                'Test': torchvision.datasets.ImageFolder(paths['HAM10000'], data_transform['Test'])
+            },
+            'ISIC2016': {
+                'Test': torchvision.datasets.ImageFolder(paths['ISIC2016'], data_transform['Test'])
+            },
+            'ISIC2017': {
+                'Test': torchvision.datasets.ImageFolder(paths['ISIC2017'], data_transform['Test'])
+            },
+            'ISIC2018': {
+                'Test': torchvision.datasets.ImageFolder(paths['ISIC2018'], data_transform['Test'])
+            },
+            '_7_point_criteria': {
+                'Test': torchvision.datasets.ImageFolder(paths['_7_point_criteria'], data_transform['Test'])
+            },
+            'KaggleMB': {
+                'Test': torchvision.datasets.ImageFolder(paths['KaggleMB'], data_transform['Test'])
+            }
+        }
 
-        target_network = model.layers[0].name
+        dataloaders = {
+            'HAM10000': {
+                'Test': torch.utils.data.DataLoader(datafolders['HAM10000']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True)
+                                                            # ,num_workers=4, prefetch_factor=2)
+            },
+            'ISIC2016': {
+                'Test': torch.utils.data.DataLoader(datafolders['ISIC2016']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            'ISIC2017': {
+                'Test': torch.utils.data.DataLoader(datafolders['ISIC2017']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            'ISIC2018': {
+                'Test': torch.utils.data.DataLoader(datafolders['ISIC2018']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            '_7_point_criteria': {
+                'Test': torch.utils.data.DataLoader(datafolders['_7_point_criteria']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            'KaggleMB': {
+                'Test': torch.utils.data.DataLoader(datafolders['KaggleMB']['Test'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2)
+            },
+            
+        }
 
-        if os.path.exists(f'{model_path}/performance/{target_network}/{model_name}_metrics.json') is False:
+        performances = {
+            'HAM10000': None,
+            'ISIC2016': None,
+            'ISIC2017': None,
+            'ISIC2018': None,
+            '_7_point_criteria': None,
+            'KaggleMB': None,
+        }
+        json_path = os.path.join(pathlib.Path(model_path).parent, 'performance')
+        full_filename = pathlib.Path(model_path).stem
+        json_filename = f'{full_filename}_metrics.json'
+
+        if os.path.exists(os.path.join(json_path, json_filename)) is False:
+            
+            if not os.path.exists(json_path):
+                os.makedirs(json_path, exist_ok=True)
+            
+
+            classifier_name = pathlib.Path(model_path).parent.name
+            
+
+            for db in performances:
+                print(f'Evaluating {full_filename} model on {mel.DatasetType[db].name}...\n')
+                performances[db] = mel.Model.evaluate_model(model, dataloaders[db], device)    
+            # # HAM10000
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType.HAM10000.name}...\n')
+            # performances['HAM10000'] = mel.Model.evaluate_model(model, dataloaders['HAM10000'], device)
+            # # # ISIC2016
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType.ISIC2016.name}...\n')
+            # performances['ISIC2016'] = mel.Model.evaluate_model(model, dataloaders['ISIC2016'], device)
+            # # # ISIC2017
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType.ISIC2017.name}...\n')
+            # performances['ISIC2017'] = mel.Model.evaluate_model(model, dataloaders['ISIC2017'], device)
+            # # # ISIC2018
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType.ISIC2018.name}...\n')
+            # performances['ISIC2018'] = mel.Model.evaluate_model(model, dataloaders['ISIC2018'], device)
+            # # # 7 point criteria
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType._7_point_criteria.name}...\n')
+            # performances['_7_point_criteria'] = mel.Model.evaluate_model(model, dataloaders['_7_point_criteria'], device)
+            # # # KaggleMB
+            # print(f'Evaluating {full_filename} model on {mel.DatasetType.KaggleMB.name}...\n')
+            # performances['KaggleMB'] = mel.Model.evaluate_model(model, dataloaders['KaggleMB'], device)
 
             DBtypes = [db.name for db in mel.DatasetType]
-            combined_DBs = [each_model for each_model in DBtypes if(each_model in model_name)]
-            assert len(combined_DBs) >= 1
 
-            # ---------- HAM10000 -------------
-            HAM10000_perf, model = mel.parser_HAM10000.evaluate(dbpath_HAM10000, model_path, model_name)
-            # ---------- KaggleMB -------------
-            KaggleMB_perf = mel.parser_KaggleMB.evaluate(dbpath_KaggleDB, model_path, model_name)
-            # ---------- ISIC2016 -------------
-            ISIC2016_perf = mel.parser_ISIC2016.evaluate(dbpath_ISIC2016, model_path, model_name)
-            # ---------- ISIC2017 -------------
-            ISIC2017_perf = mel.parser_ISIC2017.evaluate(dbpath_ISIC2017, model_path, model_name)
-            # ---------- ISIC2018 -------------
-            ISIC2018_perf = mel.parser_ISIC2018.evaluate(dbpath_ISIC2018, model_path, model_name)
-            # ---------- 7 point criteria -------------
-            _7_point_criteria_perf = mel.parser_7pointdb.evaluate(dbpath_7pointcriteria, model_path, model_name)
+            def calculate_filesize(model):
+                param_size = 0
+                for param in model.parameters():
+                    param_size += param.nelement() * param.element_size()
+                buffer_size = 0
+                for buffer in model.buffers():
+                    buffer_size += buffer.nelement() * buffer.element_size()
 
-            gc.collect()
+                size_all_mb = (param_size + buffer_size) / 1024**2
+                return size_all_mb
             
 
+            used_DBs = [each_model for each_model in DBtypes if(each_model in full_filename)]
             final_perf = {
-                'dataset': combined_DBs,
-                'classifier': model.layers[0].name,
-                'Parameters': model.count_params(),
-                'HAM10000': HAM10000_perf,
-                'KaggleMB': KaggleMB_perf,
-                'ISIC2016': ISIC2016_perf,
-                'ISIC2017': ISIC2017_perf,
-                'ISIC2018': ISIC2018_perf,
-                '_7_point_criteria': _7_point_criteria_perf,
-                'Filesize': int(os.stat(f'{os.path.join(model_path, model_name)}.hdf5').st_size / (1024 * 1024)),
+                'dataset': used_DBs,
+                'classifier': classifier_name,
+                'Parameters': sum(p.numel() for p in model.parameters()),
+                'HAM10000': performances['HAM10000'],
+                'KaggleMB': performances['KaggleMB'],
+                'ISIC2016': performances['ISIC2016'],
+                'ISIC2017': performances['ISIC2017'],
+                'ISIC2018': performances['ISIC2018'],
+                '_7_point_criteria': performances['_7_point_criteria'],
+                'Filesize(MB)': '{:.2f}'.format(calculate_filesize(model)),
 
             }
-
-            
-
-            # Into snapshot_path
-            if not os.path.exists(f'{model_path}/performance/{target_network}'):
-                os.makedirs(f'{model_path}/performance/{target_network}', exist_ok=True)
-            
-            file_json = open(f'{model_path}/performance/{target_network}/{model_name}_metrics.json', "w")
+            # Dump Json
+            file_json = open(os.path.join(json_path, json_filename), "w")
 
             json.dump(final_perf, file_json, indent = 6)
             
             file_json.close()
-            return final_perf
+
+            
         else:
-            print(f'Skipping {model_name}')
+            print(f'Skipping {full_filename}')
+
+
+        
+
 
     @staticmethod
     def extract_performances(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/performance/*/*.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
 
         final_perf = []
@@ -246,208 +501,6 @@ class Model:
             fi = open(j)
             jfile = json.load(fi)
             final_perf.append(jfile)
-
-
-        # # KaggleMB
-
-        # KaggleMB_maxperf = {
-        #     "max_accuracy": max(final_perf, key=(lambda item: item['KaggleMB']['accuracy'])),
-        #     "max_precision": max(final_perf, key=(lambda item: item['KaggleMB']['precision'])),
-        #     "max_sensitivity": max(final_perf, key=(lambda item: item['KaggleMB']['sensitivity'])),
-        #     "max_specificity": max(final_perf, key=(lambda item: item['KaggleMB']['specificity'])),
-        #     "max_f1-score": max(final_perf, key=(lambda item: item['KaggleMB']['f1-score'])),
-        # }
-
-        # KaggleMB_maxacc = {
-        #     "datasets": KaggleMB_maxperf['max_accuracy']['dataset'],
-        #     "classifier": KaggleMB_maxperf['max_accuracy']['classifier'],
-        #     "acc": KaggleMB_maxperf['max_accuracy']['KaggleMB']['accuracy'],
-        # }
-
-        # KaggleMB_maxprec = {
-        #     "datasets": KaggleMB_maxperf['max_precision']['dataset'],
-        #     "classifier": KaggleMB_maxperf['max_precision']['classifier'],
-        #     "acc": KaggleMB_maxperf['max_precision']['KaggleMB']['precision'],
-        # }
-
-        # KaggleMB_maxsens = {
-        #     "datasets": KaggleMB_maxperf['max_sensitivity']['dataset'],
-        #     "classifier": KaggleMB_maxperf['max_sensitivity']['classifier'],
-        #     "acc": KaggleMB_maxperf['max_sensitivity']['KaggleMB']['sensitivity'],
-        # }
-
-        # KaggleMB_maxspec = {
-        #     "datasets": KaggleMB_maxperf['max_specificity']['dataset'],
-        #     "classifier": KaggleMB_maxperf['max_specificity']['classifier'],
-        #     "acc": KaggleMB_maxperf['max_specificity']['KaggleMB']['specificity'],
-        # }
-
-        # KaggleMB_maxf1 = {
-        #     "datasets": KaggleMB_maxperf['max_accuracy']['dataset'],
-        #     "classifier": KaggleMB_maxperf['max_accuracy']['classifier'],
-        #     "acc": KaggleMB_maxperf['max_f1-score']['KaggleMB']['f1-score'],
-        # }
-
-
-        # # HAM10000
-
-        # HAM10000_maxperf = {
-        #     "max_accuracy": max(final_perf, key=(lambda item: item['HAM10000']['accuracy'])),
-        #     "max_precision": max(final_perf, key=(lambda item: item['HAM10000']['precision'])),
-        #     "max_sensitivity": max(final_perf, key=(lambda item: item['HAM10000']['sensitivity'])),
-        #     "max_specificity": max(final_perf, key=(lambda item: item['HAM10000']['specificity'])),
-        #     "max_f1-score": max(final_perf, key=(lambda item: item['HAM10000']['f1-score'])),
-        # }
-
-        # HAM10000_maxacc = {
-        #     "datasets": HAM10000_maxperf['max_accuracy']['dataset'],
-        #     "classifier": HAM10000_maxperf['max_accuracy']['classifier'],
-        #     "acc": HAM10000_maxperf['max_accuracy']['HAM10000']['accuracy'],
-        # }
-
-        # HAM10000_maxprec = {
-        #     "datasets": HAM10000_maxperf['max_precision']['dataset'],
-        #     "classifier": HAM10000_maxperf['max_precision']['classifier'],
-        #     "acc": HAM10000_maxperf['max_precision']['HAM10000']['precision'],
-        # }
-
-        # HAM10000_maxsens = {
-        #     "datasets": HAM10000_maxperf['max_sensitivity']['dataset'],
-        #     "classifier": HAM10000_maxperf['max_sensitivity']['classifier'],
-        #     "acc": HAM10000_maxperf['max_sensitivity']['HAM10000']['sensitivity'],
-        # }
-
-        # HAM10000_maxspec = {
-        #     "datasets": HAM10000_maxperf['max_specificity']['dataset'],
-        #     "classifier": HAM10000_maxperf['max_specificity']['classifier'],
-        #     "acc": HAM10000_maxperf['max_specificity']['HAM10000']['specificity'],
-        # }
-
-        # HAM10000_maxf1 = {
-        #     "datasets": HAM10000_maxperf['max_accuracy']['dataset'],
-        #     "classifier": HAM10000_maxperf['max_accuracy']['classifier'],
-        #     "acc": HAM10000_maxperf['max_f1-score']['HAM10000']['f1-score'],
-        # }
-
-        # # ISIC2016
-
-        # ISIC2016_maxperf = {
-        #     "max_accuracy": max(final_perf, key=(lambda item: item['ISIC2016']['accuracy'])),
-        #     "max_precision": max(final_perf, key=(lambda item: item['ISIC2016']['precision'])),
-        #     "max_sensitivity": max(final_perf, key=(lambda item: item['ISIC2016']['sensitivity'])),
-        #     "max_specificity": max(final_perf, key=(lambda item: item['ISIC2016']['specificity'])),
-        #     "max_f1-score": max(final_perf, key=(lambda item: item['ISIC2016']['f1-score'])),
-        # }
-
-        # ISIC2016_maxacc = {
-        #     "datasets": ISIC2016_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2016_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2016_maxperf['max_accuracy']['ISIC2016']['accuracy'],
-        # }
-
-        # ISIC2016_maxprec = {
-        #     "datasets": ISIC2016_maxperf['max_precision']['dataset'],
-        #     "classifier": ISIC2016_maxperf['max_precision']['classifier'],
-        #     "acc": ISIC2016_maxperf['max_precision']['ISIC2016']['precision'],
-        # }
-
-        # ISIC2016_maxsens = {
-        #     "datasets": ISIC2016_maxperf['max_sensitivity']['dataset'],
-        #     "classifier": ISIC2016_maxperf['max_sensitivity']['classifier'],
-        #     "acc": ISIC2016_maxperf['max_sensitivity']['ISIC2016']['sensitivity'],
-        # }
-
-        # ISIC2016_maxspec = {
-        #     "datasets": ISIC2016_maxperf['max_specificity']['dataset'],
-        #     "classifier": ISIC2016_maxperf['max_specificity']['classifier'],
-        #     "acc": ISIC2016_maxperf['max_specificity']['ISIC2016']['specificity'],
-        # }
-
-        # ISIC2016_maxf1 = {
-        #     "datasets": ISIC2016_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2016_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2016_maxperf['max_f1-score']['ISIC2016']['f1-score'],
-        # }
-
-        # # ISIC2017
-
-        # ISIC2017_maxperf = {
-        #     "max_accuracy": max(final_perf, key=(lambda item: item['ISIC2017']['accuracy'])),
-        #     "max_precision": max(final_perf, key=(lambda item: item['ISIC2017']['precision'])),
-        #     "max_sensitivity": max(final_perf, key=(lambda item: item['ISIC2017']['sensitivity'])),
-        #     "max_specificity": max(final_perf, key=(lambda item: item['ISIC2017']['specificity'])),
-        #     "max_f1-score": max(final_perf, key=(lambda item: item['ISIC2017']['f1-score'])),
-        # }
-
-        # ISIC2017_maxacc = {
-        #     "datasets": ISIC2017_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2017_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2017_maxperf['max_accuracy']['ISIC2017']['accuracy'],
-        # }
-
-        # ISIC2017_maxprec = {
-        #     "datasets": ISIC2017_maxperf['max_precision']['dataset'],
-        #     "classifier": ISIC2017_maxperf['max_precision']['classifier'],
-        #     "acc": ISIC2017_maxperf['max_precision']['ISIC2017']['precision'],
-        # }
-
-        # ISIC2017_maxsens = {
-        #     "datasets": ISIC2017_maxperf['max_sensitivity']['dataset'],
-        #     "classifier": ISIC2017_maxperf['max_sensitivity']['classifier'],
-        #     "acc": ISIC2017_maxperf['max_sensitivity']['ISIC2017']['sensitivity'],
-        # }
-
-        # ISIC2017_maxspec = {
-        #     "datasets": ISIC2017_maxperf['max_specificity']['dataset'],
-        #     "classifier": ISIC2017_maxperf['max_specificity']['classifier'],
-        #     "acc": ISIC2017_maxperf['max_specificity']['ISIC2017']['specificity'],
-        # }
-
-        # ISIC2017_maxf1 = {
-        #     "datasets": ISIC2017_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2017_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2017_maxperf['max_f1-score']['ISIC2017']['f1-score'],
-        # }
-
-        # # ISIC2018
-
-        # ISIC2018_maxperf = {
-        #     "max_accuracy": max(final_perf, key=(lambda item: item['ISIC2018']['accuracy'])),
-        #     "max_precision": max(final_perf, key=(lambda item: item['ISIC2018']['precision'])),
-        #     "max_sensitivity": max(final_perf, key=(lambda item: item['ISIC2018']['sensitivity'])),
-        #     "max_specificity": max(final_perf, key=(lambda item: item['ISIC2018']['specificity'])),
-        #     "max_f1-score": max(final_perf, key=(lambda item: item['ISIC2018']['f1-score'])),
-        # }
-
-        # ISIC2018_maxacc = {
-        #     "datasets": ISIC2018_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2018_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2018_maxperf['max_accuracy']['ISIC2018']['accuracy'],
-        # }
-
-        # ISIC2018_maxprec = {
-        #     "datasets": ISIC2018_maxperf['max_precision']['dataset'],
-        #     "classifier": ISIC2018_maxperf['max_precision']['classifier'],
-        #     "acc": ISIC2018_maxperf['max_precision']['ISIC2018']['precision'],
-        # }
-
-        # ISIC2018_maxsens = {
-        #     "datasets": ISIC2018_maxperf['max_sensitivity']['dataset'],
-        #     "classifier": ISIC2018_maxperf['max_sensitivity']['classifier'],
-        #     "acc": ISIC2018_maxperf['max_sensitivity']['ISIC2018']['sensitivity'],
-        # }
-
-        # ISIC2018_maxspec = {
-        #     "datasets": ISIC2018_maxperf['max_specificity']['dataset'],
-        #     "classifier": ISIC2018_maxperf['max_specificity']['classifier'],
-        #     "acc": ISIC2018_maxperf['max_specificity']['ISIC2018']['specificity'],
-        # }
-
-        # ISIC2018_maxf1 = {
-        #     "datasets": ISIC2018_maxperf['max_accuracy']['dataset'],
-        #     "classifier": ISIC2018_maxperf['max_accuracy']['classifier'],
-        #     "acc": ISIC2018_maxperf['max_f1-score']['ISIC2018']['f1-score'],
-        # }
 
 
         performance = openpyxl.Workbook()
@@ -466,70 +519,46 @@ class Model:
         HAM10000_ws.append(cols)
 
         for p in final_perf:
-            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['accuracy'], p['Filesize'], p['Parameters']])
+            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['accuracy'], p['Filesize(MB)'], p['Parameters']])
             
         ISIC2016_ws = performance['ISIC2016']
         ISIC2016_ws.append(cols)
 
         for p in final_perf:
-            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['accuracy'], p['Filesize(MB)'], p['Parameters']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
 
         for p in final_perf:
-            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['accuracy'], p['Filesize(MB)'], p['Parameters']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
 
         for p in final_perf:
-            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['accuracy'], p['Filesize(MB)'], p['Parameters']])
 
 
         KaggleMB_ws = performance['KaggleMB']
         KaggleMB_ws.append(cols)
 
         for p in final_perf:
-            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['accuracy'], p['Filesize'], p['Parameters']])
+            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['accuracy'], p['Filesize(MB)'], p['Parameters']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
 
         for p in final_perf:
-            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['accuracy'], p['Filesize'], p['Parameters']])
+            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['accuracy'], p['Filesize(MB)'], p['Parameters']])
             
-        performance.save(f'{snapshot_path}/performance/performance.xlsx')
+        performance.save(f'{snapshot_path}/performance_pytorch.xlsx')
 
-        print(f'{snapshot_path}/performance/performance.xlsx' + ' generated')
+        print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
         
 
         
 
-    @staticmethod
-    def evaluate_model(
-    model_name,
-    model_path,
-    target_db,
-    trainimages,
-    trainlabels,
-    validationimages,
-    validationlabels,
-    testimages,
-    testlabels
-    ):
-        print(f'Evaluating {model_name} model on {target_db}...\n')
-        # model = load_model(f'./model/{model_name}.hdf5') # Loads the best fit model
-        model = load_model(model_path+'/'+model_name + '.hdf5')
-
-        # print("Train loss = {}  ;  Train accuracy = {:.2%}\n".format(*model.evaluate(trainimages, trainlabels, verbose = self.CFG['verbose'])))
-
-        # print("Validation loss = {}  ;  Validation accuracy = {:.2%}\n".format(*model.evaluate(validationimages, validationlabels, verbose = self.CFG['verbose'])))
-
-        test_loss, test_acc = model.evaluate(testimages, testlabels, verbose = 1)
-        print(f"Test loss = {test_loss}  ;  Test accuracy = {test_acc:.2%}")
-
-        return (model, test_loss, test_acc)
 	
     @staticmethod
     def computing_prediction(model, model_name, target_db, testimages):

@@ -57,41 +57,9 @@ class NetworkType(Enum):
     
 
 class CommonData:
-     def __init__(self):
-      #    self.classifierDict = {
-      #             mel.NetworkType.ResNet50.name: ResNet50,
-      #             mel.NetworkType.ResNet101.name: ResNet101,
-      #             mel.NetworkType.ResNet152.name: ResNet152,
-      #             mel.NetworkType.Xception.name: Xception,
-      #             mel.NetworkType.InceptionV3.name: InceptionV3,
-      #             mel.NetworkType.VGG16.name: VGG16,
-      #             mel.NetworkType.VGG19.name: VGG19,
-      #             mel.NetworkType.EfficientNetB0.name: EfficientNetB0,
-      #             mel.NetworkType.EfficientNetB1.name: EfficientNetB1,
-      #             mel.NetworkType.EfficientNetB2.name: EfficientNetB2,
-      #             mel.NetworkType.EfficientNetB3.name: EfficientNetB3,
-      #             mel.NetworkType.EfficientNetB4.name: EfficientNetB4,
-      #             mel.NetworkType.EfficientNetB5.name: EfficientNetB5,
-      #             mel.NetworkType.EfficientNetB6.name: EfficientNetB6,
-      #             mel.NetworkType.EfficientNetB7.name: EfficientNetB7,
-
-      #             mel.NetworkType.ResNet50V2.name: ResNet50V2,
-      #             mel.NetworkType.ResNet101V2.name: ResNet101V2,
-      #             mel.NetworkType.ResNet152V2.name: ResNet152V2,
-
-      #             mel.NetworkType.MobileNet.name: MobileNet,
-      #             mel.NetworkType.MobileNetV2.name: MobileNetV2,
-
-      #             mel.NetworkType.DenseNet121.name: DenseNet121,
-      #             mel.NetworkType.DenseNet169.name: DenseNet169,
-      #             mel.NetworkType.DenseNet201.name: DenseNet201,
-
-      #             mel.NetworkType.NASNetMobile.name: NASNetMobile,
-      #             mel.NetworkType.NASNetLarge.name: NASNetLarge,
-                  
-
-      # }
-         self.dbNumImgs = {
+      def __init__(self):
+         
+            self.dbNumImgs = {
             mel.DatasetType.HAM10000: {
                   "trainimages": 10015,
                   "validationimages": 0,

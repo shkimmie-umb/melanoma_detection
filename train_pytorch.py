@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn as nn
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5,6"
 
 CLI=argparse.ArgumentParser()
 CLI.add_argument(
@@ -77,11 +77,12 @@ CFG = dict(
     # run_functions_eagerly = False,
         
     # DB load
-    db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
+    # db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
+    db_path = os.path.join(pathlib.Path.cwd(), 'data', 'melanomaDB'),
     # save
-    # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
-    snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
-    model_file_name = f'{DBname}_{CLASSIFIER}_{JOB_INDEX}',
+    snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
+    # snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
+    model_file_name = f'{DBname}_{CLASSIFIER}',
 			
 )
 
@@ -109,10 +110,10 @@ data_transforms = {
         v2.RandomAffine(degrees=90, scale = (0.8, 1.2)),
         v2.RandomHorizontalFlip(),
         v2.RandomVerticalFlip(),
-        # v2.ColorJitter(saturation=(0.7, 1.3), 
-        #                     hue=(-0.1, 0.1),
-        #                     brightness=(0.7, 1.3),
-        #                     contrast=(0.7, 1.3)),
+        v2.ColorJitter(saturation=(0.7, 1.3), 
+                            hue=(-0.1, 0.1),
+                            brightness=(0.7, 1.3),
+                            contrast=(0.7, 1.3)),
         v2.ToTensor(),
         v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),

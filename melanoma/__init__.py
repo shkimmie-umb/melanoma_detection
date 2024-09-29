@@ -21,5 +21,4 @@ from .augmentationStrategy import *
 from .callback import SilentTrainingCallback
 from .preprocess import Preprocess
 from .commondata import DatasetType, NetworkType, CommonData
-from .dataloader_hdf5 import DataLoader
-from .dataloader_pretrans import DataLoaderFast
+from .dataloader_nolabels import ImageDataset

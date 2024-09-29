@@ -16,6 +16,10 @@ import melanoma as mel
 
 class Parser:
     classes_melanoma_binary = ['benign', 'malignant']
+    common_binary_label = {
+			0.0: 'benign',
+			1.0: 'malignant',
+    }
     
     def __init__(self, base_dir, pseudo_num = 2, split_ratio=0.2):
         # self.base_dir = pathlib.Path(base_dir)
@@ -31,10 +35,10 @@ class Parser:
 
         
 
-        self.common_binary_label = {
-			0.0: 'benign',
-			1.0: 'malignant',
-		}
+        # self.common_binary_label = {
+		# 	0.0: 'benign',
+		# 	1.0: 'malignant',
+		# }
 
     @staticmethod
     def encode(img_pil):
