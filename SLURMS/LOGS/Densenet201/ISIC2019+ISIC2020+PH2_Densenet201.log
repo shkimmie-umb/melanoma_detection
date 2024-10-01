@@ -91,3 +91,7 @@ Val Loss: 0.2298 Acc: 0.9033
 Epoch 16/35
 ----------
 Train Loss: 0.1706 Acc: 0.9325
+Val Loss: 0.2169 Acc: 0.9123
+
+Epoch 17/35
+----------
