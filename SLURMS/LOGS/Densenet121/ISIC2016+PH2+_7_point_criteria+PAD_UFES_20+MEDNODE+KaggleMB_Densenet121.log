@@ -1,0 +1,226 @@
+DB: ['ISIC2016', 'PH2', '_7_point_criteria', 'PAD_UFES_20', 'MEDNODE', 'KaggleMB']
+CLASSIFIER: Densenet121
+JOB_INDEX: None
+Start training ISIC2016+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_Densenet121
+Combining...
+Combining 1th db out of 6 dbs
+Combining 2th db out of 6 dbs
+Combining 3th db out of 6 dbs
+Combining 4th db out of 6 dbs
+Combining 5th db out of 6 dbs
+Combining 6th db out of 6 dbs
+Stacking data
+Combining complete
+Epoch 0/41
+----------
+Train Loss: 0.5245 Acc: 0.7376
+Val Loss: 0.4324 Acc: 0.8135
+
+Epoch 1/41
+----------
+Train Loss: 0.4086 Acc: 0.8124
+Val Loss: 0.4358 Acc: 0.8206
+
+Epoch 2/41
+----------
+Train Loss: 0.3801 Acc: 0.8255
+Val Loss: 0.3893 Acc: 0.8292
+
+Epoch 3/41
+----------
+Train Loss: 0.3633 Acc: 0.8336
+Val Loss: 0.3753 Acc: 0.8335
+
+Epoch 4/41
+----------
+Train Loss: 0.3504 Acc: 0.8434
+Val Loss: 0.3346 Acc: 0.8541
+
+Epoch 5/41
+----------
+Train Loss: 0.3334 Acc: 0.8514
+Val Loss: 0.3226 Acc: 0.8605
+
+Epoch 6/41
+----------
+Train Loss: 0.3198 Acc: 0.8586
+Val Loss: 0.3466 Acc: 0.8641
+
+Epoch 7/41
+----------
+Train Loss: 0.3231 Acc: 0.8554
+Val Loss: 0.3483 Acc: 0.8598
+
+Epoch 8/41
+----------
+Train Loss: 0.2806 Acc: 0.8828
+Val Loss: 0.3501 Acc: 0.8591
+
+Epoch 9/41
+----------
+Train Loss: 0.2870 Acc: 0.8719
+Val Loss: 0.3297 Acc: 0.8655
+
+Epoch 10/41
+----------
+Train Loss: 0.2789 Acc: 0.8768
+Val Loss: 0.3339 Acc: 0.8633
+
+Epoch 11/41
+----------
+Train Loss: 0.2654 Acc: 0.8853
+Val Loss: 0.3539 Acc: 0.8555
+
+Epoch 12/41
+----------
+Train Loss: 0.2655 Acc: 0.8837
+Val Loss: 0.3286 Acc: 0.8690
+
+Epoch 13/41
+----------
+Train Loss: 0.2750 Acc: 0.8800
+Val Loss: 0.3177 Acc: 0.8690
+
+Epoch 14/41
+----------
+Train Loss: 0.2521 Acc: 0.8927
+Val Loss: 0.3160 Acc: 0.8669
+
+Epoch 15/41
+----------
+Train Loss: 0.2736 Acc: 0.8807
+Val Loss: 0.3137 Acc: 0.8712
+
+Epoch 16/41
+----------
+Train Loss: 0.2702 Acc: 0.8805
+Val Loss: 0.3491 Acc: 0.8569
+
+Epoch 17/41
+----------
+Train Loss: 0.2668 Acc: 0.8794
+Val Loss: 0.3214 Acc: 0.8669
+
+Epoch 18/41
+----------
+Train Loss: 0.2591 Acc: 0.8907
+Val Loss: 0.3198 Acc: 0.8669
+
+Epoch 19/41
+----------
+Train Loss: 0.2635 Acc: 0.8896
+Val Loss: 0.3309 Acc: 0.8612
+
+Epoch 20/41
+----------
+Train Loss: 0.2593 Acc: 0.8911
+Val Loss: 0.3077 Acc: 0.8705
+
+Epoch 21/41
+----------
+Train Loss: 0.2560 Acc: 0.8887
+Val Loss: 0.3344 Acc: 0.8633
+
+Epoch 22/41
+----------
+Train Loss: 0.2567 Acc: 0.8887
+Val Loss: 0.3302 Acc: 0.8648
+
+Epoch 23/41
+----------
+Train Loss: 0.2566 Acc: 0.8901
+Val Loss: 0.3252 Acc: 0.8633
+
+Epoch 24/41
+----------
+Train Loss: 0.2617 Acc: 0.8903
+Val Loss: 0.3273 Acc: 0.8641
+
+Epoch 25/41
+----------
+Train Loss: 0.2520 Acc: 0.8911
+Val Loss: 0.3232 Acc: 0.8712
+
+Epoch 26/41
+----------
+Train Loss: 0.2583 Acc: 0.8903
+Val Loss: 0.3134 Acc: 0.8698
+
+Epoch 27/41
+----------
+Train Loss: 0.2498 Acc: 0.8909
+Val Loss: 0.3394 Acc: 0.8619
+
+Epoch 28/41
+----------
+Train Loss: 0.2613 Acc: 0.8911
+Val Loss: 0.3484 Acc: 0.8591
+
+Epoch 29/41
+----------
+Train Loss: 0.2517 Acc: 0.8938
+Val Loss: 0.3449 Acc: 0.8577
+
+Epoch 30/41
+----------
+Train Loss: 0.2783 Acc: 0.8781
+Val Loss: 0.3170 Acc: 0.8705
+
+Epoch 31/41
+----------
+Train Loss: 0.2642 Acc: 0.8840
+Val Loss: 0.3479 Acc: 0.8591
+
+Epoch 32/41
+----------
+Train Loss: 0.2538 Acc: 0.8896
+Val Loss: 0.3239 Acc: 0.8669
+
+Epoch 33/41
+----------
+Train Loss: 0.2702 Acc: 0.8792
+Val Loss: 0.3211 Acc: 0.8726
+
+Epoch 34/41
+----------
+Train Loss: 0.2694 Acc: 0.8826
+Val Loss: 0.3485 Acc: 0.8569
+
+Epoch 35/41
+----------
+Train Loss: 0.2500 Acc: 0.8946
+Val Loss: 0.3382 Acc: 0.8605
+
+Epoch 36/41
+----------
+Train Loss: 0.2473 Acc: 0.8953
+Val Loss: 0.3237 Acc: 0.8662
+
+Epoch 37/41
+----------
+Train Loss: 0.2667 Acc: 0.8844
+Val Loss: 0.3335 Acc: 0.8641
+
+Epoch 38/41
+----------
+Train Loss: 0.2540 Acc: 0.8859
+Val Loss: 0.3158 Acc: 0.8690
+
+Epoch 39/41
+----------
+Train Loss: 0.2542 Acc: 0.8896
+Val Loss: 0.3223 Acc: 0.8683
+
+Epoch 40/41
+----------
+Train Loss: 0.2634 Acc: 0.8857
+Val Loss: 0.3312 Acc: 0.8655
+
+Epoch 41/41
+----------
+Train Loss: 0.2441 Acc: 0.8977
+Val Loss: 0.3272 Acc: 0.8641
+
+Training complete in 56m 32s
+Best val Acc: 0.872598
+Finished training ISIC2016+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB_Densenet121

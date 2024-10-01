@@ -1,0 +1,161 @@
+DB: ['ISIC2018']
+CLASSIFIER: VGG11
+JOB_INDEX: None
+Start training ISIC2018_VGG11
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.5194 Acc: 0.7272
+Val Loss: 0.3586 Acc: 0.8135
+
+Epoch 1/29
+----------
+Train Loss: 0.4599 Acc: 0.7654
+Val Loss: 0.4117 Acc: 0.7617
+
+Epoch 2/29
+----------
+Train Loss: 0.4408 Acc: 0.7805
+Val Loss: 0.5820 Acc: 0.6684
+
+Epoch 3/29
+----------
+Train Loss: 0.4317 Acc: 0.7890
+Val Loss: 0.5123 Acc: 0.7047
+
+Epoch 4/29
+----------
+Train Loss: 0.4164 Acc: 0.7990
+Val Loss: 0.3788 Acc: 0.7668
+
+Epoch 5/29
+----------
+Train Loss: 0.4060 Acc: 0.8012
+Val Loss: 0.3710 Acc: 0.7979
+
+Epoch 6/29
+----------
+Train Loss: 0.3995 Acc: 0.8042
+Val Loss: 0.2876 Acc: 0.8446
+
+Epoch 7/29
+----------
+Train Loss: 0.3859 Acc: 0.8134
+Val Loss: 0.3330 Acc: 0.8135
+
+Epoch 8/29
+----------
+Train Loss: 0.3706 Acc: 0.8255
+Val Loss: 0.3167 Acc: 0.8187
+
+Epoch 9/29
+----------
+Train Loss: 0.3624 Acc: 0.8285
+Val Loss: 0.3023 Acc: 0.8290
+
+Epoch 10/29
+----------
+Train Loss: 0.3572 Acc: 0.8324
+Val Loss: 0.3083 Acc: 0.8290
+
+Epoch 11/29
+----------
+Train Loss: 0.3669 Acc: 0.8268
+Val Loss: 0.3065 Acc: 0.8238
+
+Epoch 12/29
+----------
+Train Loss: 0.3640 Acc: 0.8295
+Val Loss: 0.3187 Acc: 0.8290
+
+Epoch 13/29
+----------
+Train Loss: 0.3504 Acc: 0.8369
+Val Loss: 0.3124 Acc: 0.8238
+
+Epoch 14/29
+----------
+Train Loss: 0.3597 Acc: 0.8282
+Val Loss: 0.3232 Acc: 0.8238
+
+Epoch 15/29
+----------
+Train Loss: 0.3551 Acc: 0.8351
+Val Loss: 0.3121 Acc: 0.8238
+
+Epoch 16/29
+----------
+Train Loss: 0.3585 Acc: 0.8322
+Val Loss: 0.3141 Acc: 0.8238
+
+Epoch 17/29
+----------
+Train Loss: 0.3543 Acc: 0.8305
+Val Loss: 0.3095 Acc: 0.8238
+
+Epoch 18/29
+----------
+Train Loss: 0.3445 Acc: 0.8349
+Val Loss: 0.2969 Acc: 0.8238
+
+Epoch 19/29
+----------
+Train Loss: 0.3489 Acc: 0.8350
+Val Loss: 0.3148 Acc: 0.8238
+
+Epoch 20/29
+----------
+Train Loss: 0.3479 Acc: 0.8322
+Val Loss: 0.3103 Acc: 0.8238
+
+Epoch 21/29
+----------
+Train Loss: 0.3555 Acc: 0.8331
+Val Loss: 0.3102 Acc: 0.8238
+
+Epoch 22/29
+----------
+Train Loss: 0.3540 Acc: 0.8333
+Val Loss: 0.3105 Acc: 0.8238
+
+Epoch 23/29
+----------
+Train Loss: 0.3499 Acc: 0.8347
+Val Loss: 0.3078 Acc: 0.8238
+
+Epoch 24/29
+----------
+Train Loss: 0.3495 Acc: 0.8360
+Val Loss: 0.3102 Acc: 0.8238
+
+Epoch 25/29
+----------
+Train Loss: 0.3457 Acc: 0.8387
+Val Loss: 0.3082 Acc: 0.8238
+
+Epoch 26/29
+----------
+Train Loss: 0.3501 Acc: 0.8357
+Val Loss: 0.3104 Acc: 0.8238
+
+Epoch 27/29
+----------
+Train Loss: 0.3517 Acc: 0.8364
+Val Loss: 0.3086 Acc: 0.8238
+
+Epoch 28/29
+----------
+Train Loss: 0.3416 Acc: 0.8371
+Val Loss: 0.3086 Acc: 0.8238
+
+Epoch 29/29
+----------
+Train Loss: 0.3556 Acc: 0.8364
+Val Loss: 0.3084 Acc: 0.8238
+
+Training complete in 45m 14s
+Best val Acc: 0.844560
+Finished training ISIC2018_VGG11

@@ -1,0 +1,10 @@
+DB: ['ISIC2017']
+CLASSIFIER: InceptionV3
+JOB_INDEX: None
+Start training ISIC2017_InceptionV3
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------

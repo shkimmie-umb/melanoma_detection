@@ -1,0 +1,57 @@
+DB: ['ISIC2020', 'PH2']
+CLASSIFIER: ResNet50
+JOB_INDEX: None
+Start training ISIC2020+PH2_ResNet50
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.4671 Acc: 0.7728
+Val Loss: 0.4039 Acc: 0.8043
+
+Epoch 1/33
+----------
+Train Loss: 0.3621 Acc: 0.8367
+Val Loss: 0.3586 Acc: 0.8098
+
+Epoch 2/33
+----------
+Train Loss: 0.3130 Acc: 0.8624
+Val Loss: 0.3959 Acc: 0.8086
+
+Epoch 3/33
+----------
+Train Loss: 0.2729 Acc: 0.8866
+Val Loss: 0.4219 Acc: 0.8180
+
+Epoch 4/33
+----------
+Train Loss: 0.2362 Acc: 0.9036
+Val Loss: 0.1736 Acc: 0.9304
+
+Epoch 5/33
+----------
+Train Loss: 0.2065 Acc: 0.9198
+Val Loss: 0.2833 Acc: 0.8862
+
+Epoch 6/33
+----------
+Train Loss: 0.1856 Acc: 0.9286
+Val Loss: 0.2491 Acc: 0.9030
+
+Epoch 7/33
+----------
+Train Loss: 0.1411 Acc: 0.9458
+Val Loss: 0.1865 Acc: 0.9324
+
+Epoch 8/33
+----------
+Train Loss: 0.1273 Acc: 0.9527
+Val Loss: 0.1768 Acc: 0.9362
+
+Epoch 9/33
+----------
+Train Loss: 0.1203 Acc: 0.9560

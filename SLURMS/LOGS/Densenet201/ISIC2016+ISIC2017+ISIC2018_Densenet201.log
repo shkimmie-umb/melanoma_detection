@@ -1,0 +1,193 @@
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018']
+CLASSIFIER: Densenet201
+JOB_INDEX: None
+Start training ISIC2016+ISIC2017+ISIC2018_Densenet201
+Combining...
+Combining 1th db out of 3 dbs
+Combining 2th db out of 3 dbs
+Combining 3th db out of 3 dbs
+Stacking data
+Combining complete
+Epoch 0/35
+----------
+Train Loss: 0.5182 Acc: 0.7325
+Val Loss: 0.4201 Acc: 0.7859
+
+Epoch 1/35
+----------
+Train Loss: 0.4564 Acc: 0.7738
+Val Loss: 0.3808 Acc: 0.8337
+
+Epoch 2/35
+----------
+Train Loss: 0.4343 Acc: 0.7884
+Val Loss: 0.3918 Acc: 0.8069
+
+Epoch 3/35
+----------
+Train Loss: 0.3918 Acc: 0.8137
+Val Loss: 0.4761 Acc: 0.7572
+
+Epoch 4/35
+----------
+Train Loss: 0.3763 Acc: 0.8250
+Val Loss: 0.3639 Acc: 0.8298
+
+Epoch 5/35
+----------
+Train Loss: 0.3522 Acc: 0.8383
+Val Loss: 0.3581 Acc: 0.8566
+
+Epoch 6/35
+----------
+Train Loss: 0.3255 Acc: 0.8506
+Val Loss: 0.3551 Acc: 0.8375
+
+Epoch 7/35
+----------
+Train Loss: 0.2898 Acc: 0.8729
+Val Loss: 0.3341 Acc: 0.8528
+
+Epoch 8/35
+----------
+Train Loss: 0.2719 Acc: 0.8826
+Val Loss: 0.3380 Acc: 0.8547
+
+Epoch 9/35
+----------
+Train Loss: 0.2708 Acc: 0.8839
+Val Loss: 0.3534 Acc: 0.8451
+
+Epoch 10/35
+----------
+Train Loss: 0.2668 Acc: 0.8820
+Val Loss: 0.3173 Acc: 0.8681
+
+Epoch 11/35
+----------
+Train Loss: 0.2514 Acc: 0.8901
+Val Loss: 0.3308 Acc: 0.8604
+
+Epoch 12/35
+----------
+Train Loss: 0.2507 Acc: 0.8931
+Val Loss: 0.3737 Acc: 0.8394
+
+Epoch 13/35
+----------
+Train Loss: 0.2569 Acc: 0.8875
+Val Loss: 0.3324 Acc: 0.8642
+
+Epoch 14/35
+----------
+Train Loss: 0.2398 Acc: 0.8969
+Val Loss: 0.3472 Acc: 0.8566
+
+Epoch 15/35
+----------
+Train Loss: 0.2345 Acc: 0.8991
+Val Loss: 0.3285 Acc: 0.8681
+
+Epoch 16/35
+----------
+Train Loss: 0.2394 Acc: 0.8965
+Val Loss: 0.3540 Acc: 0.8413
+
+Epoch 17/35
+----------
+Train Loss: 0.2379 Acc: 0.8997
+Val Loss: 0.3400 Acc: 0.8642
+
+Epoch 18/35
+----------
+Train Loss: 0.2366 Acc: 0.8997
+Val Loss: 0.3484 Acc: 0.8489
+
+Epoch 19/35
+----------
+Train Loss: 0.2385 Acc: 0.8967
+Val Loss: 0.3348 Acc: 0.8662
+
+Epoch 20/35
+----------
+Train Loss: 0.2338 Acc: 0.8998
+Val Loss: 0.3358 Acc: 0.8662
+
+Epoch 21/35
+----------
+Train Loss: 0.2376 Acc: 0.8979
+Val Loss: 0.3481 Acc: 0.8509
+
+Epoch 22/35
+----------
+Train Loss: 0.2308 Acc: 0.9008
+Val Loss: 0.3567 Acc: 0.8375
+
+Epoch 23/35
+----------
+Train Loss: 0.2361 Acc: 0.8967
+Val Loss: 0.3469 Acc: 0.8489
+
+Epoch 24/35
+----------
+Train Loss: 0.2387 Acc: 0.8957
+Val Loss: 0.3276 Acc: 0.8642
+
+Epoch 25/35
+----------
+Train Loss: 0.2334 Acc: 0.9011
+Val Loss: 0.3333 Acc: 0.8642
+
+Epoch 26/35
+----------
+Train Loss: 0.2454 Acc: 0.8944
+Val Loss: 0.3293 Acc: 0.8662
+
+Epoch 27/35
+----------
+Train Loss: 0.2323 Acc: 0.9028
+Val Loss: 0.3607 Acc: 0.8451
+
+Epoch 28/35
+----------
+Train Loss: 0.2316 Acc: 0.9016
+Val Loss: 0.3305 Acc: 0.8642
+
+Epoch 29/35
+----------
+Train Loss: 0.2442 Acc: 0.8952
+Val Loss: 0.3638 Acc: 0.8413
+
+Epoch 30/35
+----------
+Train Loss: 0.2346 Acc: 0.8970
+Val Loss: 0.3341 Acc: 0.8662
+
+Epoch 31/35
+----------
+Train Loss: 0.2351 Acc: 0.8983
+Val Loss: 0.3432 Acc: 0.8528
+
+Epoch 32/35
+----------
+Train Loss: 0.2307 Acc: 0.9027
+Val Loss: 0.3218 Acc: 0.8738
+
+Epoch 33/35
+----------
+Train Loss: 0.2407 Acc: 0.8984
+Val Loss: 0.3389 Acc: 0.8566
+
+Epoch 34/35
+----------
+Train Loss: 0.2442 Acc: 0.8922
+Val Loss: 0.3413 Acc: 0.8509
+
+Epoch 35/35
+----------
+Train Loss: 0.2301 Acc: 0.9025
+Val Loss: 0.3407 Acc: 0.8547
+
+Training complete in 48m 26s
+Best val Acc: 0.873805
+Finished training ISIC2016+ISIC2017+ISIC2018_Densenet201

@@ -6,13 +6,26 @@ import torch.nn as nn
 
 import os
 import pathlib
+import copy
 # os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
-from torchvision.models import resnet18, ResNet18_Weights
-from torchvision.models import resnet50, ResNet50_Weights
-from torchvision.models import vgg19, VGG19_Weights
-from torchvision.models import vgg19_bn, VGG19_BN_Weights
-from torchvision.models import wide_resnet50_2, Wide_ResNet50_2_Weights
+from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
+from torchvision.models import vgg11, vgg11_bn
+from torchvision.models import vgg13, vgg13_bn
+from torchvision.models import vgg16, vgg16_bn
+from torchvision.models import vgg19, vgg19_bn
+from torchvision.models import wide_resnet50_2
+from torchvision.models import alexnet
+from torchvision.models import squeezenet1_0, squeezenet1_1
+from torchvision.models import densenet121, densenet161, densenet169, densenet201
+from torchvision.models import inception_v3
+from torchvision.models import googlenet
+from torchvision.models import shufflenet_v2_x0_5, shufflenet_v2_x1_0
+from torchvision.models import mobilenet_v2
+from torchvision.models import mobilenet_v3_large, mobilenet_v3_small
+from torchvision.models import resnext50_32x4d, resnext101_32x8d
+from torchvision.models import wide_resnet50_2, wide_resnet101_2
+from torchvision.models import mnasnet0_5, mnasnet1_0
 
 
 
@@ -23,7 +36,12 @@ class CNN(Base_Model):
         
     @staticmethod
     def modifyOutputLayer(model_ft, model_name, num_classes):
-        if (model_name == mel.NetworkType.ResNet50.name):
+        if (model_name in (mel.NetworkType.ResNet18.name, mel.NetworkType.ResNet34.name,
+        mel.NetworkType.ResNet50.name, mel.NetworkType.ResNet101.name, mel.NetworkType.ResNet152.name,
+        mel.NetworkType.InceptionV3.name, mel.NetworkType.GoogleNet.name,
+        mel.NetworkType.ShuffleNetV2x05.name, mel.NetworkType.ShuffleNetV2x10.name,
+        mel.NetworkType.ResNeXt5032x4d.name, mel.NetworkType.ResNeXt10132x8d.name,
+        mel.NetworkType.WideResNet50_2.name, mel.NetworkType.WideResNet101_2.name)):
             num_ftrs = model_ft.fc.in_features
             # Here the size of each output sample is set to 2.
             # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
@@ -34,9 +52,26 @@ class CNN(Base_Model):
             #     nn.Dropout(0.5),               # Dropout layer with 50% probability
             #     nn.Linear(256, num_classes)    # Final prediction fc layer
             # )
-        elif (model_name == mel.NetworkType.VGG19.name):
+        elif (model_name in 
+        (mel.NetworkType.VGG11.name, mel.NetworkType.VGG11_bn.name,
+        mel.NetworkType.VGG13.name, mel.NetworkType.VGG13_bn.name,
+        mel.NetworkType.VGG16.name, mel.NetworkType.VGG16_bn.name,
+        mel.NetworkType.VGG19.name, mel.NetworkType.VGG19_bn.name, mel.NetworkType.AlexNet.name,
+        mel.NetworkType.MobileNetV2.name, mel.NetworkType.MobileNetV3Large.name, mel.NetworkType.MobileNetV3Small.name,
+        mel.NetworkType.MNASNet10.name, mel.NetworkType.MNASNet05.name)):
             num_ftrs = model_ft.classifier[-1].in_features
             model_ft.classifier[-1] = nn.Linear(num_ftrs, num_classes)
+        elif (model_name in 
+        (mel.NetworkType.SqueezeNet10.name, mel.NetworkType.SqueezeNet11.name)):
+            num_ftrs = model_ft.classifier[1].in_channels
+            kernel_size = model_ft.classifier[1].kernel_size
+            stride = model_ft.classifier[1].stride
+            model_ft.classifier[1] = nn.Conv2d(num_ftrs, num_classes, kernel_size=kernel_size, stride=stride)
+        elif (model_name in 
+        (mel.NetworkType.Densenet121.name, mel.NetworkType.Densenet161.name,
+        mel.NetworkType.Densenet169.name, mel.NetworkType.Densenet201.name)):
+            num_ftrs = model_ft.classifier.in_features
+            model_ft.classifier = nn.Linear(num_ftrs, num_classes)
         else:
             raise AssertionError("Unknown network")
 
@@ -53,9 +88,17 @@ class CNN(Base_Model):
         if (list(state_dict.keys())[0][:6] == 'module'):
             from collections import OrderedDict
             new_state_dict = OrderedDict()
-            for k, v in state_dict.items():
-                name = k[7:] # remove 'module.' of dataparallel
-                new_state_dict[name]=v
+
+            if(hasattr(state_dict, '_metadata')):
+                new_state_dict._metadata = copy.deepcopy(state_dict._metadata)
+                for k, v in state_dict.items():
+                    name = k[7:] # remove 'module.' of dataparallel
+                    new_state_dict[name]=v
+            else:
+                for k, v in state_dict.items():
+                    name = k[7:] # remove 'module.' of dataparallel
+                    new_state_dict[name]=v
+            
         
             model_ft.load_state_dict(new_state_dict)
         else:
@@ -69,10 +112,39 @@ class CNN(Base_Model):
     @staticmethod
     def model_caller(classifier):
         classifierDict = {
-            mel.NetworkType.ResNet50.name: resnet50,
+            mel.NetworkType.AlexNet.name: alexnet,
+            mel.NetworkType.VGG11.name: vgg11,
+            mel.NetworkType.VGG13.name: vgg13,
+            mel.NetworkType.VGG16.name: vgg16,
             mel.NetworkType.VGG19.name: vgg19,
+            mel.NetworkType.VGG11_bn.name: vgg11_bn,
+            mel.NetworkType.VGG13_bn.name: vgg13_bn,
+            mel.NetworkType.VGG16_bn.name: vgg16_bn,
             mel.NetworkType.VGG19_bn.name: vgg19_bn,
+            mel.NetworkType.ResNet18.name: resnet18,
+            mel.NetworkType.ResNet34.name: resnet34,
+            mel.NetworkType.ResNet50.name: resnet50,
+            mel.NetworkType.ResNet101.name: resnet101,
+            mel.NetworkType.ResNet152.name: resnet152,
+            mel.NetworkType.SqueezeNet10.name: squeezenet1_0,
+            mel.NetworkType.SqueezeNet11.name: squeezenet1_1,
+            mel.NetworkType.Densenet121.name: densenet121,
+            mel.NetworkType.Densenet161.name: densenet161,
+            mel.NetworkType.Densenet169.name: densenet169,
+            mel.NetworkType.Densenet201.name: densenet201,
+            mel.NetworkType.InceptionV3.name: inception_v3,
+            mel.NetworkType.GoogleNet.name: googlenet,
+            mel.NetworkType.ShuffleNetV2x05.name: shufflenet_v2_x0_5,
+            mel.NetworkType.ShuffleNetV2x10.name: shufflenet_v2_x1_0,
+            mel.NetworkType.MobileNetV2.name: mobilenet_v2,
+            mel.NetworkType.MobileNetV3Large.name: mobilenet_v3_large,
+            mel.NetworkType.MobileNetV3Small.name: mobilenet_v3_small,
+            mel.NetworkType.ResNeXt5032x4d.name: resnext50_32x4d,
+            mel.NetworkType.ResNeXt10132x8d.name: resnext101_32x8d,
             mel.NetworkType.WideResNet50_2.name: wide_resnet50_2,
+            mel.NetworkType.WideResNet101_2.name: wide_resnet101_2,
+            mel.NetworkType.MNASNet05.name: mnasnet0_5,
+            mel.NetworkType.MNASNet10.name: mnasnet1_0,
         }
         model = classifierDict[classifier]
 

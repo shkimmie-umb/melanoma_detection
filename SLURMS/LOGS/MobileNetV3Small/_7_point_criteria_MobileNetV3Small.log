@@ -1,0 +1,161 @@
+DB: ['_7_point_criteria']
+CLASSIFIER: MobileNetV3Small
+JOB_INDEX: None
+Start training _7_point_criteria_MobileNetV3Small
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.6777 Acc: 0.4576
+Val Loss: 0.6403 Acc: 0.6601
+
+Epoch 1/29
+----------
+Train Loss: 0.6108 Acc: 0.5860
+Val Loss: 0.6118 Acc: 0.6897
+
+Epoch 2/29
+----------
+Train Loss: 0.6002 Acc: 0.5981
+Val Loss: 0.5944 Acc: 0.7143
+
+Epoch 3/29
+----------
+Train Loss: 0.5640 Acc: 0.6513
+Val Loss: 0.5886 Acc: 0.7044
+
+Epoch 4/29
+----------
+Train Loss: 0.5460 Acc: 0.6441
+Val Loss: 0.5834 Acc: 0.6995
+
+Epoch 5/29
+----------
+Train Loss: 0.5378 Acc: 0.6489
+Val Loss: 0.5725 Acc: 0.7143
+
+Epoch 6/29
+----------
+Train Loss: 0.5406 Acc: 0.6538
+Val Loss: 0.5654 Acc: 0.6995
+
+Epoch 7/29
+----------
+Train Loss: 0.5181 Acc: 0.6755
+Val Loss: 0.5673 Acc: 0.6946
+
+Epoch 8/29
+----------
+Train Loss: 0.4959 Acc: 0.6998
+Val Loss: 0.5694 Acc: 0.6946
+
+Epoch 9/29
+----------
+Train Loss: 0.5315 Acc: 0.6538
+Val Loss: 0.5725 Acc: 0.6946
+
+Epoch 10/29
+----------
+Train Loss: 0.5102 Acc: 0.6852
+Val Loss: 0.5776 Acc: 0.6847
+
+Epoch 11/29
+----------
+Train Loss: 0.5314 Acc: 0.6392
+Val Loss: 0.5809 Acc: 0.6897
+
+Epoch 12/29
+----------
+Train Loss: 0.5274 Acc: 0.6634
+Val Loss: 0.5841 Acc: 0.6847
+
+Epoch 13/29
+----------
+Train Loss: 0.5430 Acc: 0.6489
+Val Loss: 0.5872 Acc: 0.6798
+
+Epoch 14/29
+----------
+Train Loss: 0.5492 Acc: 0.6659
+Val Loss: 0.5906 Acc: 0.6798
+
+Epoch 15/29
+----------
+Train Loss: 0.5253 Acc: 0.6271
+Val Loss: 0.5927 Acc: 0.6700
+
+Epoch 16/29
+----------
+Train Loss: 0.5158 Acc: 0.6465
+Val Loss: 0.5932 Acc: 0.6552
+
+Epoch 17/29
+----------
+Train Loss: 0.5178 Acc: 0.6610
+Val Loss: 0.5945 Acc: 0.6502
+
+Epoch 18/29
+----------
+Train Loss: 0.5277 Acc: 0.6465
+Val Loss: 0.5970 Acc: 0.6601
+
+Epoch 19/29
+----------
+Train Loss: 0.5135 Acc: 0.6538
+Val Loss: 0.5968 Acc: 0.6601
+
+Epoch 20/29
+----------
+Train Loss: 0.5384 Acc: 0.6465
+Val Loss: 0.5970 Acc: 0.6552
+
+Epoch 21/29
+----------
+Train Loss: 0.5247 Acc: 0.6513
+Val Loss: 0.5961 Acc: 0.6552
+
+Epoch 22/29
+----------
+Train Loss: 0.5352 Acc: 0.6441
+Val Loss: 0.5941 Acc: 0.6650
+
+Epoch 23/29
+----------
+Train Loss: 0.4998 Acc: 0.6973
+Val Loss: 0.5935 Acc: 0.6502
+
+Epoch 24/29
+----------
+Train Loss: 0.5191 Acc: 0.6610
+Val Loss: 0.5934 Acc: 0.6453
+
+Epoch 25/29
+----------
+Train Loss: 0.5312 Acc: 0.6659
+Val Loss: 0.5939 Acc: 0.6453
+
+Epoch 26/29
+----------
+Train Loss: 0.4898 Acc: 0.7143
+Val Loss: 0.5953 Acc: 0.6404
+
+Epoch 27/29
+----------
+Train Loss: 0.5473 Acc: 0.6295
+Val Loss: 0.5962 Acc: 0.6601
+
+Epoch 28/29
+----------
+Train Loss: 0.4770 Acc: 0.7264
+Val Loss: 0.5956 Acc: 0.6552
+
+Epoch 29/29
+----------
+Train Loss: 0.5112 Acc: 0.6877
+Val Loss: 0.5939 Acc: 0.6502
+
+Training complete in 1m 2s
+Best val Acc: 0.714286
+Finished training _7_point_criteria_MobileNetV3Small

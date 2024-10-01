@@ -4,6 +4,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 
+import reject
+from reject.reject import ClassificationRejector
+from reject.utils import generate_synthetic_output
+
 import torch
 from tqdm import tqdm
 
@@ -180,6 +184,7 @@ class Model:
         test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
         performance = {
+            'y_labels': all_labels,
             'y_pred': all_preds,
             'y_scores': all_scores,
             'accuracy': test_report['accuracy'],
@@ -373,8 +378,8 @@ class Model:
         dataloaders = {
             'HAM10000': {
                 'Test': torch.utils.data.DataLoader(datafolders['HAM10000']['Test'], batch_size=32,
-                                                            shuffle=False, pin_memory=True)
-                                                            # ,num_workers=4, prefetch_factor=2)
+                                                            shuffle=False, pin_memory=True
+                                                            ,num_workers=4, prefetch_factor=2)
             },
             'ISIC2016': {
                 'Test': torch.utils.data.DataLoader(datafolders['ISIC2016']['Test'], batch_size=32,
@@ -557,7 +562,35 @@ class Model:
         print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
         
 
-        
+    def reject_uncertainties(snapshot_path):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet50/performance/ISIC2018_ResNet50_metrics.json', recursive=True)]))
+        jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
+
+        data = []
+
+        for idx, j in enumerate(jsonfiles):
+            fi = open(j)
+            jfile = json.load(fi)
+            data.append(jfile)
+
+        # y_pred_all, y_true_all = generate_synthetic_output(NUM_SAMPLES, NUM_OBSERVATIONS)
+        scores_all = np.array(data[0]['ISIC2016']['y_scores'])
+        labels_all = np.array(data[0]['ISIC2016']['y_labels'])
+        # (num_observations{IN+OOD}, num_samples, NUM_CLASSES)
+
+        # Instantiate Rejector
+        rej = ClassificationRejector(labels_all, scores_all)
+        # Get entropy (Uncertainty Total (Entropy))
+        # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
+        total_unc = rej.uncertainty(unc_type="TU")
+        all_unc = rej.uncertainty(unc_type=None)
+        # Plotting uncertainty per test sample
+        rej.plot_uncertainty(unc_type="TU")
+        rej.plot_uncertainty(unc_type=None)
+        # implement single rejection point
+        rej.reject(threshold=0.1, unc_type="TU", relative=True, show=True)
+        rej.plot_reject(unc_type="TU", metric="NRA")
+        rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
 
 	
     @staticmethod

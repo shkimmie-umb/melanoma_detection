@@ -1,0 +1,161 @@
+DB: ['ISIC2020']
+CLASSIFIER: MNASNet10
+JOB_INDEX: None
+Start training ISIC2020_MNASNet10
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.5316 Acc: 0.7286
+Val Loss: 0.0823 Acc: 0.9807
+
+Epoch 1/29
+----------
+Train Loss: 0.4728 Acc: 0.7692
+Val Loss: 0.0799 Acc: 0.9799
+
+Epoch 2/29
+----------
+Train Loss: 0.4532 Acc: 0.7856
+Val Loss: 0.1014 Acc: 0.9677
+
+Epoch 3/29
+----------
+Train Loss: 0.4308 Acc: 0.7965
+Val Loss: 0.1195 Acc: 0.9583
+
+Epoch 4/29
+----------
+Train Loss: 0.4217 Acc: 0.8023
+Val Loss: 0.1522 Acc: 0.9395
+
+Epoch 5/29
+----------
+Train Loss: 0.4062 Acc: 0.8149
+Val Loss: 0.2516 Acc: 0.8845
+
+Epoch 6/29
+----------
+Train Loss: 0.3926 Acc: 0.8220
+Val Loss: 0.2267 Acc: 0.8956
+
+Epoch 7/29
+----------
+Train Loss: 0.3779 Acc: 0.8302
+Val Loss: 0.2324 Acc: 0.8936
+
+Epoch 8/29
+----------
+Train Loss: 0.3746 Acc: 0.8305
+Val Loss: 0.2521 Acc: 0.8841
+
+Epoch 9/29
+----------
+Train Loss: 0.3711 Acc: 0.8338
+Val Loss: 0.2946 Acc: 0.8625
+
+Epoch 10/29
+----------
+Train Loss: 0.3718 Acc: 0.8354
+Val Loss: 0.3180 Acc: 0.8495
+
+Epoch 11/29
+----------
+Train Loss: 0.3640 Acc: 0.8396
+Val Loss: 0.3201 Acc: 0.8482
+
+Epoch 12/29
+----------
+Train Loss: 0.3691 Acc: 0.8366
+Val Loss: 0.3246 Acc: 0.8458
+
+Epoch 13/29
+----------
+Train Loss: 0.3620 Acc: 0.8396
+Val Loss: 0.3315 Acc: 0.8447
+
+Epoch 14/29
+----------
+Train Loss: 0.3550 Acc: 0.8442
+Val Loss: 0.3272 Acc: 0.8458
+
+Epoch 15/29
+----------
+Train Loss: 0.3670 Acc: 0.8372
+Val Loss: 0.3294 Acc: 0.8435
+
+Epoch 16/29
+----------
+Train Loss: 0.3607 Acc: 0.8395
+Val Loss: 0.3297 Acc: 0.8432
+
+Epoch 17/29
+----------
+Train Loss: 0.3612 Acc: 0.8375
+Val Loss: 0.3323 Acc: 0.8405
+
+Epoch 18/29
+----------
+Train Loss: 0.3676 Acc: 0.8381
+Val Loss: 0.3317 Acc: 0.8406
+
+Epoch 19/29
+----------
+Train Loss: 0.3615 Acc: 0.8420
+Val Loss: 0.3359 Acc: 0.8382
+
+Epoch 20/29
+----------
+Train Loss: 0.3604 Acc: 0.8400
+Val Loss: 0.3424 Acc: 0.8346
+
+Epoch 21/29
+----------
+Train Loss: 0.3605 Acc: 0.8416
+Val Loss: 0.3425 Acc: 0.8346
+
+Epoch 22/29
+----------
+Train Loss: 0.3585 Acc: 0.8419
+Val Loss: 0.3415 Acc: 0.8350
+
+Epoch 23/29
+----------
+Train Loss: 0.3635 Acc: 0.8397
+Val Loss: 0.3413 Acc: 0.8352
+
+Epoch 24/29
+----------
+Train Loss: 0.3593 Acc: 0.8422
+Val Loss: 0.3406 Acc: 0.8353
+
+Epoch 25/29
+----------
+Train Loss: 0.3634 Acc: 0.8386
+Val Loss: 0.3392 Acc: 0.8364
+
+Epoch 26/29
+----------
+Train Loss: 0.3568 Acc: 0.8416
+Val Loss: 0.3395 Acc: 0.8361
+
+Epoch 27/29
+----------
+Train Loss: 0.3572 Acc: 0.8437
+Val Loss: 0.3393 Acc: 0.8358
+
+Epoch 28/29
+----------
+Train Loss: 0.3531 Acc: 0.8436
+Val Loss: 0.3404 Acc: 0.8350
+
+Epoch 29/29
+----------
+Train Loss: 0.3557 Acc: 0.8441
+Val Loss: 0.3407 Acc: 0.8350
+
+Training complete in 473m 40s
+Best val Acc: 0.980682
+Finished training ISIC2020_MNASNet10

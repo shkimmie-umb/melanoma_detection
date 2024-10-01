@@ -1,0 +1,161 @@
+DB: ['MEDNODE']
+CLASSIFIER: VGG19_bn
+JOB_INDEX: None
+Start training MEDNODE_VGG19_bn
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.6987 Acc: 0.4265
+Val Loss: 0.6815 Acc: 0.5294
+
+Epoch 1/29
+----------
+Train Loss: 0.6569 Acc: 0.5515
+Val Loss: 0.6525 Acc: 0.6765
+
+Epoch 2/29
+----------
+Train Loss: 0.6402 Acc: 0.4853
+Val Loss: 0.6189 Acc: 0.7353
+
+Epoch 3/29
+----------
+Train Loss: 0.5699 Acc: 0.6471
+Val Loss: 0.5809 Acc: 0.8235
+
+Epoch 4/29
+----------
+Train Loss: 0.5476 Acc: 0.6029
+Val Loss: 0.5542 Acc: 0.7647
+
+Epoch 5/29
+----------
+Train Loss: 0.5541 Acc: 0.6397
+Val Loss: 0.5336 Acc: 0.7647
+
+Epoch 6/29
+----------
+Train Loss: 0.4967 Acc: 0.6765
+Val Loss: 0.4878 Acc: 0.7941
+
+Epoch 7/29
+----------
+Train Loss: 0.4607 Acc: 0.7132
+Val Loss: 0.4760 Acc: 0.7941
+
+Epoch 8/29
+----------
+Train Loss: 0.4188 Acc: 0.7721
+Val Loss: 0.4691 Acc: 0.8235
+
+Epoch 9/29
+----------
+Train Loss: 0.4737 Acc: 0.6765
+Val Loss: 0.4628 Acc: 0.8529
+
+Epoch 10/29
+----------
+Train Loss: 0.4950 Acc: 0.6765
+Val Loss: 0.4562 Acc: 0.8529
+
+Epoch 11/29
+----------
+Train Loss: 0.4349 Acc: 0.7279
+Val Loss: 0.4528 Acc: 0.8529
+
+Epoch 12/29
+----------
+Train Loss: 0.4520 Acc: 0.7059
+Val Loss: 0.4554 Acc: 0.8529
+
+Epoch 13/29
+----------
+Train Loss: 0.4517 Acc: 0.7279
+Val Loss: 0.4558 Acc: 0.8235
+
+Epoch 14/29
+----------
+Train Loss: 0.4727 Acc: 0.6985
+Val Loss: 0.4540 Acc: 0.8235
+
+Epoch 15/29
+----------
+Train Loss: 0.4069 Acc: 0.7500
+Val Loss: 0.4535 Acc: 0.8235
+
+Epoch 16/29
+----------
+Train Loss: 0.4749 Acc: 0.7279
+Val Loss: 0.4536 Acc: 0.8235
+
+Epoch 17/29
+----------
+Train Loss: 0.4180 Acc: 0.7426
+Val Loss: 0.4503 Acc: 0.8529
+
+Epoch 18/29
+----------
+Train Loss: 0.4123 Acc: 0.7279
+Val Loss: 0.4505 Acc: 0.8529
+
+Epoch 19/29
+----------
+Train Loss: 0.4070 Acc: 0.7500
+Val Loss: 0.4492 Acc: 0.8529
+
+Epoch 20/29
+----------
+Train Loss: 0.3952 Acc: 0.7721
+Val Loss: 0.4508 Acc: 0.8529
+
+Epoch 21/29
+----------
+Train Loss: 0.4504 Acc: 0.7574
+Val Loss: 0.4484 Acc: 0.8529
+
+Epoch 22/29
+----------
+Train Loss: 0.4087 Acc: 0.7574
+Val Loss: 0.4491 Acc: 0.8824
+
+Epoch 23/29
+----------
+Train Loss: 0.4215 Acc: 0.7426
+Val Loss: 0.4445 Acc: 0.8824
+
+Epoch 24/29
+----------
+Train Loss: 0.4087 Acc: 0.7868
+Val Loss: 0.4422 Acc: 0.8824
+
+Epoch 25/29
+----------
+Train Loss: 0.4043 Acc: 0.7794
+Val Loss: 0.4413 Acc: 0.8824
+
+Epoch 26/29
+----------
+Train Loss: 0.4086 Acc: 0.7868
+Val Loss: 0.4426 Acc: 0.8824
+
+Epoch 27/29
+----------
+Train Loss: 0.3928 Acc: 0.7574
+Val Loss: 0.4416 Acc: 0.8824
+
+Epoch 28/29
+----------
+Train Loss: 0.3431 Acc: 0.8162
+Val Loss: 0.4377 Acc: 0.8824
+
+Epoch 29/29
+----------
+Train Loss: 0.4741 Acc: 0.6985
+Val Loss: 0.4404 Acc: 0.8529
+
+Training complete in 2m 34s
+Best val Acc: 0.882353
+Finished training MEDNODE_VGG19_bn

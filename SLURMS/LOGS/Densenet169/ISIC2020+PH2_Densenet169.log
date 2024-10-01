@@ -1,0 +1,51 @@
+DB: ['ISIC2020', 'PH2']
+CLASSIFIER: Densenet169
+JOB_INDEX: None
+Start training ISIC2020+PH2_Densenet169
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.4582 Acc: 0.7771
+Val Loss: 0.3270 Acc: 0.8456
+
+Epoch 1/33
+----------
+Train Loss: 0.3479 Acc: 0.8467
+Val Loss: 0.3499 Acc: 0.8447
+
+Epoch 2/33
+----------
+Train Loss: 0.2942 Acc: 0.8764
+Val Loss: 0.2749 Acc: 0.8811
+
+Epoch 3/33
+----------
+Train Loss: 0.2377 Acc: 0.9045
+Val Loss: 0.2096 Acc: 0.9105
+
+Epoch 4/33
+----------
+Train Loss: 0.2125 Acc: 0.9158
+Val Loss: 0.1785 Acc: 0.9280
+
+Epoch 5/33
+----------
+Train Loss: 0.1779 Acc: 0.9297
+Val Loss: 0.1759 Acc: 0.9303
+
+Epoch 6/33
+----------
+Train Loss: 0.1588 Acc: 0.9386
+Val Loss: 0.2575 Acc: 0.9087
+
+Epoch 7/33
+----------
+Train Loss: 0.1214 Acc: 0.9546
+Val Loss: 0.1525 Acc: 0.9458
+
+Epoch 8/33
+----------

@@ -1,0 +1,182 @@
+DB: ['ISIC2020', 'PH2']
+CLASSIFIER: Densenet201
+JOB_INDEX: None
+Start training ISIC2020+PH2_Densenet201
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.4356 Acc: 0.7930
+Val Loss: 0.2436 Acc: 0.8868
+
+Epoch 1/33
+----------
+Train Loss: 0.3326 Acc: 0.8556
+Val Loss: 0.3184 Acc: 0.8551
+
+Epoch 2/33
+----------
+Train Loss: 0.2595 Acc: 0.8927
+Val Loss: 0.1988 Acc: 0.9132
+
+Epoch 3/33
+----------
+Train Loss: 0.2133 Acc: 0.9150
+Val Loss: 0.1793 Acc: 0.9251
+
+Epoch 4/33
+----------
+Train Loss: 0.1889 Acc: 0.9259
+Val Loss: 0.1455 Acc: 0.9434
+
+Epoch 5/33
+----------
+Train Loss: 0.1655 Acc: 0.9361
+Val Loss: 0.2031 Acc: 0.9277
+
+Epoch 6/33
+----------
+Train Loss: 0.1430 Acc: 0.9454
+Val Loss: 0.1649 Acc: 0.9408
+
+Epoch 7/33
+----------
+Train Loss: 0.1068 Acc: 0.9619
+Val Loss: 0.1167 Acc: 0.9614
+
+Epoch 8/33
+----------
+Train Loss: 0.0896 Acc: 0.9676
+Val Loss: 0.1278 Acc: 0.9567
+
+Epoch 9/33
+----------
+Train Loss: 0.0828 Acc: 0.9703
+Val Loss: 0.1200 Acc: 0.9596
+
+Epoch 10/33
+----------
+Train Loss: 0.0796 Acc: 0.9716
+Val Loss: 0.1170 Acc: 0.9633
+
+Epoch 11/33
+----------
+Train Loss: 0.0743 Acc: 0.9734
+Val Loss: 0.1270 Acc: 0.9594
+
+Epoch 12/33
+----------
+Train Loss: 0.0723 Acc: 0.9735
+Val Loss: 0.1186 Acc: 0.9627
+
+Epoch 13/33
+----------
+Train Loss: 0.0708 Acc: 0.9743
+Val Loss: 0.1153 Acc: 0.9665
+
+Epoch 14/33
+----------
+Train Loss: 0.0657 Acc: 0.9774
+Val Loss: 0.1139 Acc: 0.9677
+
+Epoch 15/33
+----------
+Train Loss: 0.0680 Acc: 0.9757
+Val Loss: 0.1193 Acc: 0.9654
+
+Epoch 16/33
+----------
+Train Loss: 0.0628 Acc: 0.9777
+Val Loss: 0.1184 Acc: 0.9657
+
+Epoch 17/33
+----------
+Train Loss: 0.0670 Acc: 0.9762
+Val Loss: 0.1163 Acc: 0.9647
+
+Epoch 18/33
+----------
+Train Loss: 0.0636 Acc: 0.9773
+Val Loss: 0.1177 Acc: 0.9650
+
+Epoch 19/33
+----------
+Train Loss: 0.0649 Acc: 0.9752
+Val Loss: 0.1151 Acc: 0.9663
+
+Epoch 20/33
+----------
+Train Loss: 0.0664 Acc: 0.9770
+Val Loss: 0.1154 Acc: 0.9668
+
+Epoch 21/33
+----------
+Train Loss: 0.0616 Acc: 0.9784
+Val Loss: 0.1132 Acc: 0.9669
+
+Epoch 22/33
+----------
+Train Loss: 0.0612 Acc: 0.9782
+Val Loss: 0.1126 Acc: 0.9669
+
+Epoch 23/33
+----------
+Train Loss: 0.0653 Acc: 0.9787
+Val Loss: 0.1121 Acc: 0.9688
+
+Epoch 24/33
+----------
+Train Loss: 0.0630 Acc: 0.9776
+Val Loss: 0.1127 Acc: 0.9680
+
+Epoch 25/33
+----------
+Train Loss: 0.0621 Acc: 0.9777
+Val Loss: 0.1145 Acc: 0.9668
+
+Epoch 26/33
+----------
+Train Loss: 0.0633 Acc: 0.9782
+Val Loss: 0.1141 Acc: 0.9685
+
+Epoch 27/33
+----------
+Train Loss: 0.0605 Acc: 0.9781
+Val Loss: 0.1130 Acc: 0.9688
+
+Epoch 28/33
+----------
+Train Loss: 0.0592 Acc: 0.9794
+Val Loss: 0.1176 Acc: 0.9653
+
+Epoch 29/33
+----------
+Train Loss: 0.0636 Acc: 0.9783
+Val Loss: 0.1140 Acc: 0.9686
+
+Epoch 30/33
+----------
+Train Loss: 0.0590 Acc: 0.9788
+Val Loss: 0.1201 Acc: 0.9638
+
+Epoch 31/33
+----------
+Train Loss: 0.0613 Acc: 0.9785
+Val Loss: 0.1160 Acc: 0.9668
+
+Epoch 32/33
+----------
+Train Loss: 0.0630 Acc: 0.9788
+Val Loss: 0.1262 Acc: 0.9615
+
+Epoch 33/33
+----------
+Train Loss: 0.0649 Acc: 0.9770
+Val Loss: 0.1132 Acc: 0.9674
+
+Training complete in 534m 59s
+Best val Acc: 0.968759
+Finished training ISIC2020+PH2_Densenet201

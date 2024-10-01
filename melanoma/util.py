@@ -79,6 +79,7 @@ class Util:
 
 		print('Combining...')
 		for idx, db_path in enumerate(args[0]):
+			
 			dbname = pathlib.Path(db_path).parts[-2]
 			
 			print(f'Combining {idx+1}th db out of {len(args[0])} dbs')

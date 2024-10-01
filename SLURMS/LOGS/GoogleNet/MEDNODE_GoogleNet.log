@@ -1,0 +1,161 @@
+DB: ['MEDNODE']
+CLASSIFIER: GoogleNet
+JOB_INDEX: None
+Start training MEDNODE_GoogleNet
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.6450 Acc: 0.5441
+Val Loss: 0.6740 Acc: 0.6176
+
+Epoch 1/29
+----------
+Train Loss: 0.6612 Acc: 0.4412
+Val Loss: 0.6701 Acc: 0.5588
+
+Epoch 2/29
+----------
+Train Loss: 0.6513 Acc: 0.4926
+Val Loss: 0.6589 Acc: 0.6471
+
+Epoch 3/29
+----------
+Train Loss: 0.6269 Acc: 0.5662
+Val Loss: 0.6456 Acc: 0.6471
+
+Epoch 4/29
+----------
+Train Loss: 0.6004 Acc: 0.5809
+Val Loss: 0.6344 Acc: 0.6471
+
+Epoch 5/29
+----------
+Train Loss: 0.6031 Acc: 0.6103
+Val Loss: 0.6194 Acc: 0.6471
+
+Epoch 6/29
+----------
+Train Loss: 0.5273 Acc: 0.7426
+Val Loss: 0.6119 Acc: 0.6765
+
+Epoch 7/29
+----------
+Train Loss: 0.5616 Acc: 0.6912
+Val Loss: 0.6099 Acc: 0.6765
+
+Epoch 8/29
+----------
+Train Loss: 0.5592 Acc: 0.6250
+Val Loss: 0.6042 Acc: 0.6765
+
+Epoch 9/29
+----------
+Train Loss: 0.5406 Acc: 0.7206
+Val Loss: 0.5987 Acc: 0.6765
+
+Epoch 10/29
+----------
+Train Loss: 0.5716 Acc: 0.6324
+Val Loss: 0.5971 Acc: 0.6765
+
+Epoch 11/29
+----------
+Train Loss: 0.5822 Acc: 0.6838
+Val Loss: 0.5935 Acc: 0.6765
+
+Epoch 12/29
+----------
+Train Loss: 0.5460 Acc: 0.6838
+Val Loss: 0.5908 Acc: 0.6765
+
+Epoch 13/29
+----------
+Train Loss: 0.5387 Acc: 0.6838
+Val Loss: 0.5859 Acc: 0.7059
+
+Epoch 14/29
+----------
+Train Loss: 0.5392 Acc: 0.6618
+Val Loss: 0.5875 Acc: 0.6765
+
+Epoch 15/29
+----------
+Train Loss: 0.5730 Acc: 0.6176
+Val Loss: 0.5868 Acc: 0.7353
+
+Epoch 16/29
+----------
+Train Loss: 0.5481 Acc: 0.7059
+Val Loss: 0.5867 Acc: 0.6765
+
+Epoch 17/29
+----------
+Train Loss: 0.5363 Acc: 0.7132
+Val Loss: 0.5878 Acc: 0.6471
+
+Epoch 18/29
+----------
+Train Loss: 0.5516 Acc: 0.6838
+Val Loss: 0.5858 Acc: 0.6765
+
+Epoch 19/29
+----------
+Train Loss: 0.5593 Acc: 0.6765
+Val Loss: 0.5839 Acc: 0.7059
+
+Epoch 20/29
+----------
+Train Loss: 0.5324 Acc: 0.6765
+Val Loss: 0.5851 Acc: 0.7059
+
+Epoch 21/29
+----------
+Train Loss: 0.5243 Acc: 0.7353
+Val Loss: 0.5867 Acc: 0.7059
+
+Epoch 22/29
+----------
+Train Loss: 0.5694 Acc: 0.6838
+Val Loss: 0.5869 Acc: 0.7059
+
+Epoch 23/29
+----------
+Train Loss: 0.5504 Acc: 0.6985
+Val Loss: 0.5848 Acc: 0.7353
+
+Epoch 24/29
+----------
+Train Loss: 0.5436 Acc: 0.6912
+Val Loss: 0.5838 Acc: 0.7353
+
+Epoch 25/29
+----------
+Train Loss: 0.5334 Acc: 0.7426
+Val Loss: 0.5855 Acc: 0.7059
+
+Epoch 26/29
+----------
+Train Loss: 0.5313 Acc: 0.7059
+Val Loss: 0.5852 Acc: 0.6765
+
+Epoch 27/29
+----------
+Train Loss: 0.5753 Acc: 0.6397
+Val Loss: 0.5858 Acc: 0.7059
+
+Epoch 28/29
+----------
+Train Loss: 0.5760 Acc: 0.6471
+Val Loss: 0.5827 Acc: 0.7353
+
+Epoch 29/29
+----------
+Train Loss: 0.5335 Acc: 0.7059
+Val Loss: 0.5845 Acc: 0.7353
+
+Training complete in 2m 18s
+Best val Acc: 0.735294
+Finished training MEDNODE_GoogleNet

@@ -1,0 +1,161 @@
+DB: ['PAD_UFES_20']
+CLASSIFIER: ResNet50
+JOB_INDEX: None
+Start training PAD_UFES_20_ResNet50
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.4483 Acc: 0.7862
+Val Loss: 0.4476 Acc: 0.8065
+
+Epoch 1/29
+----------
+Train Loss: 0.1878 Acc: 0.9184
+Val Loss: 0.2165 Acc: 0.9130
+
+Epoch 2/29
+----------
+Train Loss: 0.1383 Acc: 0.9434
+Val Loss: 0.1504 Acc: 0.9457
+
+Epoch 3/29
+----------
+Train Loss: 0.1082 Acc: 0.9538
+Val Loss: 0.0777 Acc: 0.9739
+
+Epoch 4/29
+----------
+Train Loss: 0.0879 Acc: 0.9592
+Val Loss: 0.0841 Acc: 0.9717
+
+Epoch 5/29
+----------
+Train Loss: 0.0756 Acc: 0.9657
+Val Loss: 0.0686 Acc: 0.9761
+
+Epoch 6/29
+----------
+Train Loss: 0.0801 Acc: 0.9625
+Val Loss: 0.0910 Acc: 0.9674
+
+Epoch 7/29
+----------
+Train Loss: 0.0571 Acc: 0.9717
+Val Loss: 0.0660 Acc: 0.9783
+
+Epoch 8/29
+----------
+Train Loss: 0.0485 Acc: 0.9782
+Val Loss: 0.0569 Acc: 0.9739
+
+Epoch 9/29
+----------
+Train Loss: 0.0638 Acc: 0.9733
+Val Loss: 0.0562 Acc: 0.9783
+
+Epoch 10/29
+----------
+Train Loss: 0.0532 Acc: 0.9733
+Val Loss: 0.0547 Acc: 0.9804
+
+Epoch 11/29
+----------
+Train Loss: 0.0318 Acc: 0.9837
+Val Loss: 0.0592 Acc: 0.9783
+
+Epoch 12/29
+----------
+Train Loss: 0.0363 Acc: 0.9820
+Val Loss: 0.0560 Acc: 0.9783
+
+Epoch 13/29
+----------
+Train Loss: 0.0433 Acc: 0.9766
+Val Loss: 0.0581 Acc: 0.9783
+
+Epoch 14/29
+----------
+Train Loss: 0.0278 Acc: 0.9842
+Val Loss: 0.0577 Acc: 0.9761
+
+Epoch 15/29
+----------
+Train Loss: 0.0507 Acc: 0.9771
+Val Loss: 0.0537 Acc: 0.9783
+
+Epoch 16/29
+----------
+Train Loss: 0.0483 Acc: 0.9755
+Val Loss: 0.0545 Acc: 0.9761
+
+Epoch 17/29
+----------
+Train Loss: 0.0388 Acc: 0.9793
+Val Loss: 0.0589 Acc: 0.9783
+
+Epoch 18/29
+----------
+Train Loss: 0.0279 Acc: 0.9853
+Val Loss: 0.0593 Acc: 0.9761
+
+Epoch 19/29
+----------
+Train Loss: 0.0337 Acc: 0.9810
+Val Loss: 0.0564 Acc: 0.9761
+
+Epoch 20/29
+----------
+Train Loss: 0.0387 Acc: 0.9793
+Val Loss: 0.0538 Acc: 0.9804
+
+Epoch 21/29
+----------
+Train Loss: 0.0526 Acc: 0.9755
+Val Loss: 0.0554 Acc: 0.9761
+
+Epoch 22/29
+----------
+Train Loss: 0.0372 Acc: 0.9810
+Val Loss: 0.0530 Acc: 0.9783
+
+Epoch 23/29
+----------
+Train Loss: 0.0404 Acc: 0.9810
+Val Loss: 0.0575 Acc: 0.9761
+
+Epoch 24/29
+----------
+Train Loss: 0.0413 Acc: 0.9810
+Val Loss: 0.0550 Acc: 0.9761
+
+Epoch 25/29
+----------
+Train Loss: 0.0457 Acc: 0.9777
+Val Loss: 0.0591 Acc: 0.9761
+
+Epoch 26/29
+----------
+Train Loss: 0.0344 Acc: 0.9810
+Val Loss: 0.0627 Acc: 0.9761
+
+Epoch 27/29
+----------
+Train Loss: 0.0360 Acc: 0.9810
+Val Loss: 0.0543 Acc: 0.9804
+
+Epoch 28/29
+----------
+Train Loss: 0.0514 Acc: 0.9766
+Val Loss: 0.0563 Acc: 0.9783
+
+Epoch 29/29
+----------
+Train Loss: 0.0315 Acc: 0.9804
+Val Loss: 0.0647 Acc: 0.9761
+
+Training complete in 20m 41s
+Best val Acc: 0.980435
+Finished training PAD_UFES_20_ResNet50

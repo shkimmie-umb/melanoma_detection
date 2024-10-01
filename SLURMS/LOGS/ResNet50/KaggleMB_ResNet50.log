@@ -1,0 +1,161 @@
+DB: ['KaggleMB']
+CLASSIFIER: ResNet50
+JOB_INDEX: None
+Start training KaggleMB_ResNet50
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.5265 Acc: 0.7136
+Val Loss: 0.4965 Acc: 0.7879
+
+Epoch 1/29
+----------
+Train Loss: 0.3808 Acc: 0.8156
+Val Loss: 0.4141 Acc: 0.8030
+
+Epoch 2/29
+----------
+Train Loss: 0.3586 Acc: 0.8274
+Val Loss: 0.3877 Acc: 0.8239
+
+Epoch 3/29
+----------
+Train Loss: 0.3599 Acc: 0.8227
+Val Loss: 0.3493 Acc: 0.8258
+
+Epoch 4/29
+----------
+Train Loss: 0.3516 Acc: 0.8241
+Val Loss: 0.3596 Acc: 0.8258
+
+Epoch 5/29
+----------
+Train Loss: 0.3551 Acc: 0.8165
+Val Loss: 0.3341 Acc: 0.8239
+
+Epoch 6/29
+----------
+Train Loss: 0.3409 Acc: 0.8364
+Val Loss: 0.3327 Acc: 0.8352
+
+Epoch 7/29
+----------
+Train Loss: 0.2880 Acc: 0.8468
+Val Loss: 0.3315 Acc: 0.8314
+
+Epoch 8/29
+----------
+Train Loss: 0.2995 Acc: 0.8530
+Val Loss: 0.3303 Acc: 0.8277
+
+Epoch 9/29
+----------
+Train Loss: 0.2603 Acc: 0.8720
+Val Loss: 0.3405 Acc: 0.8333
+
+Epoch 10/29
+----------
+Train Loss: 0.2851 Acc: 0.8606
+Val Loss: 0.3274 Acc: 0.8277
+
+Epoch 11/29
+----------
+Train Loss: 0.2810 Acc: 0.8677
+Val Loss: 0.3149 Acc: 0.8295
+
+Epoch 12/29
+----------
+Train Loss: 0.2917 Acc: 0.8540
+Val Loss: 0.3160 Acc: 0.8295
+
+Epoch 13/29
+----------
+Train Loss: 0.2778 Acc: 0.8639
+Val Loss: 0.3098 Acc: 0.8333
+
+Epoch 14/29
+----------
+Train Loss: 0.2526 Acc: 0.8805
+Val Loss: 0.3109 Acc: 0.8314
+
+Epoch 15/29
+----------
+Train Loss: 0.2837 Acc: 0.8639
+Val Loss: 0.3107 Acc: 0.8333
+
+Epoch 16/29
+----------
+Train Loss: 0.2932 Acc: 0.8573
+Val Loss: 0.3107 Acc: 0.8333
+
+Epoch 17/29
+----------
+Train Loss: 0.2667 Acc: 0.8672
+Val Loss: 0.3130 Acc: 0.8371
+
+Epoch 18/29
+----------
+Train Loss: 0.2635 Acc: 0.8691
+Val Loss: 0.3143 Acc: 0.8333
+
+Epoch 19/29
+----------
+Train Loss: 0.2670 Acc: 0.8691
+Val Loss: 0.3150 Acc: 0.8295
+
+Epoch 20/29
+----------
+Train Loss: 0.2762 Acc: 0.8682
+Val Loss: 0.3132 Acc: 0.8333
+
+Epoch 21/29
+----------
+Train Loss: 0.2822 Acc: 0.8625
+Val Loss: 0.3108 Acc: 0.8333
+
+Epoch 22/29
+----------
+Train Loss: 0.2741 Acc: 0.8682
+Val Loss: 0.3115 Acc: 0.8447
+
+Epoch 23/29
+----------
+Train Loss: 0.2731 Acc: 0.8682
+Val Loss: 0.3095 Acc: 0.8428
+
+Epoch 24/29
+----------
+Train Loss: 0.3109 Acc: 0.8431
+Val Loss: 0.3153 Acc: 0.8371
+
+Epoch 25/29
+----------
+Train Loss: 0.2737 Acc: 0.8677
+Val Loss: 0.3112 Acc: 0.8371
+
+Epoch 26/29
+----------
+Train Loss: 0.2701 Acc: 0.8677
+Val Loss: 0.3123 Acc: 0.8371
+
+Epoch 27/29
+----------
+Train Loss: 0.2746 Acc: 0.8620
+Val Loss: 0.3171 Acc: 0.8390
+
+Epoch 28/29
+----------
+Train Loss: 0.2739 Acc: 0.8634
+Val Loss: 0.3110 Acc: 0.8314
+
+Epoch 29/29
+----------
+Train Loss: 0.2887 Acc: 0.8573
+Val Loss: 0.3125 Acc: 0.8371
+
+Training complete in 9m 17s
+Best val Acc: 0.844697
+Finished training KaggleMB_ResNet50

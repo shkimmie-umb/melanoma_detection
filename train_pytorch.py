@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn as nn
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5,6"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "5,6"
 
 CLI=argparse.ArgumentParser()
 CLI.add_argument(
@@ -66,8 +66,8 @@ CFG = dict(
 
     # Model settings
     num_classes = None,
-        pretrained_weights = True,
-        criterion = nn.CrossEntropyLoss(),
+    pretrained_weights = True,
+    criterion = nn.CrossEntropyLoss(),
     optimizer = None,
     scheduler = None,
 
@@ -78,9 +78,11 @@ CFG = dict(
         
     # DB load
     # db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
-    db_path = os.path.join(pathlib.Path.cwd(), 'data', 'melanomaDB'),
+    # db_path = os.path.join(pathlib.Path.cwd(), 'data', 'melanomaDB'),
+    db_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'data', 'melanomaDB'),
     # save
-    snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
+    # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
+    snapshot_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'snapshot', CLASSIFIER),
     # snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
     model_file_name = f'{DBname}_{CLASSIFIER}',
 			
@@ -170,7 +172,7 @@ post_transform = {
     ]),
 }
 
-print("Start training augmented images")
+print(f"Start training {DBname}_{CLASSIFIER}")
 
 dbs = list(itertools.chain.from_iterable([glob.glob(f'{CFG["db_path"]}/{db}/final', recursive=True) for db in DB]))
 
@@ -188,3 +190,5 @@ CFG['optimizer'] = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
 CFG['scheduler'] = lr_scheduler.StepLR(CFG['optimizer'], step_size=7, gamma=0.1)
 
 model_ft = mel.Model.train_model(conf=CFG, network=model_ft, data=dataloaders, dataset_sizes=dataset_sizes)
+
+print(f"Finished training {DBname}_{CLASSIFIER}")

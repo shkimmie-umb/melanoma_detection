@@ -1,0 +1,10 @@
+DB: ['_7_point_criteria']
+CLASSIFIER: InceptionV3
+JOB_INDEX: None
+Start training _7_point_criteria_InceptionV3
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------

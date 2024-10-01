@@ -1,0 +1,182 @@
+DB: ['ISIC2016', 'ISIC2017']
+CLASSIFIER: MobileNetV3Small
+JOB_INDEX: None
+Start training ISIC2016+ISIC2017_MobileNetV3Small
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.6450 Acc: 0.6158
+Val Loss: 0.5645 Acc: 0.7152
+
+Epoch 1/33
+----------
+Train Loss: 0.6096 Acc: 0.6676
+Val Loss: 0.5217 Acc: 0.7455
+
+Epoch 2/33
+----------
+Train Loss: 0.5767 Acc: 0.6926
+Val Loss: 0.5028 Acc: 0.7697
+
+Epoch 3/33
+----------
+Train Loss: 0.5477 Acc: 0.7121
+Val Loss: 0.4606 Acc: 0.7909
+
+Epoch 4/33
+----------
+Train Loss: 0.5587 Acc: 0.7085
+Val Loss: 0.4747 Acc: 0.7879
+
+Epoch 5/33
+----------
+Train Loss: 0.5374 Acc: 0.7228
+Val Loss: 0.5545 Acc: 0.7303
+
+Epoch 6/33
+----------
+Train Loss: 0.5233 Acc: 0.7375
+Val Loss: 0.5147 Acc: 0.7242
+
+Epoch 7/33
+----------
+Train Loss: 0.5138 Acc: 0.7371
+Val Loss: 0.4936 Acc: 0.7455
+
+Epoch 8/33
+----------
+Train Loss: 0.5212 Acc: 0.7364
+Val Loss: 0.4836 Acc: 0.7576
+
+Epoch 9/33
+----------
+Train Loss: 0.5181 Acc: 0.7338
+Val Loss: 0.4712 Acc: 0.7667
+
+Epoch 10/33
+----------
+Train Loss: 0.5224 Acc: 0.7415
+Val Loss: 0.4699 Acc: 0.7606
+
+Epoch 11/33
+----------
+Train Loss: 0.5222 Acc: 0.7456
+Val Loss: 0.4658 Acc: 0.7606
+
+Epoch 12/33
+----------
+Train Loss: 0.5111 Acc: 0.7460
+Val Loss: 0.4640 Acc: 0.7667
+
+Epoch 13/33
+----------
+Train Loss: 0.5252 Acc: 0.7364
+Val Loss: 0.4630 Acc: 0.7636
+
+Epoch 14/33
+----------
+Train Loss: 0.5141 Acc: 0.7401
+Val Loss: 0.4566 Acc: 0.7758
+
+Epoch 15/33
+----------
+Train Loss: 0.5186 Acc: 0.7386
+Val Loss: 0.4558 Acc: 0.7788
+
+Epoch 16/33
+----------
+Train Loss: 0.5265 Acc: 0.7331
+Val Loss: 0.4549 Acc: 0.7788
+
+Epoch 17/33
+----------
+Train Loss: 0.5229 Acc: 0.7415
+Val Loss: 0.4528 Acc: 0.7788
+
+Epoch 18/33
+----------
+Train Loss: 0.5157 Acc: 0.7408
+Val Loss: 0.4558 Acc: 0.7788
+
+Epoch 19/33
+----------
+Train Loss: 0.5138 Acc: 0.7386
+Val Loss: 0.4546 Acc: 0.7788
+
+Epoch 20/33
+----------
+Train Loss: 0.5220 Acc: 0.7335
+Val Loss: 0.4558 Acc: 0.7788
+
+Epoch 21/33
+----------
+Train Loss: 0.5207 Acc: 0.7327
+Val Loss: 0.4559 Acc: 0.7758
+
+Epoch 22/33
+----------
+Train Loss: 0.5166 Acc: 0.7364
+Val Loss: 0.4570 Acc: 0.7758
+
+Epoch 23/33
+----------
+Train Loss: 0.5290 Acc: 0.7298
+Val Loss: 0.4550 Acc: 0.7788
+
+Epoch 24/33
+----------
+Train Loss: 0.5078 Acc: 0.7419
+Val Loss: 0.4570 Acc: 0.7758
+
+Epoch 25/33
+----------
+Train Loss: 0.5362 Acc: 0.7287
+Val Loss: 0.4529 Acc: 0.7788
+
+Epoch 26/33
+----------
+Train Loss: 0.5200 Acc: 0.7324
+Val Loss: 0.4572 Acc: 0.7758
+
+Epoch 27/33
+----------
+Train Loss: 0.5214 Acc: 0.7360
+Val Loss: 0.4528 Acc: 0.7818
+
+Epoch 28/33
+----------
+Train Loss: 0.5258 Acc: 0.7324
+Val Loss: 0.4516 Acc: 0.7818
+
+Epoch 29/33
+----------
+Train Loss: 0.5001 Acc: 0.7537
+Val Loss: 0.4519 Acc: 0.7818
+
+Epoch 30/33
+----------
+Train Loss: 0.5364 Acc: 0.7228
+Val Loss: 0.4521 Acc: 0.7818
+
+Epoch 31/33
+----------
+Train Loss: 0.5100 Acc: 0.7460
+Val Loss: 0.4517 Acc: 0.7788
+
+Epoch 32/33
+----------
+Train Loss: 0.5380 Acc: 0.7180
+Val Loss: 0.4552 Acc: 0.7788
+
+Epoch 33/33
+----------
+Train Loss: 0.5114 Acc: 0.7463
+Val Loss: 0.4581 Acc: 0.7727
+
+Training complete in 27m 33s
+Best val Acc: 0.790909
+Finished training ISIC2016+ISIC2017_MobileNetV3Small

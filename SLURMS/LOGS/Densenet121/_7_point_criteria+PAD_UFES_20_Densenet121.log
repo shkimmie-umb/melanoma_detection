@@ -1,0 +1,182 @@
+DB: ['_7_point_criteria', 'PAD_UFES_20']
+CLASSIFIER: Densenet121
+JOB_INDEX: None
+Start training _7_point_criteria+PAD_UFES_20_Densenet121
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.4938 Acc: 0.7534
+Val Loss: 0.3995 Acc: 0.8024
+
+Epoch 1/33
+----------
+Train Loss: 0.2860 Acc: 0.8765
+Val Loss: 0.4074 Acc: 0.8160
+
+Epoch 2/33
+----------
+Train Loss: 0.2623 Acc: 0.8916
+Val Loss: 0.2901 Acc: 0.8748
+
+Epoch 3/33
+----------
+Train Loss: 0.2161 Acc: 0.9107
+Val Loss: 0.3148 Acc: 0.8763
+
+Epoch 4/33
+----------
+Train Loss: 0.1919 Acc: 0.9200
+Val Loss: 0.3270 Acc: 0.8793
+
+Epoch 5/33
+----------
+Train Loss: 0.1804 Acc: 0.9205
+Val Loss: 0.3542 Acc: 0.8718
+
+Epoch 6/33
+----------
+Train Loss: 0.1823 Acc: 0.9231
+Val Loss: 0.2436 Acc: 0.9110
+
+Epoch 7/33
+----------
+Train Loss: 0.1704 Acc: 0.9298
+Val Loss: 0.2468 Acc: 0.9065
+
+Epoch 8/33
+----------
+Train Loss: 0.1349 Acc: 0.9467
+Val Loss: 0.2225 Acc: 0.9186
+
+Epoch 9/33
+----------
+Train Loss: 0.1368 Acc: 0.9436
+Val Loss: 0.2364 Acc: 0.9095
+
+Epoch 10/33
+----------
+Train Loss: 0.1427 Acc: 0.9391
+Val Loss: 0.2349 Acc: 0.9080
+
+Epoch 11/33
+----------
+Train Loss: 0.1314 Acc: 0.9436
+Val Loss: 0.2339 Acc: 0.9110
+
+Epoch 12/33
+----------
+Train Loss: 0.1175 Acc: 0.9534
+Val Loss: 0.2353 Acc: 0.9050
+
+Epoch 13/33
+----------
+Train Loss: 0.1152 Acc: 0.9529
+Val Loss: 0.2362 Acc: 0.9095
+
+Epoch 14/33
+----------
+Train Loss: 0.1250 Acc: 0.9498
+Val Loss: 0.2184 Acc: 0.9201
+
+Epoch 15/33
+----------
+Train Loss: 0.1129 Acc: 0.9538
+Val Loss: 0.2361 Acc: 0.9140
+
+Epoch 16/33
+----------
+Train Loss: 0.1155 Acc: 0.9551
+Val Loss: 0.2220 Acc: 0.9201
+
+Epoch 17/33
+----------
+Train Loss: 0.1069 Acc: 0.9569
+Val Loss: 0.2388 Acc: 0.9095
+
+Epoch 18/33
+----------
+Train Loss: 0.1181 Acc: 0.9551
+Val Loss: 0.2403 Acc: 0.9080
+
+Epoch 19/33
+----------
+Train Loss: 0.1214 Acc: 0.9498
+Val Loss: 0.2173 Acc: 0.9201
+
+Epoch 20/33
+----------
+Train Loss: 0.1135 Acc: 0.9494
+Val Loss: 0.2440 Acc: 0.9050
+
+Epoch 21/33
+----------
+Train Loss: 0.1075 Acc: 0.9627
+Val Loss: 0.2420 Acc: 0.9065
+
+Epoch 22/33
+----------
+Train Loss: 0.1246 Acc: 0.9471
+Val Loss: 0.2365 Acc: 0.9095
+
+Epoch 23/33
+----------
+Train Loss: 0.1243 Acc: 0.9498
+Val Loss: 0.2291 Acc: 0.9095
+
+Epoch 24/33
+----------
+Train Loss: 0.1347 Acc: 0.9445
+Val Loss: 0.2348 Acc: 0.9110
+
+Epoch 25/33
+----------
+Train Loss: 0.1118 Acc: 0.9556
+Val Loss: 0.2290 Acc: 0.9140
+
+Epoch 26/33
+----------
+Train Loss: 0.1207 Acc: 0.9511
+Val Loss: 0.2245 Acc: 0.9080
+
+Epoch 27/33
+----------
+Train Loss: 0.1337 Acc: 0.9458
+Val Loss: 0.2393 Acc: 0.9065
+
+Epoch 28/33
+----------
+Train Loss: 0.1197 Acc: 0.9511
+Val Loss: 0.2278 Acc: 0.9155
+
+Epoch 29/33
+----------
+Train Loss: 0.1261 Acc: 0.9485
+Val Loss: 0.2280 Acc: 0.9155
+
+Epoch 30/33
+----------
+Train Loss: 0.1243 Acc: 0.9494
+Val Loss: 0.2170 Acc: 0.9186
+
+Epoch 31/33
+----------
+Train Loss: 0.1249 Acc: 0.9525
+Val Loss: 0.2114 Acc: 0.9231
+
+Epoch 32/33
+----------
+Train Loss: 0.1320 Acc: 0.9440
+Val Loss: 0.2287 Acc: 0.9155
+
+Epoch 33/33
+----------
+Train Loss: 0.1198 Acc: 0.9498
+Val Loss: 0.2269 Acc: 0.9125
+
+Training complete in 22m 49s
+Best val Acc: 0.923077
+Finished training _7_point_criteria+PAD_UFES_20_Densenet121

@@ -14,11 +14,10 @@ from .db_parser.parser_7pointdb import parser_7pointdb
 from .db_parser.parser_PAD_UFES_20 import parser_PAD_UFES_20
 from .db_parser.parser_MEDNODE import parser_MEDNODE
 # from .db_parser import *
-from .visualizer import Visualizer
+# from .visualizer import Visualizer
 from .cnn import CNN
-from .augmentationStrategy import *
-# from .util import NetworkType
+# from .augmentationStrategy import *
 from .callback import SilentTrainingCallback
-from .preprocess import Preprocess
+# from .preprocess import Preprocess
 from .commondata import DatasetType, NetworkType, CommonData
 from .dataloader_nolabels import ImageDataset

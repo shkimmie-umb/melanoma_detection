@@ -1,0 +1,161 @@
+DB: ['MEDNODE']
+CLASSIFIER: WideResNet50_2
+JOB_INDEX: None
+Start training MEDNODE_WideResNet50_2
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.6564 Acc: 0.4779
+Val Loss: 0.6890 Acc: 0.5588
+
+Epoch 1/29
+----------
+Train Loss: 0.6459 Acc: 0.4779
+Val Loss: 0.6441 Acc: 0.7059
+
+Epoch 2/29
+----------
+Train Loss: 0.6111 Acc: 0.6250
+Val Loss: 0.6143 Acc: 0.7353
+
+Epoch 3/29
+----------
+Train Loss: 0.5951 Acc: 0.6029
+Val Loss: 0.5890 Acc: 0.7059
+
+Epoch 4/29
+----------
+Train Loss: 0.5499 Acc: 0.6765
+Val Loss: 0.6098 Acc: 0.5882
+
+Epoch 5/29
+----------
+Train Loss: 0.5139 Acc: 0.7353
+Val Loss: 0.5617 Acc: 0.7059
+
+Epoch 6/29
+----------
+Train Loss: 0.4860 Acc: 0.7353
+Val Loss: 0.4899 Acc: 0.7647
+
+Epoch 7/29
+----------
+Train Loss: 0.5230 Acc: 0.6765
+Val Loss: 0.4822 Acc: 0.8235
+
+Epoch 8/29
+----------
+Train Loss: 0.4498 Acc: 0.7500
+Val Loss: 0.4776 Acc: 0.8235
+
+Epoch 9/29
+----------
+Train Loss: 0.4558 Acc: 0.7132
+Val Loss: 0.4795 Acc: 0.8529
+
+Epoch 10/29
+----------
+Train Loss: 0.4917 Acc: 0.7500
+Val Loss: 0.4768 Acc: 0.8529
+
+Epoch 11/29
+----------
+Train Loss: 0.5012 Acc: 0.7500
+Val Loss: 0.4771 Acc: 0.8235
+
+Epoch 12/29
+----------
+Train Loss: 0.4601 Acc: 0.7426
+Val Loss: 0.4779 Acc: 0.8235
+
+Epoch 13/29
+----------
+Train Loss: 0.4364 Acc: 0.7794
+Val Loss: 0.4789 Acc: 0.8235
+
+Epoch 14/29
+----------
+Train Loss: 0.4423 Acc: 0.7721
+Val Loss: 0.4744 Acc: 0.8235
+
+Epoch 15/29
+----------
+Train Loss: 0.4388 Acc: 0.7721
+Val Loss: 0.4820 Acc: 0.7941
+
+Epoch 16/29
+----------
+Train Loss: 0.4529 Acc: 0.7500
+Val Loss: 0.4860 Acc: 0.7941
+
+Epoch 17/29
+----------
+Train Loss: 0.4512 Acc: 0.7500
+Val Loss: 0.4869 Acc: 0.7941
+
+Epoch 18/29
+----------
+Train Loss: 0.4603 Acc: 0.7206
+Val Loss: 0.4816 Acc: 0.7941
+
+Epoch 19/29
+----------
+Train Loss: 0.4372 Acc: 0.7721
+Val Loss: 0.4885 Acc: 0.7941
+
+Epoch 20/29
+----------
+Train Loss: 0.4363 Acc: 0.7721
+Val Loss: 0.4917 Acc: 0.7941
+
+Epoch 21/29
+----------
+Train Loss: 0.4711 Acc: 0.7500
+Val Loss: 0.4902 Acc: 0.7647
+
+Epoch 22/29
+----------
+Train Loss: 0.4455 Acc: 0.7941
+Val Loss: 0.4958 Acc: 0.7941
+
+Epoch 23/29
+----------
+Train Loss: 0.4563 Acc: 0.7426
+Val Loss: 0.4941 Acc: 0.7941
+
+Epoch 24/29
+----------
+Train Loss: 0.4484 Acc: 0.7721
+Val Loss: 0.4936 Acc: 0.7647
+
+Epoch 25/29
+----------
+Train Loss: 0.4667 Acc: 0.7426
+Val Loss: 0.4911 Acc: 0.7941
+
+Epoch 26/29
+----------
+Train Loss: 0.4426 Acc: 0.7868
+Val Loss: 0.4959 Acc: 0.7941
+
+Epoch 27/29
+----------
+Train Loss: 0.4701 Acc: 0.7721
+Val Loss: 0.4963 Acc: 0.7941
+
+Epoch 28/29
+----------
+Train Loss: 0.4618 Acc: 0.7721
+Val Loss: 0.4936 Acc: 0.7941
+
+Epoch 29/29
+----------
+Train Loss: 0.4737 Acc: 0.7353
+Val Loss: 0.4915 Acc: 0.7941
+
+Training complete in 1m 5s
+Best val Acc: 0.852941
+Finished training MEDNODE_WideResNet50_2

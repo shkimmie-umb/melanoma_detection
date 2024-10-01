@@ -1,0 +1,112 @@
+DB: ['ISIC2019', 'ISIC2020', 'PH2']
+CLASSIFIER: MNASNet10
+JOB_INDEX: None
+Start training ISIC2019+ISIC2020+PH2_MNASNet10
+Combining...
+Combining 1th db out of 3 dbs
+Combining 2th db out of 3 dbs
+Combining 3th db out of 3 dbs
+Stacking data
+Combining complete
+Epoch 0/35
+----------
+Train Loss: 0.4848 Acc: 0.7615
+Val Loss: 0.2153 Acc: 0.9189
+
+Epoch 1/35
+----------
+Train Loss: 0.4498 Acc: 0.7836
+Val Loss: 0.2415 Acc: 0.9006
+
+Epoch 2/35
+----------
+Train Loss: 0.4289 Acc: 0.7944
+Val Loss: 0.2883 Acc: 0.8692
+
+Epoch 3/35
+----------
+Train Loss: 0.4185 Acc: 0.8030
+Val Loss: 0.3030 Acc: 0.8593
+
+Epoch 4/35
+----------
+Train Loss: 0.4119 Acc: 0.8067
+Val Loss: 0.2976 Acc: 0.8568
+
+Epoch 5/35
+----------
+Train Loss: 0.4025 Acc: 0.8102
+Val Loss: 0.2981 Acc: 0.8587
+
+Epoch 6/35
+----------
+Train Loss: 0.3898 Acc: 0.8194
+Val Loss: 0.2787 Acc: 0.8727
+
+Epoch 7/35
+----------
+Train Loss: 0.3842 Acc: 0.8249
+Val Loss: 0.3178 Acc: 0.8496
+
+Epoch 8/35
+----------
+Train Loss: 0.3826 Acc: 0.8255
+Val Loss: 0.3191 Acc: 0.8483
+
+Epoch 9/35
+----------
+Train Loss: 0.3781 Acc: 0.8267
+Val Loss: 0.3144 Acc: 0.8498
+
+Epoch 10/35
+----------
+Train Loss: 0.3791 Acc: 0.8255
+Val Loss: 0.3375 Acc: 0.8358
+
+Epoch 11/35
+----------
+Train Loss: 0.3779 Acc: 0.8253
+Val Loss: 0.3380 Acc: 0.8368
+
+Epoch 12/35
+----------
+Train Loss: 0.3776 Acc: 0.8259
+Val Loss: 0.3191 Acc: 0.8471
+
+Epoch 13/35
+----------
+Train Loss: 0.3778 Acc: 0.8228
+Val Loss: 0.3246 Acc: 0.8427
+
+Epoch 14/35
+----------
+Train Loss: 0.3738 Acc: 0.8300
+Val Loss: 0.3269 Acc: 0.8413
+
+Epoch 15/35
+----------
+Train Loss: 0.3775 Acc: 0.8269
+Val Loss: 0.3287 Acc: 0.8405
+
+Epoch 16/35
+----------
+Train Loss: 0.3823 Acc: 0.8218
+Val Loss: 0.3293 Acc: 0.8401
+
+Epoch 17/35
+----------
+Train Loss: 0.3763 Acc: 0.8272
+Val Loss: 0.3234 Acc: 0.8432
+
+Epoch 18/35
+----------
+Train Loss: 0.3774 Acc: 0.8263
+Val Loss: 0.3268 Acc: 0.8414
+
+Epoch 19/35
+----------
+Train Loss: 0.3738 Acc: 0.8274
+Val Loss: 0.3216 Acc: 0.8449
+
+Epoch 20/35
+----------

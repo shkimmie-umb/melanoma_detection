@@ -1,0 +1,27 @@
+DB: ['ISIC2016', 'ISIC2017', 'ISIC2018', 'ISIC2019', 'ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20']
+CLASSIFIER: Densenet121
+JOB_INDEX: None
+Start training ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_Densenet121
+Combining...
+Combining 1th db out of 8 dbs
+Combining 2th db out of 8 dbs
+Combining 3th db out of 8 dbs
+Combining 4th db out of 8 dbs
+Combining 5th db out of 8 dbs
+Combining 6th db out of 8 dbs
+Combining 7th db out of 8 dbs
+Combining 8th db out of 8 dbs
+Stacking data
+Combining complete
+Epoch 0/45
+----------
+Train Loss: 0.4540 Acc: 0.7835
+Val Loss: 0.3764 Acc: 0.8153
+
+Epoch 1/45
+----------
+Train Loss: 0.3898 Acc: 0.8217
+Val Loss: 0.3123 Acc: 0.8520
+
+Epoch 2/45
+----------

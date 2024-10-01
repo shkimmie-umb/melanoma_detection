@@ -1,0 +1,65 @@
+DB: ['ISIC2020']
+CLASSIFIER: ResNet18
+JOB_INDEX: None
+Start training ISIC2020_ResNet18
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.5053 Acc: 0.7487
+Val Loss: 0.3133 Acc: 0.8447
+
+Epoch 1/29
+----------
+Train Loss: 0.4360 Acc: 0.7954
+Val Loss: 0.4145 Acc: 0.7922
+
+Epoch 2/29
+----------
+Train Loss: 0.3905 Acc: 0.8195
+Val Loss: 0.3519 Acc: 0.8343
+
+Epoch 3/29
+----------
+Train Loss: 0.3495 Acc: 0.8454
+Val Loss: 0.2057 Acc: 0.9081
+
+Epoch 4/29
+----------
+Train Loss: 0.3254 Acc: 0.8610
+Val Loss: 0.2489 Acc: 0.8891
+
+Epoch 5/29
+----------
+Train Loss: 0.3028 Acc: 0.8732
+Val Loss: 0.2973 Acc: 0.8698
+
+Epoch 6/29
+----------
+Train Loss: 0.2818 Acc: 0.8809
+Val Loss: 0.2305 Acc: 0.8980
+
+Epoch 7/29
+----------
+Train Loss: 0.2390 Acc: 0.9027
+Val Loss: 0.2240 Acc: 0.9042
+
+Epoch 8/29
+----------
+Train Loss: 0.2209 Acc: 0.9126
+Val Loss: 0.2470 Acc: 0.8962
+
+Epoch 9/29
+----------
+Train Loss: 0.2172 Acc: 0.9141
+Val Loss: 0.2096 Acc: 0.9147
+
+Epoch 10/29
+----------
+Train Loss: 0.2101 Acc: 0.9169
+Val Loss: 0.2009 Acc: 0.9182
+
+Epoch 11/29
+----------

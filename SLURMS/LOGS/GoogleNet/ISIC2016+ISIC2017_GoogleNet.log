@@ -1,0 +1,182 @@
+DB: ['ISIC2016', 'ISIC2017']
+CLASSIFIER: GoogleNet
+JOB_INDEX: None
+Start training ISIC2016+ISIC2017_GoogleNet
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.6584 Acc: 0.5982
+Val Loss: 0.6538 Acc: 0.6030
+
+Epoch 1/33
+----------
+Train Loss: 0.5877 Acc: 0.6923
+Val Loss: 0.4640 Acc: 0.7879
+
+Epoch 2/33
+----------
+Train Loss: 0.5596 Acc: 0.7143
+Val Loss: 0.5048 Acc: 0.7333
+
+Epoch 3/33
+----------
+Train Loss: 0.5352 Acc: 0.7375
+Val Loss: 0.4103 Acc: 0.8152
+
+Epoch 4/33
+----------
+Train Loss: 0.5187 Acc: 0.7445
+Val Loss: 0.4982 Acc: 0.7485
+
+Epoch 5/33
+----------
+Train Loss: 0.5215 Acc: 0.7327
+Val Loss: 0.4339 Acc: 0.7727
+
+Epoch 6/33
+----------
+Train Loss: 0.4871 Acc: 0.7699
+Val Loss: 0.3791 Acc: 0.8303
+
+Epoch 7/33
+----------
+Train Loss: 0.4741 Acc: 0.7673
+Val Loss: 0.4160 Acc: 0.8152
+
+Epoch 8/33
+----------
+Train Loss: 0.4772 Acc: 0.7717
+Val Loss: 0.4293 Acc: 0.8000
+
+Epoch 9/33
+----------
+Train Loss: 0.4681 Acc: 0.7739
+Val Loss: 0.4257 Acc: 0.8000
+
+Epoch 10/33
+----------
+Train Loss: 0.4850 Acc: 0.7654
+Val Loss: 0.4080 Acc: 0.8152
+
+Epoch 11/33
+----------
+Train Loss: 0.4805 Acc: 0.7629
+Val Loss: 0.4015 Acc: 0.8182
+
+Epoch 12/33
+----------
+Train Loss: 0.4732 Acc: 0.7676
+Val Loss: 0.4390 Acc: 0.7879
+
+Epoch 13/33
+----------
+Train Loss: 0.4588 Acc: 0.7706
+Val Loss: 0.4441 Acc: 0.7818
+
+Epoch 14/33
+----------
+Train Loss: 0.4876 Acc: 0.7574
+Val Loss: 0.4230 Acc: 0.8030
+
+Epoch 15/33
+----------
+Train Loss: 0.4731 Acc: 0.7699
+Val Loss: 0.4420 Acc: 0.7879
+
+Epoch 16/33
+----------
+Train Loss: 0.4614 Acc: 0.7798
+Val Loss: 0.4209 Acc: 0.7970
+
+Epoch 17/33
+----------
+Train Loss: 0.4638 Acc: 0.7699
+Val Loss: 0.4303 Acc: 0.7970
+
+Epoch 18/33
+----------
+Train Loss: 0.4667 Acc: 0.7768
+Val Loss: 0.4277 Acc: 0.7939
+
+Epoch 19/33
+----------
+Train Loss: 0.4632 Acc: 0.7695
+Val Loss: 0.4096 Acc: 0.8061
+
+Epoch 20/33
+----------
+Train Loss: 0.4763 Acc: 0.7732
+Val Loss: 0.4337 Acc: 0.7970
+
+Epoch 21/33
+----------
+Train Loss: 0.4465 Acc: 0.7871
+Val Loss: 0.4205 Acc: 0.8030
+
+Epoch 22/33
+----------
+Train Loss: 0.4802 Acc: 0.7691
+Val Loss: 0.4203 Acc: 0.8000
+
+Epoch 23/33
+----------
+Train Loss: 0.4758 Acc: 0.7680
+Val Loss: 0.4184 Acc: 0.8030
+
+Epoch 24/33
+----------
+Train Loss: 0.4570 Acc: 0.7824
+Val Loss: 0.4303 Acc: 0.7970
+
+Epoch 25/33
+----------
+Train Loss: 0.4571 Acc: 0.7669
+Val Loss: 0.4077 Acc: 0.8091
+
+Epoch 26/33
+----------
+Train Loss: 0.4663 Acc: 0.7684
+Val Loss: 0.4296 Acc: 0.8000
+
+Epoch 27/33
+----------
+Train Loss: 0.4521 Acc: 0.7835
+Val Loss: 0.4508 Acc: 0.7758
+
+Epoch 28/33
+----------
+Train Loss: 0.4730 Acc: 0.7699
+Val Loss: 0.4198 Acc: 0.8061
+
+Epoch 29/33
+----------
+Train Loss: 0.4591 Acc: 0.7827
+Val Loss: 0.4375 Acc: 0.7939
+
+Epoch 30/33
+----------
+Train Loss: 0.4628 Acc: 0.7816
+Val Loss: 0.4158 Acc: 0.7939
+
+Epoch 31/33
+----------
+Train Loss: 0.4547 Acc: 0.7864
+Val Loss: 0.4269 Acc: 0.7939
+
+Epoch 32/33
+----------
+Train Loss: 0.4477 Acc: 0.7842
+Val Loss: 0.4276 Acc: 0.7939
+
+Epoch 33/33
+----------
+Train Loss: 0.4724 Acc: 0.7680
+Val Loss: 0.4271 Acc: 0.7970
+
+Training complete in 94m 29s
+Best val Acc: 0.830303
+Finished training ISIC2016+ISIC2017_GoogleNet

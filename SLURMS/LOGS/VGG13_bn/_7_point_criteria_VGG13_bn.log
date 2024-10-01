@@ -1,0 +1,161 @@
+DB: ['_7_point_criteria']
+CLASSIFIER: VGG13_bn
+JOB_INDEX: None
+Start training _7_point_criteria_VGG13_bn
+Combining...
+Combining 1th db out of 1 dbs
+Stacking data
+Combining complete
+Epoch 0/29
+----------
+Train Loss: 0.6721 Acc: 0.4383
+Val Loss: 0.6965 Acc: 0.5025
+
+Epoch 1/29
+----------
+Train Loss: 0.5946 Acc: 0.5860
+Val Loss: 0.7399 Acc: 0.4975
+
+Epoch 2/29
+----------
+Train Loss: 0.5545 Acc: 0.6174
+Val Loss: 0.6465 Acc: 0.6108
+
+Epoch 3/29
+----------
+Train Loss: 0.5497 Acc: 0.6344
+Val Loss: 0.6977 Acc: 0.5764
+
+Epoch 4/29
+----------
+Train Loss: 0.5287 Acc: 0.6659
+Val Loss: 0.5460 Acc: 0.7094
+
+Epoch 5/29
+----------
+Train Loss: 0.4753 Acc: 0.6901
+Val Loss: 0.5600 Acc: 0.7044
+
+Epoch 6/29
+----------
+Train Loss: 0.5104 Acc: 0.6610
+Val Loss: 0.5019 Acc: 0.7734
+
+Epoch 7/29
+----------
+Train Loss: 0.4446 Acc: 0.7288
+Val Loss: 0.4969 Acc: 0.7783
+
+Epoch 8/29
+----------
+Train Loss: 0.4669 Acc: 0.7215
+Val Loss: 0.4991 Acc: 0.7537
+
+Epoch 9/29
+----------
+Train Loss: 0.4808 Acc: 0.6780
+Val Loss: 0.5008 Acc: 0.7537
+
+Epoch 10/29
+----------
+Train Loss: 0.4781 Acc: 0.6925
+Val Loss: 0.4987 Acc: 0.7734
+
+Epoch 11/29
+----------
+Train Loss: 0.4295 Acc: 0.7312
+Val Loss: 0.4915 Acc: 0.7833
+
+Epoch 12/29
+----------
+Train Loss: 0.4278 Acc: 0.7215
+Val Loss: 0.4878 Acc: 0.7734
+
+Epoch 13/29
+----------
+Train Loss: 0.4629 Acc: 0.6828
+Val Loss: 0.4935 Acc: 0.7635
+
+Epoch 14/29
+----------
+Train Loss: 0.4074 Acc: 0.7482
+Val Loss: 0.5076 Acc: 0.7586
+
+Epoch 15/29
+----------
+Train Loss: 0.4434 Acc: 0.7264
+Val Loss: 0.4981 Acc: 0.7586
+
+Epoch 16/29
+----------
+Train Loss: 0.4553 Acc: 0.6949
+Val Loss: 0.5031 Acc: 0.7635
+
+Epoch 17/29
+----------
+Train Loss: 0.4447 Acc: 0.7240
+Val Loss: 0.4978 Acc: 0.7635
+
+Epoch 18/29
+----------
+Train Loss: 0.4204 Acc: 0.7191
+Val Loss: 0.5037 Acc: 0.7685
+
+Epoch 19/29
+----------
+Train Loss: 0.4174 Acc: 0.7361
+Val Loss: 0.4984 Acc: 0.7586
+
+Epoch 20/29
+----------
+Train Loss: 0.4580 Acc: 0.7022
+Val Loss: 0.5023 Acc: 0.7635
+
+Epoch 21/29
+----------
+Train Loss: 0.4110 Acc: 0.7337
+Val Loss: 0.4994 Acc: 0.7537
+
+Epoch 22/29
+----------
+Train Loss: 0.4561 Acc: 0.7191
+Val Loss: 0.5017 Acc: 0.7488
+
+Epoch 23/29
+----------
+Train Loss: 0.4683 Acc: 0.7070
+Val Loss: 0.5006 Acc: 0.7586
+
+Epoch 24/29
+----------
+Train Loss: 0.4305 Acc: 0.7337
+Val Loss: 0.5006 Acc: 0.7537
+
+Epoch 25/29
+----------
+Train Loss: 0.4522 Acc: 0.7143
+Val Loss: 0.5077 Acc: 0.7685
+
+Epoch 26/29
+----------
+Train Loss: 0.4003 Acc: 0.7361
+Val Loss: 0.5006 Acc: 0.7586
+
+Epoch 27/29
+----------
+Train Loss: 0.4334 Acc: 0.7143
+Val Loss: 0.5023 Acc: 0.7537
+
+Epoch 28/29
+----------
+Train Loss: 0.4154 Acc: 0.7337
+Val Loss: 0.4941 Acc: 0.7635
+
+Epoch 29/29
+----------
+Train Loss: 0.4630 Acc: 0.6998
+Val Loss: 0.4990 Acc: 0.7635
+
+Training complete in 3m 52s
+Best val Acc: 0.783251
+Finished training _7_point_criteria_VGG13_bn

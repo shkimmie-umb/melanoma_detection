@@ -1,0 +1,182 @@
+DB: ['_7_point_criteria', 'PAD_UFES_20']
+CLASSIFIER: WideResNet50_2
+JOB_INDEX: None
+Start training _7_point_criteria+PAD_UFES_20_WideResNet50_2
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.5205 Acc: 0.7388
+Val Loss: 0.4975 Acc: 0.7722
+
+Epoch 1/33
+----------
+Train Loss: 0.3213 Acc: 0.8623
+Val Loss: 0.4557 Acc: 0.7768
+
+Epoch 2/33
+----------
+Train Loss: 0.2561 Acc: 0.8938
+Val Loss: 0.2956 Acc: 0.8522
+
+Epoch 3/33
+----------
+Train Loss: 0.2123 Acc: 0.9129
+Val Loss: 0.3674 Acc: 0.8341
+
+Epoch 4/33
+----------
+Train Loss: 0.2188 Acc: 0.9125
+Val Loss: 0.2707 Acc: 0.8778
+
+Epoch 5/33
+----------
+Train Loss: 0.1685 Acc: 0.9303
+Val Loss: 0.2911 Acc: 0.8748
+
+Epoch 6/33
+----------
+Train Loss: 0.1317 Acc: 0.9445
+Val Loss: 0.2665 Acc: 0.8959
+
+Epoch 7/33
+----------
+Train Loss: 0.1486 Acc: 0.9445
+Val Loss: 0.2356 Acc: 0.8944
+
+Epoch 8/33
+----------
+Train Loss: 0.1496 Acc: 0.9414
+Val Loss: 0.2676 Acc: 0.8944
+
+Epoch 9/33
+----------
+Train Loss: 0.1410 Acc: 0.9365
+Val Loss: 0.2328 Acc: 0.8974
+
+Epoch 10/33
+----------
+Train Loss: 0.1156 Acc: 0.9542
+Val Loss: 0.2205 Acc: 0.9020
+
+Epoch 11/33
+----------
+Train Loss: 0.1271 Acc: 0.9458
+Val Loss: 0.2282 Acc: 0.9035
+
+Epoch 12/33
+----------
+Train Loss: 0.1275 Acc: 0.9511
+Val Loss: 0.2094 Acc: 0.9005
+
+Epoch 13/33
+----------
+Train Loss: 0.1078 Acc: 0.9609
+Val Loss: 0.2145 Acc: 0.9080
+
+Epoch 14/33
+----------
+Train Loss: 0.1087 Acc: 0.9587
+Val Loss: 0.2153 Acc: 0.9020
+
+Epoch 15/33
+----------
+Train Loss: 0.1078 Acc: 0.9596
+Val Loss: 0.2262 Acc: 0.9005
+
+Epoch 16/33
+----------
+Train Loss: 0.1272 Acc: 0.9502
+Val Loss: 0.2286 Acc: 0.9050
+
+Epoch 17/33
+----------
+Train Loss: 0.0993 Acc: 0.9591
+Val Loss: 0.2191 Acc: 0.9065
+
+Epoch 18/33
+----------
+Train Loss: 0.1218 Acc: 0.9516
+Val Loss: 0.2092 Acc: 0.9065
+
+Epoch 19/33
+----------
+Train Loss: 0.1056 Acc: 0.9605
+Val Loss: 0.2103 Acc: 0.9095
+
+Epoch 20/33
+----------
+Train Loss: 0.1062 Acc: 0.9578
+Val Loss: 0.2257 Acc: 0.9035
+
+Epoch 21/33
+----------
+Train Loss: 0.1098 Acc: 0.9529
+Val Loss: 0.2263 Acc: 0.8974
+
+Epoch 22/33
+----------
+Train Loss: 0.1115 Acc: 0.9551
+Val Loss: 0.2157 Acc: 0.9080
+
+Epoch 23/33
+----------
+Train Loss: 0.1100 Acc: 0.9614
+Val Loss: 0.2255 Acc: 0.9035
+
+Epoch 24/33
+----------
+Train Loss: 0.1117 Acc: 0.9542
+Val Loss: 0.2245 Acc: 0.9065
+
+Epoch 25/33
+----------
+Train Loss: 0.1006 Acc: 0.9587
+Val Loss: 0.2052 Acc: 0.9080
+
+Epoch 26/33
+----------
+Train Loss: 0.1286 Acc: 0.9471
+Val Loss: 0.2064 Acc: 0.9035
+
+Epoch 27/33
+----------
+Train Loss: 0.1151 Acc: 0.9538
+Val Loss: 0.2158 Acc: 0.9065
+
+Epoch 28/33
+----------
+Train Loss: 0.1110 Acc: 0.9529
+Val Loss: 0.2010 Acc: 0.9080
+
+Epoch 29/33
+----------
+Train Loss: 0.1032 Acc: 0.9645
+Val Loss: 0.2281 Acc: 0.8989
+
+Epoch 30/33
+----------
+Train Loss: 0.1126 Acc: 0.9565
+Val Loss: 0.2248 Acc: 0.9005
+
+Epoch 31/33
+----------
+Train Loss: 0.1101 Acc: 0.9556
+Val Loss: 0.2225 Acc: 0.8989
+
+Epoch 32/33
+----------
+Train Loss: 0.1113 Acc: 0.9569
+Val Loss: 0.2175 Acc: 0.9065
+
+Epoch 33/33
+----------
+Train Loss: 0.1109 Acc: 0.9574
+Val Loss: 0.2150 Acc: 0.9095
+
+Training complete in 6m 52s
+Best val Acc: 0.909502
+Finished training _7_point_criteria+PAD_UFES_20_WideResNet50_2

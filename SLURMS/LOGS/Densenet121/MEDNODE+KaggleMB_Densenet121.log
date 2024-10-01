@@ -1,0 +1,182 @@
+DB: ['MEDNODE', 'KaggleMB']
+CLASSIFIER: Densenet121
+JOB_INDEX: None
+Start training MEDNODE+KaggleMB_Densenet121
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.5102 Acc: 0.7376
+Val Loss: 0.5288 Acc: 0.7776
+
+Epoch 1/33
+----------
+Train Loss: 0.4075 Acc: 0.8165
+Val Loss: 0.4268 Acc: 0.8007
+
+Epoch 2/33
+----------
+Train Loss: 0.3609 Acc: 0.8330
+Val Loss: 0.3746 Acc: 0.8007
+
+Epoch 3/33
+----------
+Train Loss: 0.3551 Acc: 0.8303
+Val Loss: 0.3556 Acc: 0.8025
+
+Epoch 4/33
+----------
+Train Loss: 0.3407 Acc: 0.8530
+Val Loss: 0.3576 Acc: 0.8060
+
+Epoch 5/33
+----------
+Train Loss: 0.3197 Acc: 0.8512
+Val Loss: 0.3386 Acc: 0.8327
+
+Epoch 6/33
+----------
+Train Loss: 0.3182 Acc: 0.8548
+Val Loss: 0.3298 Acc: 0.8345
+
+Epoch 7/33
+----------
+Train Loss: 0.3027 Acc: 0.8624
+Val Loss: 0.3219 Acc: 0.8452
+
+Epoch 8/33
+----------
+Train Loss: 0.3179 Acc: 0.8588
+Val Loss: 0.3275 Acc: 0.8381
+
+Epoch 9/33
+----------
+Train Loss: 0.2927 Acc: 0.8699
+Val Loss: 0.3260 Acc: 0.8327
+
+Epoch 10/33
+----------
+Train Loss: 0.2764 Acc: 0.8686
+Val Loss: 0.3304 Acc: 0.8381
+
+Epoch 11/33
+----------
+Train Loss: 0.2900 Acc: 0.8628
+Val Loss: 0.3301 Acc: 0.8345
+
+Epoch 12/33
+----------
+Train Loss: 0.2694 Acc: 0.8820
+Val Loss: 0.3410 Acc: 0.8363
+
+Epoch 13/33
+----------
+Train Loss: 0.2780 Acc: 0.8753
+Val Loss: 0.3395 Acc: 0.8292
+
+Epoch 14/33
+----------
+Train Loss: 0.2718 Acc: 0.8891
+Val Loss: 0.3414 Acc: 0.8310
+
+Epoch 15/33
+----------
+Train Loss: 0.2847 Acc: 0.8668
+Val Loss: 0.3576 Acc: 0.8327
+
+Epoch 16/33
+----------
+Train Loss: 0.2674 Acc: 0.8806
+Val Loss: 0.3357 Acc: 0.8274
+
+Epoch 17/33
+----------
+Train Loss: 0.2737 Acc: 0.8771
+Val Loss: 0.3436 Acc: 0.8310
+
+Epoch 18/33
+----------
+Train Loss: 0.2930 Acc: 0.8695
+Val Loss: 0.3359 Acc: 0.8292
+
+Epoch 19/33
+----------
+Train Loss: 0.2583 Acc: 0.8811
+Val Loss: 0.3345 Acc: 0.8274
+
+Epoch 20/33
+----------
+Train Loss: 0.2717 Acc: 0.8775
+Val Loss: 0.3422 Acc: 0.8256
+
+Epoch 21/33
+----------
+Train Loss: 0.2762 Acc: 0.8748
+Val Loss: 0.3357 Acc: 0.8256
+
+Epoch 22/33
+----------
+Train Loss: 0.2581 Acc: 0.8829
+Val Loss: 0.3389 Acc: 0.8363
+
+Epoch 23/33
+----------
+Train Loss: 0.2731 Acc: 0.8771
+Val Loss: 0.3374 Acc: 0.8274
+
+Epoch 24/33
+----------
+Train Loss: 0.2653 Acc: 0.8891
+Val Loss: 0.3384 Acc: 0.8327
+
+Epoch 25/33
+----------
+Train Loss: 0.2588 Acc: 0.8851
+Val Loss: 0.3451 Acc: 0.8327
+
+Epoch 26/33
+----------
+Train Loss: 0.2884 Acc: 0.8708
+Val Loss: 0.3321 Acc: 0.8256
+
+Epoch 27/33
+----------
+Train Loss: 0.2964 Acc: 0.8655
+Val Loss: 0.3339 Acc: 0.8274
+
+Epoch 28/33
+----------
+Train Loss: 0.2718 Acc: 0.8811
+Val Loss: 0.3480 Acc: 0.8274
+
+Epoch 29/33
+----------
+Train Loss: 0.2824 Acc: 0.8726
+Val Loss: 0.3324 Acc: 0.8274
+
+Epoch 30/33
+----------
+Train Loss: 0.2573 Acc: 0.8860
+Val Loss: 0.3438 Acc: 0.8327
+
+Epoch 31/33
+----------
+Train Loss: 0.2694 Acc: 0.8771
+Val Loss: 0.3431 Acc: 0.8345
+
+Epoch 32/33
+----------
+Train Loss: 0.2632 Acc: 0.8820
+Val Loss: 0.3436 Acc: 0.8363
+
+Epoch 33/33
+----------
+Train Loss: 0.2876 Acc: 0.8708
+Val Loss: 0.3414 Acc: 0.8345
+
+Training complete in 12m 43s
+Best val Acc: 0.845196
+Finished training MEDNODE+KaggleMB_Densenet121

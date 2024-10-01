@@ -1,0 +1,13 @@
+DB: ['ISIC2020', 'PH2', '_7_point_criteria', 'PAD_UFES_20']
+CLASSIFIER: InceptionV3
+JOB_INDEX: None
+Start training ISIC2020+PH2+_7_point_criteria+PAD_UFES_20_InceptionV3
+Combining...
+Combining 1th db out of 4 dbs
+Combining 2th db out of 4 dbs
+Combining 3th db out of 4 dbs
+Combining 4th db out of 4 dbs
+Stacking data
+Combining complete
+Epoch 0/37
+----------

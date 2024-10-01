@@ -1,0 +1,52 @@
+DB: ['ISIC2020', 'PH2']
+CLASSIFIER: VGG19
+JOB_INDEX: None
+Start training ISIC2020+PH2_VGG19
+Combining...
+Combining 1th db out of 2 dbs
+Combining 2th db out of 2 dbs
+Stacking data
+Combining complete
+Epoch 0/33
+----------
+Train Loss: 0.5078 Acc: 0.7420
+Val Loss: 0.3313 Acc: 0.8129
+
+Epoch 1/33
+----------
+Train Loss: 0.4358 Acc: 0.7912
+Val Loss: 0.4198 Acc: 0.7534
+
+Epoch 2/33
+----------
+Train Loss: 0.4015 Acc: 0.8113
+Val Loss: 0.2852 Acc: 0.8476
+
+Epoch 3/33
+----------
+Train Loss: 0.3757 Acc: 0.8267
+Val Loss: 0.3810 Acc: 0.7772
+
+Epoch 4/33
+----------
+Train Loss: 0.3496 Acc: 0.8436
+Val Loss: 0.3414 Acc: 0.8124
+
+Epoch 5/33
+----------
+Train Loss: 0.3298 Acc: 0.8554
+Val Loss: 0.3770 Acc: 0.8231
+
+Epoch 6/33
+----------
+Train Loss: 0.3074 Acc: 0.8662
+Val Loss: 0.1959 Acc: 0.9005
+
+Epoch 7/33
+----------
+Train Loss: 0.2562 Acc: 0.8933
+Val Loss: 0.2802 Acc: 0.8695
+
+Epoch 8/33
+----------
+Train Loss: 0.2370 Acc: 0.9022
