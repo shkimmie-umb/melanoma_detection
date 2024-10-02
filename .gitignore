@@ -1,3 +1,4 @@
 # ignore py cache folder and files
 __pycache__/
 ISICdb/
+SLURMS/LOGS
