@@ -6,6 +6,7 @@ from sklearn.utils import class_weight
 
 import reject
 from reject.reject import ClassificationRejector
+from reject.reject import confusion_matrix as reject_cm
 from reject.utils import generate_synthetic_output
 
 import torch
@@ -562,35 +563,97 @@ class Model:
         print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
         
 
-    def reject_uncertainties(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet50/performance/ISIC2018_ResNet50_metrics.json', recursive=True)]))
+    def reject_uncertainties(snapshot_path, threshold=0.5):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
+        jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
 
-        data = []
+        final_uncertainty = []
 
         for idx, j in enumerate(jsonfiles):
             fi = open(j)
             jfile = json.load(fi)
-            data.append(jfile)
+            # data.append(jfile)
+            for db in ('HAM10000', 'ISIC2016', 'ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
+                scores_all = np.array(jfile[db]['y_scores'])
+                labels_all = np.array(jfile[db]['y_labels'])
+                preds_all = np.array(jfile[db]['y_pred'])
+
+                # Instantiate Rejector
+                rej = ClassificationRejector(labels_all, scores_all)
+                # Get entropy (Uncertainty Total (Entropy))
+                # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
+                total_unc = rej.uncertainty(unc_type="TU")
+                all_unc = rej.uncertainty(unc_type=None)
+                # Plotting uncertainty per test sample
+                rej.plot_uncertainty(unc_type="TU")
+                rej.plot_uncertainty(unc_type=None)
+                # implement single rejection point
+                reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
+
+                cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
+                reject_info = {}
+                reject_info[db] = {}
+                # False: Not rejected, True: rejected (removed)
+                reject_info[db]['y_labels'] = labels_all.tolist()
+                reject_info[db]['y_preds'] = preds_all.tolist()
+                reject_info[db]['y_scores'] = scores_all.tolist()
+                reject_info[db]['uncertainty'] = total_unc.tolist()
+                reject_info[db]['Threshold'] = threshold
+                reject_info[db]['Non-rejected_y_labels'] = labels_all[cm[1] == False].tolist()
+                reject_info[db]['Non-rejected_y_preds'] = preds_all[cm[1] == False].tolist()
+                reject_info[db]['Non-rejected_y_scores'] = scores_all[cm[1] == False].tolist()
+                reject_info[db]['Non-rejected'] = {}
+                reject_info[db]['Rejected'] = {}
+                reject_info[db]['Non-rejected']['Correct'] = cm[0][1]
+                reject_info[db]['Non-rejected']['Incorrect'] = cm[0][3]
+                reject_info[db]['Rejected']['Correct'] = cm[0][0]
+                reject_info[db]['Rejected']['Incorrect'] = cm[0][2]
+                reject_info[db]['Non-rejected_accuracy'] = reject_output[0][0]
+                reject_info[db]['Classification_quality'] = reject_output[0][1]
+                reject_info[db]['Rejection_quality'] = reject_output[0][2]
+                
+                rej.plot_reject(unc_type="TU", metric="NRA")
+                rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
+
+                common_binary_label = {
+                        0.0: 'benign',
+                }
+                if (len(np.unique(reject_info[db]['Non-rejected_y_labels'])) == 2):
+                    test_report = classification_report(reject_info[db]['Non-rejected_y_labels'], reject_info[db]['Non-rejected_y_preds'],
+                    target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+
+                    reject_info[db]['accuracy'] = test_report['accuracy']
+                    reject_info[db]['precision'] = test_report['macro avg']['precision']
+                    reject_info[db]['sensitivity'] = test_report['malignant']['recall']
+                    reject_info[db]['specificity'] = test_report['benign']['recall']
+                    reject_info[db]['f1-score'] = test_report['macro avg']['f1-score']
+
+                elif (len(np.unique(reject_info[db]['Non-rejected_y_labels'])) == 1):
+                    test_report = classification_report(reject_info[db]['Non-rejected_y_labels'], reject_info[db]['Non-rejected_y_preds'],
+                    target_names=common_binary_label.values(), output_dict = True)
+
+                    reject_info[db]['accuracy'] = test_report['accuracy']
+                    reject_info[db]['precision'] = test_report['macro avg']['precision']
+                    reject_info[db]['sensitivity'] = '-'
+                    reject_info[db]['specificity'] = test_report['benign']['recall']
+                    reject_info[db]['f1-score'] = test_report['macro avg']['f1-score']
+
+                final_uncertainty.append(reject_info)
+
+
+                # Dump Json
+                json_filename = f'{jsonnames[idx]}_reject.json'
+
+                file_json = open(os.path.join(jsonpaths[idx], json_filename), "w")
+                json.dump(final_uncertainty, file_json, indent = 6)
+                file_json.close()
 
         # y_pred_all, y_true_all = generate_synthetic_output(NUM_SAMPLES, NUM_OBSERVATIONS)
-        scores_all = np.array(data[0]['ISIC2016']['y_scores'])
-        labels_all = np.array(data[0]['ISIC2016']['y_labels'])
+        
         # (num_observations{IN+OOD}, num_samples, NUM_CLASSES)
 
-        # Instantiate Rejector
-        rej = ClassificationRejector(labels_all, scores_all)
-        # Get entropy (Uncertainty Total (Entropy))
-        # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
-        total_unc = rej.uncertainty(unc_type="TU")
-        all_unc = rej.uncertainty(unc_type=None)
-        # Plotting uncertainty per test sample
-        rej.plot_uncertainty(unc_type="TU")
-        rej.plot_uncertainty(unc_type=None)
-        # implement single rejection point
-        rej.reject(threshold=0.1, unc_type="TU", relative=True, show=True)
-        rej.plot_reject(unc_type="TU", metric="NRA")
-        rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
+
 
 	
     @staticmethod

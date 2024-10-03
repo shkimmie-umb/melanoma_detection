@@ -51,7 +51,10 @@ class NetworkType(Enum):
       WideResNet101_2 = 31,
       MNASNet10 = 32,
       MNASNet05 = 33,
-      
+      EfficientNetB1 = 34
+      EfficientNetB2 = 35,
+      EfficientNetB6 = 36,
+
       # MelaNet = 34
 
     
