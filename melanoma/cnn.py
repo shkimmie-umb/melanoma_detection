@@ -26,6 +26,7 @@ from torchvision.models import mobilenet_v3_large, mobilenet_v3_small
 from torchvision.models import resnext50_32x4d, resnext101_32x8d
 from torchvision.models import wide_resnet50_2, wide_resnet101_2
 from torchvision.models import mnasnet0_5, mnasnet1_0
+from torchvision.models import efficientnet_b1, efficientnet_b2, efficientnet_b6
 
 
 
@@ -58,7 +59,8 @@ class CNN(Base_Model):
         mel.NetworkType.VGG16.name, mel.NetworkType.VGG16_bn.name,
         mel.NetworkType.VGG19.name, mel.NetworkType.VGG19_bn.name, mel.NetworkType.AlexNet.name,
         mel.NetworkType.MobileNetV2.name, mel.NetworkType.MobileNetV3Large.name, mel.NetworkType.MobileNetV3Small.name,
-        mel.NetworkType.MNASNet10.name, mel.NetworkType.MNASNet05.name)):
+        mel.NetworkType.MNASNet10.name, mel.NetworkType.MNASNet05.name,
+        mel.NetworkType.EfficientNetB1.name, mel.NetworkType.EfficientNetB2.name, mel.NetworkType.EfficientNetB6.name)):
             num_ftrs = model_ft.classifier[-1].in_features
             model_ft.classifier[-1] = nn.Linear(num_ftrs, num_classes)
         elif (model_name in 
@@ -145,6 +147,9 @@ class CNN(Base_Model):
             mel.NetworkType.WideResNet101_2.name: wide_resnet101_2,
             mel.NetworkType.MNASNet05.name: mnasnet0_5,
             mel.NetworkType.MNASNet10.name: mnasnet1_0,
+            mel.NetworkType.EfficientNetB1.name: efficientnet_b1,
+            mel.NetworkType.EfficientNetB2.name: efficientnet_b2,
+            mel.NetworkType.EfficientNetB6.name: efficientnet_b6,
         }
         model = classifierDict[classifier]
 
