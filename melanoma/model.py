@@ -478,7 +478,7 @@ class Model:
                 'ISIC2017': performances['ISIC2017'],
                 'ISIC2018': performances['ISIC2018'],
                 '_7_point_criteria': performances['_7_point_criteria'],
-                'Filesize(MB)': '{:.2f}'.format(calculate_filesize(model)),
+                'Filesize': '{:.2f}'.format(calculate_filesize(model)),
 
             }
             # Dump Json
@@ -498,7 +498,7 @@ class Model:
 
     @staticmethod
     def extract_performances(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
 
         final_perf = []
@@ -525,56 +525,161 @@ class Model:
         HAM10000_ws.append(cols)
 
         for p in final_perf:
-            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['accuracy'], p['Filesize'], p['Parameters']])
             
         ISIC2016_ws = performance['ISIC2016']
         ISIC2016_ws.append(cols)
 
         for p in final_perf:
-            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['accuracy'], p['Filesize'], p['Parameters']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
 
         for p in final_perf:
-            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['accuracy'], p['Filesize'], p['Parameters']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
 
         for p in final_perf:
-            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['accuracy'], p['Filesize'], p['Parameters']])
 
 
         KaggleMB_ws = performance['KaggleMB']
         KaggleMB_ws.append(cols)
 
         for p in final_perf:
-            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['accuracy'], p['Filesize'], p['Parameters']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
 
         for p in final_perf:
-            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['accuracy'], p['Filesize(MB)'], p['Parameters']])
+            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['accuracy'], p['Filesize'], p['Parameters']])
             
         performance.save(f'{snapshot_path}/performance_pytorch.xlsx')
 
         print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
-        
 
-    def reject_uncertainties(snapshot_path, threshold=0.5):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
+    @staticmethod
+    def extract_reject_performances(snapshot_path):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet50/performance/*_metrics_reject.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
-        jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
 
-        final_uncertainty = []
+        final_perf = []
 
         for idx, j in enumerate(jsonfiles):
             fi = open(j)
             jfile = json.load(fi)
-            # data.append(jfile)
+            final_perf.append(jfile)
+
+
+        performance = openpyxl.Workbook()
+        performance_ws = performance.active
+        performance_ws.title = 'HAM10000'
+        performance.create_sheet('ISIC2016')
+        performance.create_sheet('ISIC2017')
+        performance.create_sheet('ISIC2018')
+        performance.create_sheet('KaggleMB')
+        performance.create_sheet('7pointcriteria')
+
+
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'Accuracy']
+
+        HAM10000_ws = performance['HAM10000']
+        HAM10000_ws.append(cols)
+
+        
+
+        for p in final_perf:
+            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], 
+            p['HAM10000']['specificity'], 
+            p['HAM10000']['sensitivity'] if isinstance(p['HAM10000']['sensitivity'], (int, float)) else 'N/A', 
+            p['HAM10000']['accuracy']])
+            
+        ISIC2016_ws = performance['ISIC2016']
+        ISIC2016_ws.append(cols)
+
+        for p in final_perf:
+            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'],
+            p['ISIC2016']['specificity'], 
+            p['ISIC2016']['sensitivity'] if isinstance(p['ISIC2016']['sensitivity'], (int, float)) else 'N/A', 
+            p['ISIC2016']['accuracy']])
+
+        ISIC2017_ws = performance['ISIC2017']
+        ISIC2017_ws.append(cols)
+
+        for p in final_perf:
+            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], 
+            p['ISIC2017']['specificity'], 
+            p['ISIC2017']['sensitivity'] if isinstance(p['ISIC2017']['sensitivity'], (int, float)) else 'N/A', 
+            p['ISIC2017']['accuracy']])
+
+        ISIC2018_ws = performance['ISIC2018']
+        ISIC2018_ws.append(cols)
+
+        for p in final_perf:
+            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], 
+            p['ISIC2018']['specificity'], 
+            p['ISIC2018']['sensitivity'] if isinstance(p['ISIC2018']['sensitivity'], (int, float)) else 'N/A', 
+            p['ISIC2018']['accuracy']])
+
+
+        KaggleMB_ws = performance['KaggleMB']
+        KaggleMB_ws.append(cols)
+
+        for p in final_perf:
+            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], 
+            p['KaggleMB']['specificity'], 
+            p['KaggleMB']['sensitivity'] if isinstance(p['KaggleMB']['sensitivity'], (int, float)) else 'N/A', 
+            p['KaggleMB']['accuracy']])
+
+        _7pointcriteria_ws = performance['7pointcriteria']
+        _7pointcriteria_ws.append(cols)
+
+        for p in final_perf:
+            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], 
+            p['_7_point_criteria']['specificity'], 
+            p['_7_point_criteria']['sensitivity'] if isinstance(p['_7_point_criteria']['sensitivity'], (int, float)) else 'N/A', 
+            p['_7_point_criteria']['accuracy']])
+            
+        performance.save(f'{snapshot_path}/performance_reject.xlsx')
+
+        print(f'{snapshot_path}/performance_reject.xlsx' + ' generated')
+        
+
+    def reject_uncertainties(snapshot_path, threshold=0.5):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet50/performance/*_*_metrics.json', recursive=True)]))
+        jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
+        jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
+
+        
+
+        plt.ioff()
+
+        DBtypes = [db.name for db in mel.DatasetType]
+
+        for idx, j in enumerate(jsonfiles):
+            print(f'Rejecting {j} model')
+            fi = open(j)
+            jfile = json.load(fi)
+
+
+            if not os.path.exists(os.path.join(jsonpaths[idx], 'plots')):
+                os.makedirs(os.path.join(jsonpaths[idx], 'plots'), exist_ok=True)
+
+            final_uncertainty = {}
+
+
+            classifier_name = pathlib.Path(jsonpaths[idx]).parent.stem
+            used_DB_list = [each_model for each_model in DBtypes if(each_model in jsonnames[idx])]
+            DBnames = '+'.join(used_DB_list)
+            
+            final_uncertainty['dataset'] = used_DB_list
+            final_uncertainty['classifier'] = classifier_name
             for db in ('HAM10000', 'ISIC2016', 'ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
+                print(f"Rejecting {db} database")
                 scores_all = np.array(jfile[db]['y_scores'])
                 labels_all = np.array(jfile[db]['y_labels'])
                 preds_all = np.array(jfile[db]['y_pred'])
@@ -586,68 +691,76 @@ class Model:
                 total_unc = rej.uncertainty(unc_type="TU")
                 all_unc = rej.uncertainty(unc_type=None)
                 # Plotting uncertainty per test sample
-                rej.plot_uncertainty(unc_type="TU")
-                rej.plot_uncertainty(unc_type=None)
+                uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
+                
+                # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
+                uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty'), bbox_inches='tight')
+                # rej.plot_uncertainty(unc_type=None)
                 # implement single rejection point
                 reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
 
                 cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
-                reject_info = {}
-                reject_info[db] = {}
-                # False: Not rejected, True: rejected (removed)
-                reject_info[db]['y_labels'] = labels_all.tolist()
-                reject_info[db]['y_preds'] = preds_all.tolist()
-                reject_info[db]['y_scores'] = scores_all.tolist()
-                reject_info[db]['uncertainty'] = total_unc.tolist()
-                reject_info[db]['Threshold'] = threshold
-                reject_info[db]['Non-rejected_y_labels'] = labels_all[cm[1] == False].tolist()
-                reject_info[db]['Non-rejected_y_preds'] = preds_all[cm[1] == False].tolist()
-                reject_info[db]['Non-rejected_y_scores'] = scores_all[cm[1] == False].tolist()
-                reject_info[db]['Non-rejected'] = {}
-                reject_info[db]['Rejected'] = {}
-                reject_info[db]['Non-rejected']['Correct'] = cm[0][1]
-                reject_info[db]['Non-rejected']['Incorrect'] = cm[0][3]
-                reject_info[db]['Rejected']['Correct'] = cm[0][0]
-                reject_info[db]['Rejected']['Incorrect'] = cm[0][2]
-                reject_info[db]['Non-rejected_accuracy'] = reject_output[0][0]
-                reject_info[db]['Classification_quality'] = reject_output[0][1]
-                reject_info[db]['Rejection_quality'] = reject_output[0][2]
                 
-                rej.plot_reject(unc_type="TU", metric="NRA")
-                rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
+                reject_info = {}
+                # False: Not rejected, True: rejected (removed)
+                reject_info['y_labels'] = labels_all.tolist()
+                reject_info['y_preds'] = preds_all.tolist()
+                reject_info['y_scores'] = scores_all.tolist()
+                reject_info['uncertainty'] = total_unc.tolist()
+                reject_info['Threshold'] = threshold
+                reject_info['Non-rejected_y_labels'] = labels_all[cm[1] == False].tolist()
+                reject_info['Non-rejected_y_preds'] = preds_all[cm[1] == False].tolist()
+                reject_info['Non-rejected_y_scores'] = scores_all[cm[1] == False].tolist()
+                reject_info['Non-rejected'] = {}
+                reject_info['Rejected'] = {}
+                reject_info['Non-rejected']['Correct'] = cm[0][1]
+                reject_info['Non-rejected']['Incorrect'] = cm[0][3]
+                reject_info['Rejected']['Correct'] = cm[0][0]
+                reject_info['Rejected']['Incorrect'] = cm[0][2]
+                reject_info['Non-rejected_accuracy'] = reject_output[0][0]
+                reject_info['Classification_quality'] = reject_output[0][1]
+                reject_info['Rejection_quality'] = reject_output[0][2]
+                
+                # Relative threshold
+                threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
+                threshold_plt.savefig(os.path.join(jsonpaths[idx], 'plots', DBnames+'_'+classifier_name+'_'+db+'_threshold'), bbox_inches='tight')
+                # Absolute threshold
+                # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
 
                 common_binary_label = {
                         0.0: 'benign',
                 }
-                if (len(np.unique(reject_info[db]['Non-rejected_y_labels'])) == 2):
-                    test_report = classification_report(reject_info[db]['Non-rejected_y_labels'], reject_info[db]['Non-rejected_y_preds'],
+                if (len(np.unique(reject_info['Non-rejected_y_labels'])) == 2):
+                    test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
                     target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
-                    reject_info[db]['accuracy'] = test_report['accuracy']
-                    reject_info[db]['precision'] = test_report['macro avg']['precision']
-                    reject_info[db]['sensitivity'] = test_report['malignant']['recall']
-                    reject_info[db]['specificity'] = test_report['benign']['recall']
-                    reject_info[db]['f1-score'] = test_report['macro avg']['f1-score']
+                    reject_info['accuracy'] = test_report['accuracy']
+                    reject_info['precision'] = test_report['macro avg']['precision']
+                    reject_info['sensitivity'] = test_report['malignant']['recall']
+                    reject_info['specificity'] = test_report['benign']['recall']
+                    reject_info['f1-score'] = test_report['macro avg']['f1-score']
 
-                elif (len(np.unique(reject_info[db]['Non-rejected_y_labels'])) == 1):
-                    test_report = classification_report(reject_info[db]['Non-rejected_y_labels'], reject_info[db]['Non-rejected_y_preds'],
+                elif (len(np.unique(reject_info['Non-rejected_y_labels'])) == 1):
+                    test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
                     target_names=common_binary_label.values(), output_dict = True)
 
-                    reject_info[db]['accuracy'] = test_report['accuracy']
-                    reject_info[db]['precision'] = test_report['macro avg']['precision']
-                    reject_info[db]['sensitivity'] = '-'
-                    reject_info[db]['specificity'] = test_report['benign']['recall']
-                    reject_info[db]['f1-score'] = test_report['macro avg']['f1-score']
+                    reject_info['accuracy'] = test_report['accuracy']
+                    reject_info['precision'] = test_report['macro avg']['precision']
+                    reject_info['sensitivity'] = '-'
+                    reject_info['specificity'] = test_report['benign']['recall']
+                    reject_info['f1-score'] = test_report['macro avg']['f1-score']
 
-                final_uncertainty.append(reject_info)
+                # final_uncertainty.append(reject_info)
+
+                final_uncertainty[db] = reject_info
 
 
-                # Dump Json
-                json_filename = f'{jsonnames[idx]}_reject.json'
+            # Dump Json
+            json_filename = f'{jsonnames[idx]}_reject.json'
 
-                file_json = open(os.path.join(jsonpaths[idx], json_filename), "w")
-                json.dump(final_uncertainty, file_json, indent = 6)
-                file_json.close()
+            file_json = open(os.path.join(jsonpaths[idx], json_filename), "w")
+            json.dump(final_uncertainty, file_json, indent = 6)
+            file_json.close()
 
         # y_pred_all, y_true_all = generate_synthetic_output(NUM_SAMPLES, NUM_OBSERVATIONS)
         
