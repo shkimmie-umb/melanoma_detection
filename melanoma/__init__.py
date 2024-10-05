@@ -21,3 +21,4 @@ from .callback import SilentTrainingCallback
 # from .preprocess import Preprocess
 from .commondata import DatasetType, NetworkType, CommonData
 from .dataloader_nolabels import ImageDataset
+from .dataloader_filename import ImageFolder_filename

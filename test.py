@@ -1,6 +1,6 @@
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
 import torch
 import melanoma as mel
 
@@ -80,7 +80,7 @@ for idx, model_name in enumerate(modelnames):
     mel.Model.evaluate_model_onAll(model=loaded_model, model_path=modelfiles[idx], db_path=db_path, device=device)
 
     # Save ISIC2020 challenge submission
-    # mel.Model.evaluate_leaderboard(model=loaded_model, model_path=modelfiles[idx], db_path=db_path, device=device)
+    mel.Model.evaluate_leaderboard(model=loaded_model, model_path=modelfiles[idx], db_path=db_path, device=device)
     
 
 mel.Model.extract_performances(snapshot_path)
