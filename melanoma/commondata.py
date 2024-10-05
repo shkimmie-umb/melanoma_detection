@@ -54,8 +54,7 @@ class NetworkType(Enum):
       EfficientNetB1 = 34
       EfficientNetB2 = 35,
       EfficientNetB6 = 36,
-
-      # MelaNet = 34
+      MelaD = 37
 
     
 

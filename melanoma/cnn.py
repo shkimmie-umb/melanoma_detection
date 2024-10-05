@@ -74,6 +74,8 @@ class CNN(Base_Model):
         mel.NetworkType.Densenet169.name, mel.NetworkType.Densenet201.name)):
             num_ftrs = model_ft.classifier.in_features
             model_ft.classifier = nn.Linear(num_ftrs, num_classes)
+        elif (model_name in mel.NetworkType.MelaD.name):
+            pass
         else:
             raise AssertionError("Unknown network")
 
@@ -150,6 +152,7 @@ class CNN(Base_Model):
             mel.NetworkType.EfficientNetB1.name: efficientnet_b1,
             mel.NetworkType.EfficientNetB2.name: efficientnet_b2,
             mel.NetworkType.EfficientNetB6.name: efficientnet_b6,
+            mel.NetworkType.MelaD.name: mel.MelaD.melad,
         }
         model = classifierDict[classifier]
 

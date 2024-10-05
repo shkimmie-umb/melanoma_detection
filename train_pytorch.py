@@ -100,8 +100,20 @@ epochs = {
     "9": 48,
     "10": 50,
 }
+epochs_melad = {
+    "1": 40,
+    "2": 44,
+    "3": 46,
+    "4": 48,
+    "5": 50,
+    "6": 52,
+    "7": 54,
+    "8": 56,
+    "9": 58,
+    "10": 60,
+}
 
-CFG["epochs"] = epochs[str(len(DB))]
+
 
 
 data_transforms = {
@@ -180,14 +192,28 @@ dataloaders, dataset_sizes = mel.Util.combineDatasets(dbs, preprocessing=data_tr
 # dataloaders, dataset_sizes = mel.Util.combineDatasets_fast(dbs, pre_transform=pre_transform, post_transform=post_transform)
 CFG['num_classes'] = 2
 
-network = mel.CNN.model_caller(CLASSIFIER)
-model_ft = mel.CNN.transfer(network=network, network_name=CLASSIFIER, weights=True, CFG=CFG)
+if CLASSIFIER != mel.NetworkType.MelaD.name:
+    network = mel.CNN.model_caller(CLASSIFIER)
+    model_ft = mel.CNN.transfer(network=network, network_name=CLASSIFIER, weights=True, CFG=CFG)
+    CFG["epochs"] = epochs[str(len(DB))]
+else:
+    model_ft = mel.MelaD()
+    CFG["epochs"] = epochs_melad[str(len(DB))]
 model_ft = nn.DataParallel(model_ft)
 model_ft = model_ft.to(CFG['device'])
-CFG['optimizer'] = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
-# optimizer_ft = torch.optim.Adam(model.fc.parameters(), lr=0.001)
+# CFG['optimizer'] = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
+# CFG['optimizer'] = torch.optim.Adam(model.fc.parameters(), lr=0.0001)
+CFG['optimizer'] = torch.optim.Adam(
+    model_ft.parameters(),
+    lr=1e-4,            # learning_rate in PyTorch
+    betas=(0.9, 0.999), # beta_1 and beta_2 in PyTorch
+    eps=1e-8,           # epsilon in PyTorch (default is 1e-8 if not provided)
+    weight_decay=1e-6,  # decay in PyTorch (this is weight decay, also called L2 regularization)
+    amsgrad=False       # amsgrad parameter in PyTorch
+)
 # Decay LR by a factor of 0.1 every 7 epochs
 CFG['scheduler'] = lr_scheduler.StepLR(CFG['optimizer'], step_size=7, gamma=0.1)
+
 
 model_ft = mel.Model.train_model(conf=CFG, network=model_ft, data=dataloaders, dataset_sizes=dataset_sizes)
 

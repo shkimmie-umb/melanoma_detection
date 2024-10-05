@@ -16,6 +16,7 @@ from .db_parser.parser_MEDNODE import parser_MEDNODE
 # from .db_parser import *
 # from .visualizer import Visualizer
 from .cnn import CNN
+from .melad import MelaD
 # from .augmentationStrategy import *
 from .callback import SilentTrainingCallback
 # from .preprocess import Preprocess
