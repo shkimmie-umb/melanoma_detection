@@ -114,6 +114,8 @@ class CommonData:
                   },
             mel.DatasetType.PH2: {
                   "trainimages": 200,
+                  "trainimgs_benign": 160,
+                  "trainimgs_malignant": 40,
                   "validationimages": 0,
                   "testimages": 0
                   },

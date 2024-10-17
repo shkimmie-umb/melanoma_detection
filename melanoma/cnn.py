@@ -83,9 +83,12 @@ class CNN(Base_Model):
     @staticmethod
     def load_model(model_path, num_classes, device):
         classifier_name = pathlib.Path(model_path).parent.name
-        network = mel.CNN.model_caller(classifier=classifier_name)
-        model_ft = network(weights=True)
-        model_ft = mel.CNN.modifyOutputLayer(model_ft=model_ft, model_name=classifier_name, num_classes=num_classes)
+        if classifier_name != mel.NetworkType.MelaD.name:
+            network = mel.CNN.model_caller(classifier=classifier_name)
+            model_ft = network(weights=True)
+            model_ft = mel.CNN.modifyOutputLayer(model_ft=model_ft, model_name=classifier_name, num_classes=num_classes)
+        else:
+            model_ft = mel.MelaD()
 
         state_dict = torch.load(model_path, map_location=device)
         
@@ -152,7 +155,7 @@ class CNN(Base_Model):
             mel.NetworkType.EfficientNetB1.name: efficientnet_b1,
             mel.NetworkType.EfficientNetB2.name: efficientnet_b2,
             mel.NetworkType.EfficientNetB6.name: efficientnet_b6,
-            mel.NetworkType.MelaD.name: mel.MelaD.melad,
+            # mel.NetworkType.MelaD.name: mel.MelaD.melad,
         }
         model = classifierDict[classifier]
 

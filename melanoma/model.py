@@ -1,6 +1,6 @@
 
 # Superclass
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 
@@ -184,6 +184,7 @@ class Model:
 
 
         test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+        mal_prob = [x[1] for x in all_scores]
 
         performance = {
             'y_labels': all_labels,
@@ -195,6 +196,7 @@ class Model:
             'sensitivity': test_report['malignant']['recall'],
             'specificity': test_report['benign']['recall'],
             'f1-score': test_report['macro avg']['f1-score'],
+            'auc-roc': roc_auc_score(all_labels, mal_prob)
         }
             
                     
@@ -450,44 +452,44 @@ class Model:
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'Accuracy', 'Filesize', 'Parameters']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F1', 'Accuracy', 'AUC-ROC', 'Filesize', 'Parameters']
 
         HAM10000_ws = performance['HAM10000']
         HAM10000_ws.append(cols)
 
         for p in final_perf:
-            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['accuracy'], p['Filesize'], p['Parameters']])
+            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['f1-score'], p['HAM10000']['accuracy'], p['HAM10000']['auc-roc'], p['Filesize'], p['Parameters']])
             
         ISIC2016_ws = performance['ISIC2016']
         ISIC2016_ws.append(cols)
 
         for p in final_perf:
-            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['f1-score'],  p['ISIC2016']['accuracy'], p['ISIC2016']['auc-roc'], p['Filesize'], p['Parameters']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
 
         for p in final_perf:
-            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['f1-score'],  p['ISIC2017']['accuracy'], p['ISIC2017']['auc-roc'], p['Filesize'], p['Parameters']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
 
         for p in final_perf:
-            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['accuracy'], p['Filesize'], p['Parameters']])
+            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['f1-score'],  p['ISIC2018']['accuracy'], p['ISIC2018']['auc-roc'], p['Filesize'], p['Parameters']])
 
 
         KaggleMB_ws = performance['KaggleMB']
         KaggleMB_ws.append(cols)
 
         for p in final_perf:
-            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['accuracy'], p['Filesize'], p['Parameters']])
+            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['f1-score'],  p['KaggleMB']['accuracy'], p['KaggleMB']['auc-roc'], p['Filesize'], p['Parameters']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
 
         for p in final_perf:
-            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['accuracy'], p['Filesize'], p['Parameters']])
+            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['f1-score'],  p['_7_point_criteria']['accuracy'], p['_7_point_criteria']['auc-roc'], p['Filesize'], p['Parameters']])
             
         performance.save(f'{snapshot_path}/performance_pytorch.xlsx')
 
@@ -516,7 +518,7 @@ class Model:
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'Accuracy']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F1', 'Accuracy', 'AUC-ROC']
 
         HAM10000_ws = performance['HAM10000']
         HAM10000_ws.append(cols)
@@ -527,7 +529,9 @@ class Model:
             HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['Non-rejected']['precision'], 
             p['HAM10000']['Non-rejected']['specificity'], 
             p['HAM10000']['Non-rejected']['sensitivity'] if isinstance(p['HAM10000']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['HAM10000']['Non-rejected']['accuracy']])
+            p['HAM10000']['Non-rejected']['f1-score'], 
+            p['HAM10000']['Non-rejected']['accuracy'],
+            p['HAM10000']['Non-rejected']['auc-roc']])
             
         ISIC2016_ws = performance['ISIC2016']
         ISIC2016_ws.append(cols)
@@ -536,7 +540,9 @@ class Model:
             ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['Non-rejected']['precision'],
             p['ISIC2016']['Non-rejected']['specificity'], 
             p['ISIC2016']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2016']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['ISIC2016']['Non-rejected']['accuracy']])
+            p['ISIC2016']['Non-rejected']['f1-score'], 
+            p['ISIC2016']['Non-rejected']['accuracy'],
+            p['ISIC2016']['Non-rejected']['auc-roc']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
@@ -545,7 +551,10 @@ class Model:
             ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['Non-rejected']['precision'], 
             p['ISIC2017']['Non-rejected']['specificity'], 
             p['ISIC2017']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2017']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['ISIC2017']['Non-rejected']['accuracy']])
+
+            p['ISIC2017']['Non-rejected']['f1-score'], 
+            p['ISIC2017']['Non-rejected']['accuracy'],
+            p['ISIC2017']['Non-rejected']['auc-roc']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
@@ -554,7 +563,9 @@ class Model:
             ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['Non-rejected']['precision'], 
             p['ISIC2018']['Non-rejected']['specificity'], 
             p['ISIC2018']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2018']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['ISIC2018']['Non-rejected']['accuracy']])
+            p['ISIC2018']['Non-rejected']['f1-score'], 
+            p['ISIC2018']['Non-rejected']['accuracy'],
+            p['ISIC2018']['Non-rejected']['auc-roc']])
 
 
         KaggleMB_ws = performance['KaggleMB']
@@ -564,7 +575,9 @@ class Model:
             KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['Non-rejected']['precision'], 
             p['KaggleMB']['Non-rejected']['specificity'], 
             p['KaggleMB']['Non-rejected']['sensitivity'] if isinstance(p['KaggleMB']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['KaggleMB']['Non-rejected']['accuracy']])
+            p['KaggleMB']['Non-rejected']['f1-score'], 
+            p['KaggleMB']['Non-rejected']['accuracy'],
+            p['KaggleMB']['Non-rejected']['auc-roc']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
@@ -573,7 +586,9 @@ class Model:
             _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['Non-rejected']['precision'], 
             p['_7_point_criteria']['Non-rejected']['specificity'], 
             p['_7_point_criteria']['Non-rejected']['sensitivity'] if isinstance(p['_7_point_criteria']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['_7_point_criteria']['Non-rejected']['accuracy']])
+            p['_7_point_criteria']['Non-rejected']['f1-score'], 
+            p['_7_point_criteria']['Non-rejected']['accuracy'],
+            p['_7_point_criteria']['Non-rejected']['auc-roc']])
             
         performance.save(f'{snapshot_path}/performance_reject.xlsx')
 
@@ -645,8 +660,19 @@ class Model:
                 reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
                 reject_info['Non-rejected']['y_scores'] = scores_all[cm[1] == False].tolist()
                 reject_info['Non-rejected']['y_ids'] = ids_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['Correct'] = cm[0][1]
-                reject_info['Non-rejected']['Incorrect'] = cm[0][3]
+                reject_info['Non-rejected']['Correct'] = {}
+                reject_info['Non-rejected']['Correct']['total'] = cm[0][1]
+                reject_info['Non-rejected']['Correct']['benign(FP)'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+                reject_info['Non-rejected']['Correct']['malignant(FN)'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                reject_info['Non-rejected']['Incorrect'] = {}
+                reject_info['Non-rejected']['Incorrect']['total'] = cm[0][3]
+                reject_info['Non-rejected']['Incorrect']['benign(FP)'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                reject_info['Non-rejected']['Incorrect']['malignant(FN)'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+
                 reject_info['Rejected'] = {}
                 reject_info['Rejected']['y_labels'] = labels_all[cm[1] == True].tolist()
                 reject_info['Rejected']['y_preds'] = preds_all[cm[1] == True].tolist()
@@ -660,9 +686,15 @@ class Model:
                     int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
                 reject_info['Rejected']['Incorrect'] = {}
                 reject_info['Rejected']['Incorrect']['total'] = cm[0][2]
-                reject_info['Rejected']['Incorrect']['benign'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect']['malignant'] = \
+                reject_info['Rejected']['Incorrect']['benign(FP)_before'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1))) + \
+                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
+                reject_info['Rejected']['Incorrect']['benign(FP)_after'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                reject_info['Rejected']['Incorrect']['malignant(FN)_before'] = \
+                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0))) + \
+                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                reject_info['Rejected']['Incorrect']['malignant(FN)_after'] = \
                     int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
                 
                 reject_info['Non-rejected_accuracy'] = reject_output[0][0]
@@ -678,6 +710,8 @@ class Model:
                 common_binary_label = {
                         0.0: 'benign',
                 }
+
+                mal_prob = [x[1] for x in reject_info['Non-rejected']['y_scores']]
                 if (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 2):
                     test_report = classification_report(reject_info['Non-rejected']['y_labels'], reject_info['Non-rejected']['y_preds'],
                     target_names=mel.Parser.common_binary_label.values(), output_dict = True)
@@ -687,6 +721,7 @@ class Model:
                     reject_info['Non-rejected']['sensitivity'] = test_report['malignant']['recall']
                     reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
                     reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
                 elif (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 1):
                     test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
@@ -697,6 +732,7 @@ class Model:
                     reject_info['Non-rejected']['sensitivity'] = '-'
                     reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
                     reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
                 # final_uncertainty.append(reject_info)
 
@@ -871,3 +907,34 @@ class Model:
         plt.close()
 
         return test_report
+
+    @staticmethod
+    def expected_calibration_error(samples, true_labels, M=5):
+        # uniform binning approach with M number of bins
+        bin_boundaries = np.linspace(0, 1, M + 1)
+        bin_lowers = bin_boundaries[:-1]
+        bin_uppers = bin_boundaries[1:]
+
+        # get max probability per sample i
+        confidences = np.max(samples, axis=1)
+        # get predictions from confidences (positional in this case)
+        predicted_label = np.argmax(samples, axis=1)
+
+        # get a boolean list of correct/false predictions
+        accuracies = predicted_label==true_labels
+
+        ece = np.zeros(1)
+        for bin_lower, bin_upper in zip(bin_lowers, bin_uppers):
+            # determine if sample is in bin m (between bin lower & upper)
+            in_bin = np.logical_and(confidences > bin_lower.item(), confidences <= bin_upper.item())
+            # can calculate the empirical probability of a sample falling into bin m: (|Bm|/n)
+            prob_in_bin = in_bin.mean()
+
+            if prob_in_bin.item() > 0:
+                # get the accuracy of bin m: acc(Bm)
+                accuracy_in_bin = accuracies[in_bin].mean()
+                # get the average confidence of bin m: conf(Bm)
+                avg_confidence_in_bin = confidences[in_bin].mean()
+                # calculate |acc(Bm) - conf(Bm)| * (|Bm|/n) for bin m and add to the total ECE
+                ece += np.abs(avg_confidence_in_bin - accuracy_in_bin) * prob_in_bin
+        return ece
