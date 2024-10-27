@@ -8,6 +8,7 @@ import reject
 from reject.reject import ClassificationRejector
 from reject.reject import confusion_matrix as reject_cm
 from reject.utils import generate_synthetic_output
+from sklearn.metrics import brier_score_loss
 
 import torch
 from tqdm import tqdm
@@ -129,74 +130,111 @@ class Model:
 
     @staticmethod
     def evaluate_model(model, dataloader, device):
-        all_labels = []
-        all_preds = []
-        all_scores = []
-        all_paths = []
+        all_labels = {
+            'Val': [],
+            'Test': [],
+        }
+        all_preds = {
+            'Val': [],
+            'Test': [],
+        }
+        all_scores = {
+            'Val': [],
+            'Test': [],
+        }
+        all_paths = {
+            'Val': [],
+            'Test': [],
+        }
+        all_ids = {
+            'Val': [],
+            'Test': [],
+        }
         CM=0
         model.to(device)
         # model.eval()
         # num_iters = len(dataloaders['Test'].dataset) / dataloaders['Test'].batch_size
         with torch.no_grad():
-            for data in tqdm(dataloader['Test']):
-                
+            for phase in ['Val', 'Test']:
+                for data in tqdm(dataloader[phase]):
+                    
 
-                images, labels, paths = data
-                images = images.to(device)
-                # labels = labels.to(device)
-                
-                outputs = model(images) #file_name
-                smx = nn.Softmax(dim=1)
-                smx_output = smx(outputs.data)
-                # preds = torch.argmax(outputs.data, 1)
-                preds = torch.argmax(smx_output, 1)
-                CM+=confusion_matrix(labels, preds.cpu(),labels=[0,1])
+                    images, labels, paths = data
+                    images = images.to(device)
+                    # labels = labels.to(device)
+                    
+                    outputs = model(images) #file_name
+                    smx = nn.Softmax(dim=1)
+                    smx_output = smx(outputs.data)
+                    # preds = torch.argmax(outputs.data, 1)
+                    preds = torch.argmax(smx_output, 1)
+                    CM+=confusion_matrix(labels, preds.cpu(),labels=[0,1])
 
-                all_preds.extend(preds.cpu().tolist())
-                all_labels.extend(labels.tolist())
-                all_scores.extend(smx_output.cpu().tolist())
-                all_paths.extend(paths)
+                    all_preds[phase].extend(preds.cpu().tolist())
+                    all_labels[phase].extend(labels.tolist())
+                    all_scores[phase].extend(smx_output.cpu().tolist())
+                    all_paths[phase].extend(paths)
 
-                assert len(all_preds) == len(all_labels) and len(all_labels) == len(all_scores) and \
-                    len(all_scores) == len(all_paths)
+                    assert len(all_preds[phase]) == len(all_labels[phase]) and \
+                        len(all_labels[phase]) == len(all_scores[phase]) and \
+                        len(all_scores[phase]) == len(all_paths[phase])
+                    
                 
-            all_ids = [str(pathlib.Path(path).stem) for path in all_paths]
-            tn=CM[0][0]
-            tp=CM[1][1]
-            fp=CM[0][1]
-            fn=CM[1][0]
-            acc=np.sum(np.diag(CM)/np.sum(CM))
-            sensitivity=tp/(tp+fn)
-            precision=tp/(tp+fp)
+                    all_ids[phase] = [str(pathlib.Path(path).stem) for path in all_paths[phase]]
+                if (phase == 'Test'):
+                    tn=CM[0][0]
+                    tp=CM[1][1]
+                    fp=CM[0][1]
+                    fn=CM[1][0]
+                    acc=np.sum(np.diag(CM)/np.sum(CM))
+                    sensitivity=tp/(tp+fn)
+                    precision=tp/(tp+fp)
+                    
+                    print('\nTestset Accuracy(mean): %f %%' % (100 * acc))
+                    print()
+                    print('Confusion Matirx : ')
+                    print(CM)
+                    print('- Sensitivity : ',(tp/(tp+fn))*100)
+                    print('- Specificity : ',(tn/(tn+fp))*100)
+                    print('- Precision: ',(tp/(tp+fp))*100)
+                    print('- NPV: ',(tn/(tn+fn))*100)
+                    print('- F1 : ',((2*sensitivity*precision)/(sensitivity+precision))*100)
+                    print()
+
+        # Val set
+        prob_pos_val = [x[1] for x in all_scores['Val']]
             
-            print('\nTestset Accuracy(mean): %f %%' % (100 * acc))
-            print()
-            print('Confusion Matirx : ')
-            print(CM)
-            print('- Sensitivity : ',(tp/(tp+fn))*100)
-            print('- Specificity : ',(tn/(tn+fp))*100)
-            print('- Precision: ',(tp/(tp+fp))*100)
-            print('- NPV: ',(tn/(tn+fn))*100)
-            print('- F1 : ',((2*sensitivity*precision)/(sensitivity+precision))*100)
-            print()
+        b_score_val = brier_score_loss(all_labels['Val'], prob_pos_val)
+        ece_val = mel.Model.expected_calibration_error(all_scores['Val'], all_labels['Val'], M=10)
 
-            
+        # Test set
+        test_report = classification_report(all_labels['Test'], all_preds['Test'], target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+        mal_prob = [x[1] for x in all_scores['Test']]
 
-
-        test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
-        mal_prob = [x[1] for x in all_scores]
+        b_score_test = brier_score_loss(all_labels['Test'], mal_prob)
+        ece_test = mel.Model.expected_calibration_error(all_scores['Test'], all_labels['Test'], M=10)
 
         performance = {
-            'y_labels': all_labels,
-            'y_pred': all_preds,
-            'y_scores': all_scores,
-            'y_ids': all_ids,
-            'accuracy': test_report['accuracy'],
-            'precision': test_report['macro avg']['precision'],
-            'sensitivity': test_report['malignant']['recall'],
-            'specificity': test_report['benign']['recall'],
-            'f1-score': test_report['macro avg']['f1-score'],
-            'auc-roc': roc_auc_score(all_labels, mal_prob)
+            'Val': {
+                'y_labels': all_labels['Val'],
+                'y_scores': all_scores['Val'],
+                'brier_score': b_score_val,
+                'ece': ece_val,
+            },
+            'Test': {
+                'y_labels': all_labels['Test'],
+                'y_pred': all_preds['Test'],
+                'y_scores': all_scores['Test'],
+                'y_ids': all_ids['Test'],
+                'accuracy': test_report['accuracy'],
+                'precision': test_report['macro avg']['precision'],
+                'sensitivity': test_report['malignant']['recall'],
+                'specificity': test_report['benign']['recall'],
+                'f1-score': test_report['macro avg']['f1-score'],
+                'auc-roc': roc_auc_score(all_labels['Test'], mal_prob),
+                'brier_score': b_score_test,
+                'ece': ece_test,
+            }
         }
             
                     
@@ -298,62 +336,90 @@ class Model:
         }
 
         paths = {
-            'HAM10000': os.path.join(db_path, mel.DatasetType.HAM10000.name, 'final', 'Test'),
-            'ISIC2016': os.path.join(db_path, mel.DatasetType.ISIC2016.name, 'final', 'Test'),
-            'ISIC2017': os.path.join(db_path, mel.DatasetType.ISIC2017.name, 'final', 'Test'),
-            'ISIC2018': os.path.join(db_path, mel.DatasetType.ISIC2018.name, 'final', 'Test'),
-            'KaggleMB': os.path.join(db_path, mel.DatasetType.KaggleMB.name, 'final', 'Test'),
-            '_7_point_criteria': os.path.join(db_path, mel.DatasetType._7_point_criteria.name, 'final', 'Test')
+            'Val': {
+                # 'HAM10000': os.path.join(db_path, mel.DatasetType.HAM10000.name, 'final', 'Test'),
+                # 'ISIC2016': os.path.join(db_path, mel.DatasetType.ISIC2016.name, 'final', 'Test'),
+                'ISIC2017': os.path.join(db_path, mel.DatasetType.ISIC2017.name, 'final', 'Val'),
+                'ISIC2018': os.path.join(db_path, mel.DatasetType.ISIC2018.name, 'final', 'Val'),
+                'KaggleMB': os.path.join(db_path, mel.DatasetType.KaggleMB.name, 'final', 'Val'),
+                '_7_point_criteria': os.path.join(db_path, mel.DatasetType._7_point_criteria.name, 'final', 'Val')
+            },
+            'Test': {
+                # 'HAM10000': os.path.join(db_path, mel.DatasetType.HAM10000.name, 'final', 'Test'),
+                # 'ISIC2016': os.path.join(db_path, mel.DatasetType.ISIC2016.name, 'final', 'Test'),
+                'ISIC2017': os.path.join(db_path, mel.DatasetType.ISIC2017.name, 'final', 'Test'),
+                'ISIC2018': os.path.join(db_path, mel.DatasetType.ISIC2018.name, 'final', 'Test'),
+                'KaggleMB': os.path.join(db_path, mel.DatasetType.KaggleMB.name, 'final', 'Test'),
+                '_7_point_criteria': os.path.join(db_path, mel.DatasetType._7_point_criteria.name, 'final', 'Test')
+            },
+
         }
 
         datafolders = {
-            'HAM10000': {
-                'Test': mel.ImageFolder_filename(paths['HAM10000'], data_transform['Test'])
-            },
-            'ISIC2016': {
-                'Test': mel.ImageFolder_filename(paths['ISIC2016'], data_transform['Test'])
-            },
+            # 'HAM10000': {
+            #     'Val': mel.ImageFolder_filename(paths['Val']['HAM10000'], data_transform['Test']),
+            #     'Test': mel.ImageFolder_filename(paths['Test']['HAM10000'], data_transform['Test'])
+            # },
+            # 'ISIC2016': {
+            #     'Test': mel.ImageFolder_filename(paths['Test']['ISIC2016'], data_transform['Test'])
+            # },
             'ISIC2017': {
-                'Test': mel.ImageFolder_filename(paths['ISIC2017'], data_transform['Test'])
+                'Val': mel.ImageFolder_filename(paths['Val']['ISIC2017'], data_transform['Test']),
+                'Test': mel.ImageFolder_filename(paths['Test']['ISIC2017'], data_transform['Test'])
             },
             'ISIC2018': {
-                'Test': mel.ImageFolder_filename(paths['ISIC2018'], data_transform['Test'])
+                'Val': mel.ImageFolder_filename(paths['Val']['ISIC2018'], data_transform['Test']),
+                'Test': mel.ImageFolder_filename(paths['Test']['ISIC2018'], data_transform['Test'])
             },
             '_7_point_criteria': {
-                'Test': mel.ImageFolder_filename(paths['_7_point_criteria'], data_transform['Test'])
+                'Val': mel.ImageFolder_filename(paths['Val']['_7_point_criteria'], data_transform['Test']),
+                'Test': mel.ImageFolder_filename(paths['Test']['_7_point_criteria'], data_transform['Test'])
             },
             'KaggleMB': {
-                'Test': mel.ImageFolder_filename(paths['KaggleMB'], data_transform['Test'])
+                'Val': mel.ImageFolder_filename(paths['Val']['KaggleMB'], data_transform['Test']),
+                'Test': mel.ImageFolder_filename(paths['Test']['KaggleMB'], data_transform['Test'])
             }
         }
 
         dataloaders = {
-            'HAM10000': {
-                'Test': torch.utils.data.DataLoader(datafolders['HAM10000']['Test'], batch_size=32,
-                                                            shuffle=False, pin_memory=True
-                                                            ,num_workers=4, prefetch_factor=2)
-            },
-            'ISIC2016': {
-                'Test': torch.utils.data.DataLoader(datafolders['ISIC2016']['Test'], batch_size=32,
-                                                            shuffle=False, pin_memory=True,
-                                                            num_workers=4, prefetch_factor=2)
-            },
+            # 'HAM10000': {
+            #     'Test': torch.utils.data.DataLoader(datafolders['HAM10000']['Test'], batch_size=32,
+            #                                                 shuffle=False, pin_memory=True
+            #                                                 ,num_workers=4, prefetch_factor=2)
+            # },
+            # 'ISIC2016': {
+            #     'Test': torch.utils.data.DataLoader(datafolders['ISIC2016']['Test'], batch_size=32,
+            #                                                 shuffle=False, pin_memory=True,
+            #                                                 num_workers=4, prefetch_factor=2)
+            # },
             'ISIC2017': {
+                'Val': torch.utils.data.DataLoader(datafolders['ISIC2017']['Val'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2),
                 'Test': torch.utils.data.DataLoader(datafolders['ISIC2017']['Test'], batch_size=32,
                                                             shuffle=False, pin_memory=True,
                                                             num_workers=4, prefetch_factor=2)
             },
             'ISIC2018': {
+                'Val': torch.utils.data.DataLoader(datafolders['ISIC2018']['Val'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2),
                 'Test': torch.utils.data.DataLoader(datafolders['ISIC2018']['Test'], batch_size=32,
                                                             shuffle=False, pin_memory=True,
                                                             num_workers=4, prefetch_factor=2)
             },
             '_7_point_criteria': {
+                'Val': torch.utils.data.DataLoader(datafolders['_7_point_criteria']['Val'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2),
                 'Test': torch.utils.data.DataLoader(datafolders['_7_point_criteria']['Test'], batch_size=32,
                                                             shuffle=False, pin_memory=True,
                                                             num_workers=4, prefetch_factor=2)
             },
             'KaggleMB': {
+                'Val': torch.utils.data.DataLoader(datafolders['KaggleMB']['Val'], batch_size=32,
+                                                            shuffle=False, pin_memory=True,
+                                                            num_workers=4, prefetch_factor=2),
                 'Test': torch.utils.data.DataLoader(datafolders['KaggleMB']['Test'], batch_size=32,
                                                             shuffle=False, pin_memory=True,
                                                             num_workers=4, prefetch_factor=2)
@@ -362,8 +428,8 @@ class Model:
         }
 
         performances = {
-            'HAM10000': None,
-            'ISIC2016': None,
+            # 'HAM10000': None,
+            # 'ISIC2016': None,
             'ISIC2017': None,
             'ISIC2018': None,
             '_7_point_criteria': None,
@@ -405,11 +471,11 @@ class Model:
                 'dataset': used_DBs,
                 'classifier': classifier_name,
                 'Parameters': sum(p.numel() for p in model.parameters()),
-                'HAM10000': performances['HAM10000'],
-                'KaggleMB': performances['KaggleMB'],
-                'ISIC2016': performances['ISIC2016'],
+                # 'HAM10000': performances['HAM10000'],
+                # 'ISIC2016': performances['ISIC2016'],
                 'ISIC2017': performances['ISIC2017'],
                 'ISIC2018': performances['ISIC2018'],
+                'KaggleMB': performances['KaggleMB'],
                 '_7_point_criteria': performances['_7_point_criteria'],
                 'Filesize': '{:.2f}'.format(calculate_filesize(model)),
 
@@ -431,7 +497,7 @@ class Model:
 
     @staticmethod
     def extract_performances(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
 
         final_perf = []
@@ -444,52 +510,64 @@ class Model:
 
         performance = openpyxl.Workbook()
         performance_ws = performance.active
-        performance_ws.title = 'HAM10000'
-        performance.create_sheet('ISIC2016')
-        performance.create_sheet('ISIC2017')
+        performance_ws.title = 'ISIC2017'
+        # performance.create_sheet('ISIC2016')
+        # performance.create_sheet('ISIC2017')
         performance.create_sheet('ISIC2018')
         performance.create_sheet('KaggleMB')
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F1', 'Accuracy', 'AUC-ROC', 'Filesize', 'Parameters']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Brier score', 'ECE', 'Filesize', 'Parameters']
 
-        HAM10000_ws = performance['HAM10000']
-        HAM10000_ws.append(cols)
+        # HAM10000_ws = performance['HAM10000']
+        # HAM10000_ws.append(cols)
 
-        for p in final_perf:
-            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['precision'], p['HAM10000']['specificity'], p['HAM10000']['sensitivity'], p['HAM10000']['f1-score'], p['HAM10000']['accuracy'], p['HAM10000']['auc-roc'], p['Filesize'], p['Parameters']])
+        # for p in final_perf:
+        #     HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['Test']['precision'], p['HAM10000']['Test']['specificity'], p['HAM10000']['Test']['sensitivity'], p['HAM10000']['Test']['f1-score'], p['HAM10000']['Test']['accuracy'], p['HAM10000']['Test']['auc-roc'], p['Filesize'], p['Parameters']])
             
-        ISIC2016_ws = performance['ISIC2016']
-        ISIC2016_ws.append(cols)
+        # ISIC2016_ws = performance['ISIC2016']
+        # ISIC2016_ws.append(cols)
 
-        for p in final_perf:
-            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['f1-score'],  p['ISIC2016']['accuracy'], p['ISIC2016']['auc-roc'], p['Filesize'], p['Parameters']])
+        # for p in final_perf:
+        #     ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['precision'], p['ISIC2016']['specificity'], p['ISIC2016']['sensitivity'], p['ISIC2016']['f1-score'],  p['ISIC2016']['accuracy'], p['ISIC2016']['auc-roc'], p['Filesize'], p['Parameters']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
 
         for p in final_perf:
-            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['precision'], p['ISIC2017']['specificity'], p['ISIC2017']['sensitivity'], p['ISIC2017']['f1-score'],  p['ISIC2017']['accuracy'], p['ISIC2017']['auc-roc'], p['Filesize'], p['Parameters']])
+            ISIC2017_ws.append([p['classifier'], str(p['dataset']), p['ISIC2017']['Test']['precision'], 
+            p['ISIC2017']['Test']['specificity'], p['ISIC2017']['Test']['sensitivity'], p['ISIC2017']['Test']['f1-score'], 
+            p['ISIC2017']['Test']['accuracy'], p['ISIC2017']['Test']['auc-roc'], p['ISIC2017']['Test']['brier_score'], p['ISIC2017']['Test']['ece'],
+            p['Filesize'], p['Parameters']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
 
         for p in final_perf:
-            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['precision'], p['ISIC2018']['specificity'], p['ISIC2018']['sensitivity'], p['ISIC2018']['f1-score'],  p['ISIC2018']['accuracy'], p['ISIC2018']['auc-roc'], p['Filesize'], p['Parameters']])
+            ISIC2018_ws.append([p['classifier'], str(p['dataset']), p['ISIC2018']['Test']['precision'], 
+            p['ISIC2018']['Test']['specificity'], p['ISIC2018']['Test']['sensitivity'], p['ISIC2018']['Test']['f1-score'], 
+            p['ISIC2018']['Test']['accuracy'], p['ISIC2018']['Test']['auc-roc'],  p['ISIC2018']['Test']['brier_score'], p['ISIC2018']['Test']['ece'],
+            p['Filesize'], p['Parameters']])
 
 
         KaggleMB_ws = performance['KaggleMB']
         KaggleMB_ws.append(cols)
 
         for p in final_perf:
-            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['precision'], p['KaggleMB']['specificity'], p['KaggleMB']['sensitivity'], p['KaggleMB']['f1-score'],  p['KaggleMB']['accuracy'], p['KaggleMB']['auc-roc'], p['Filesize'], p['Parameters']])
+            KaggleMB_ws.append([p['classifier'], str(p['dataset']), p['KaggleMB']['Test']['precision'], 
+            p['KaggleMB']['Test']['specificity'], p['KaggleMB']['Test']['sensitivity'], p['KaggleMB']['Test']['f1-score'], 
+            p['KaggleMB']['Test']['accuracy'], p['KaggleMB']['Test']['auc-roc'],  p['KaggleMB']['Test']['brier_score'], p['KaggleMB']['Test']['ece'],
+            p['Filesize'], p['Parameters']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
 
         for p in final_perf:
-            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['precision'], p['_7_point_criteria']['specificity'], p['_7_point_criteria']['sensitivity'], p['_7_point_criteria']['f1-score'],  p['_7_point_criteria']['accuracy'], p['_7_point_criteria']['auc-roc'], p['Filesize'], p['Parameters']])
+            _7pointcriteria_ws.append([p['classifier'], str(p['dataset']), p['_7_point_criteria']['Test']['precision'], 
+            p['_7_point_criteria']['Test']['specificity'], p['_7_point_criteria']['Test']['sensitivity'], p['_7_point_criteria']['Test']['f1-score'], 
+            p['_7_point_criteria']['Test']['accuracy'], p['_7_point_criteria']['Test']['auc-roc'],  p['_7_point_criteria']['Test']['brier_score'], p['_7_point_criteria']['Test']['ece'],
+            p['Filesize'], p['Parameters']])
             
         performance.save(f'{snapshot_path}/performance_pytorch.xlsx')
 
@@ -510,39 +588,39 @@ class Model:
 
         performance = openpyxl.Workbook()
         performance_ws = performance.active
-        performance_ws.title = 'HAM10000'
-        performance.create_sheet('ISIC2016')
-        performance.create_sheet('ISIC2017')
+        performance_ws.title = 'ISIC2017'
+        # performance.create_sheet('ISIC2016')
+        # performance.create_sheet('ISIC2017')
         performance.create_sheet('ISIC2018')
         performance.create_sheet('KaggleMB')
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F1', 'Accuracy', 'AUC-ROC']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Brier score', 'ECE']
 
-        HAM10000_ws = performance['HAM10000']
-        HAM10000_ws.append(cols)
+        # HAM10000_ws = performance['HAM10000']
+        # HAM10000_ws.append(cols)
 
         
 
-        for p in final_perf:
-            HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['Non-rejected']['precision'], 
-            p['HAM10000']['Non-rejected']['specificity'], 
-            p['HAM10000']['Non-rejected']['sensitivity'] if isinstance(p['HAM10000']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['HAM10000']['Non-rejected']['f1-score'], 
-            p['HAM10000']['Non-rejected']['accuracy'],
-            p['HAM10000']['Non-rejected']['auc-roc']])
+        # for p in final_perf:
+        #     HAM10000_ws.append([p['classifier'], str(p['dataset']), p['HAM10000']['Non-rejected']['precision'], 
+        #     p['HAM10000']['Non-rejected']['specificity'], 
+        #     p['HAM10000']['Non-rejected']['sensitivity'] if isinstance(p['HAM10000']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
+        #     p['HAM10000']['Non-rejected']['f1-score'], 
+        #     p['HAM10000']['Non-rejected']['accuracy'],
+        #     p['HAM10000']['Non-rejected']['auc-roc']])
             
-        ISIC2016_ws = performance['ISIC2016']
-        ISIC2016_ws.append(cols)
+        # ISIC2016_ws = performance['ISIC2016']
+        # ISIC2016_ws.append(cols)
 
-        for p in final_perf:
-            ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['Non-rejected']['precision'],
-            p['ISIC2016']['Non-rejected']['specificity'], 
-            p['ISIC2016']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2016']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
-            p['ISIC2016']['Non-rejected']['f1-score'], 
-            p['ISIC2016']['Non-rejected']['accuracy'],
-            p['ISIC2016']['Non-rejected']['auc-roc']])
+        # for p in final_perf:
+        #     ISIC2016_ws.append([p['classifier'], str(p['dataset']), p['ISIC2016']['Non-rejected']['precision'],
+        #     p['ISIC2016']['Non-rejected']['specificity'], 
+        #     p['ISIC2016']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2016']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
+        #     p['ISIC2016']['Non-rejected']['f1-score'], 
+        #     p['ISIC2016']['Non-rejected']['accuracy'],
+        #     p['ISIC2016']['Non-rejected']['auc-roc']])
 
         ISIC2017_ws = performance['ISIC2017']
         ISIC2017_ws.append(cols)
@@ -554,7 +632,9 @@ class Model:
 
             p['ISIC2017']['Non-rejected']['f1-score'], 
             p['ISIC2017']['Non-rejected']['accuracy'],
-            p['ISIC2017']['Non-rejected']['auc-roc']])
+            p['ISIC2017']['Non-rejected']['auc-roc'],
+            p['ISIC2017']['brier_score'],
+            p['ISIC2017']['ece']])
 
         ISIC2018_ws = performance['ISIC2018']
         ISIC2018_ws.append(cols)
@@ -565,7 +645,9 @@ class Model:
             p['ISIC2018']['Non-rejected']['sensitivity'] if isinstance(p['ISIC2018']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
             p['ISIC2018']['Non-rejected']['f1-score'], 
             p['ISIC2018']['Non-rejected']['accuracy'],
-            p['ISIC2018']['Non-rejected']['auc-roc']])
+            p['ISIC2018']['Non-rejected']['auc-roc'],
+            p['ISIC2018']['brier_score'],
+            p['ISIC2018']['ece']])
 
 
         KaggleMB_ws = performance['KaggleMB']
@@ -577,7 +659,9 @@ class Model:
             p['KaggleMB']['Non-rejected']['sensitivity'] if isinstance(p['KaggleMB']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
             p['KaggleMB']['Non-rejected']['f1-score'], 
             p['KaggleMB']['Non-rejected']['accuracy'],
-            p['KaggleMB']['Non-rejected']['auc-roc']])
+            p['KaggleMB']['Non-rejected']['auc-roc'],
+            p['KaggleMB']['brier_score'],
+            p['KaggleMB']['ece']])
 
         _7pointcriteria_ws = performance['7pointcriteria']
         _7pointcriteria_ws.append(cols)
@@ -588,14 +672,52 @@ class Model:
             p['_7_point_criteria']['Non-rejected']['sensitivity'] if isinstance(p['_7_point_criteria']['Non-rejected']['sensitivity'], (int, float)) else 'N/A', 
             p['_7_point_criteria']['Non-rejected']['f1-score'], 
             p['_7_point_criteria']['Non-rejected']['accuracy'],
-            p['_7_point_criteria']['Non-rejected']['auc-roc']])
+            p['_7_point_criteria']['Non-rejected']['auc-roc'],
+            p['_7_point_criteria']['brier_score'],
+            p['_7_point_criteria']['ece']])
             
         performance.save(f'{snapshot_path}/performance_reject.xlsx')
 
         print(f'{snapshot_path}/performance_reject.xlsx' + ' generated')
+    
+    @staticmethod
+    def findOptimalThreshold(jsonfile):
+
+        scores_all = np.array(jsonfile['Val']['y_scores'])
+        labels_all = np.array(jsonfile['Val']['y_labels'])
+
+        rej = ClassificationRejector(labels_all, scores_all)
+        total_unc = rej.uncertainty(unc_type="TU")
+
+        # Find optimal thresholds
+        b_score = []
+        eces = []
+        avgs = []
+        thresholds = np.arange(0.05, 0.2, 0.01)
+        for th in thresholds:
+            cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold=th, relative= True, show=False)
+
+            scores_rejected = scores_all[cm[1] == True]
+            labels_rejected = labels_all[cm[1] == True].tolist()
+            prob_pos = scores_rejected[:, 1]
+            # Get Brier and ECE scores
+            brier_score = brier_score_loss(labels_rejected, prob_pos)
+            ece_score = mel.Model.expected_calibration_error(scores_all, labels_all, M=10)
+            avg = (brier_score + ece_score)/2
+            b_score.append(brier_score)
+            eces.append(ece_score)
+            avgs.append(avg)
+
+        # Find the minimum ECE and its corresponding threshold
+        min_avg_index = np.argmin(np.array(avgs))  # Get the index of the minimum ECE score
+        optimal_threshold = thresholds[min_avg_index]  # Get the threshold that corresponds to the min ECE score
+
+        return optimal_threshold
+
+        
         
 
-    def reject_uncertainties(snapshot_path, threshold=0.5):
+    def reject_uncertainties(snapshot_path):
         jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
         jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
@@ -612,8 +734,8 @@ class Model:
             jfile = json.load(fi)
 
 
-            if not os.path.exists(os.path.join(jsonpaths[idx], 'plots')):
-                os.makedirs(os.path.join(jsonpaths[idx], 'plots'), exist_ok=True)
+            if not os.path.exists(os.path.join(jsonpaths[idx], 'reject_plots')):
+                os.makedirs(os.path.join(jsonpaths[idx], 'reject_plots'), exist_ok=True)
 
             final_uncertainty = {}
 
@@ -624,12 +746,12 @@ class Model:
             
             final_uncertainty['dataset'] = used_DB_list
             final_uncertainty['classifier'] = classifier_name
-            for db in ('HAM10000', 'ISIC2016', 'ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
-                print(f"Rejecting {db} database")
-                scores_all = np.array(jfile[db]['y_scores'])
-                labels_all = np.array(jfile[db]['y_labels'])
-                preds_all = np.array(jfile[db]['y_pred'])
-                ids_all = np.array(jfile[db]['y_ids'])
+            for db in ('ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
+                print(f"Rejecting {db} database from {jsonnames[idx]}")
+                scores_all = np.array(jfile[db]['Test']['y_scores'])
+                labels_all = np.array(jfile[db]['Test']['y_labels'])
+                preds_all = np.array(jfile[db]['Test']['y_pred'])
+                ids_all = np.array(jfile[db]['Test']['y_ids'])
 
                 # Instantiate Rejector
                 rej = ClassificationRejector(labels_all, scores_all)
@@ -641,12 +763,15 @@ class Model:
                 uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
                 
                 # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
-                uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty'), bbox_inches='tight')
+                uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty'), bbox_inches='tight')
                 # rej.plot_uncertainty(unc_type=None)
                 # implement single rejection point
+                threshold = mel.Model.findOptimalThreshold(jfile[db])
+                
                 reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
 
                 cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
+
                 
                 reject_info = {}
                 # False: Not rejected, True: rejected (removed)
@@ -655,6 +780,7 @@ class Model:
                 reject_info['y_scores'] = scores_all.tolist()
                 reject_info['uncertainty'] = total_unc.tolist()
                 reject_info['Threshold'] = threshold
+                
                 reject_info['Non-rejected'] = {}
                 reject_info['Non-rejected']['y_labels'] = labels_all[cm[1] == False].tolist()
                 reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
@@ -700,10 +826,21 @@ class Model:
                 reject_info['Non-rejected_accuracy'] = reject_output[0][0]
                 reject_info['Classification_quality'] = reject_output[0][1]
                 reject_info['Rejection_quality'] = reject_output[0][2]
+
+                prob_pos = scores_all[cm[1] == False][:, 1]
+            
+                # Brier Score
+                b_score = brier_score_loss(reject_info['Non-rejected']['y_labels'], prob_pos)
+                # print("Brier Score :",b_score)
+                # ECE
+                ece = mel.Model.expected_calibration_error(reject_info['Non-rejected']['y_scores'], reject_info['Non-rejected']['y_labels'], M=10)
+
+                reject_info['brier_score'] = b_score
+                reject_info['ece'] = ece
                 
                 # Relative threshold
                 threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
-                threshold_plt.savefig(os.path.join(jsonpaths[idx], 'plots', DBnames+'_'+classifier_name+'_'+db+'_threshold'), bbox_inches='tight')
+                threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold'), bbox_inches='tight')
                 # Absolute threshold
                 # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
 
@@ -937,4 +1074,4 @@ class Model:
                 avg_confidence_in_bin = confidences[in_bin].mean()
                 # calculate |acc(Bm) - conf(Bm)| * (|Bm|/n) for bin m and add to the total ECE
                 ece += np.abs(avg_confidence_in_bin - accuracy_in_bin) * prob_in_bin
-        return ece
+        return ece[0]
