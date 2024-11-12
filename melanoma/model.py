@@ -596,7 +596,7 @@ class Model:
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Brier score', 'ECE']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Threshold', 'Brier score', 'ECE']
 
         # HAM10000_ws = performance['HAM10000']
         # HAM10000_ws.append(cols)
@@ -633,6 +633,7 @@ class Model:
             p['ISIC2017']['Non-rejected']['f1-score'], 
             p['ISIC2017']['Non-rejected']['accuracy'],
             p['ISIC2017']['Non-rejected']['auc-roc'],
+            p['ISIC2017']['Threshold'],
             p['ISIC2017']['brier_score'],
             p['ISIC2017']['ece']])
 
@@ -646,6 +647,7 @@ class Model:
             p['ISIC2018']['Non-rejected']['f1-score'], 
             p['ISIC2018']['Non-rejected']['accuracy'],
             p['ISIC2018']['Non-rejected']['auc-roc'],
+            p['ISIC2018']['Threshold'],
             p['ISIC2018']['brier_score'],
             p['ISIC2018']['ece']])
 
@@ -660,6 +662,7 @@ class Model:
             p['KaggleMB']['Non-rejected']['f1-score'], 
             p['KaggleMB']['Non-rejected']['accuracy'],
             p['KaggleMB']['Non-rejected']['auc-roc'],
+            p['KaggleMB']['Threshold'],
             p['KaggleMB']['brier_score'],
             p['KaggleMB']['ece']])
 
@@ -673,6 +676,7 @@ class Model:
             p['_7_point_criteria']['Non-rejected']['f1-score'], 
             p['_7_point_criteria']['Non-rejected']['accuracy'],
             p['_7_point_criteria']['Non-rejected']['auc-roc'],
+            p['_7_point_criteria']['Threshold'],
             p['_7_point_criteria']['brier_score'],
             p['_7_point_criteria']['ece']])
             
@@ -718,7 +722,7 @@ class Model:
         
 
     def reject_uncertainties(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet152/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
         jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
 
@@ -746,134 +750,154 @@ class Model:
             
             final_uncertainty['dataset'] = used_DB_list
             final_uncertainty['classifier'] = classifier_name
-            for db in ('ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
-                print(f"Rejecting {db} database from {jsonnames[idx]}")
-                scores_all = np.array(jfile[db]['Test']['y_scores'])
-                labels_all = np.array(jfile[db]['Test']['y_labels'])
-                preds_all = np.array(jfile[db]['Test']['y_pred'])
-                ids_all = np.array(jfile[db]['Test']['y_ids'])
+            for phase in ['Val', 'Test']:
+                for db in ('ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
+                    print(f"Rejecting {db} database from {jsonnames[idx]}")
+                    
+                    scores_all = np.array(jfile[db][phase]['y_scores'])
+                    labels_all = np.array(jfile[db][phase]['y_labels'])
+                    
 
-                # Instantiate Rejector
-                rej = ClassificationRejector(labels_all, scores_all)
-                # Get entropy (Uncertainty Total (Entropy))
-                # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
-                total_unc = rej.uncertainty(unc_type="TU")
-                all_unc = rej.uncertainty(unc_type=None)
-                # Plotting uncertainty per test sample
-                uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
-                
-                # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
-                uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty'), bbox_inches='tight')
-                # rej.plot_uncertainty(unc_type=None)
-                # implement single rejection point
-                threshold = mel.Model.findOptimalThreshold(jfile[db])
-                
-                reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
+                    # Instantiate Rejector
+                    rej = ClassificationRejector(labels_all, scores_all)
+                    # Get entropy (Uncertainty Total (Entropy))
+                    # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
+                    total_unc = rej.uncertainty(unc_type="TU")
+                    all_unc = rej.uncertainty(unc_type=None)
+                    # Plotting uncertainty per test sample
+                    uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
+                    
+                    # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
+                    if phase == 'Test':
+                        preds_all = np.array(jfile[db][phase]['y_pred'])
+                        ids_all = np.array(jfile[db][phase]['y_ids'])
+                        uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty_test'), bbox_inches='tight')
+                        # rej.plot_uncertainty(unc_type=None)
+                        # implement single rejection point
+                        threshold = mel.Model.findOptimalThreshold(jfile[db])
+                        
+                        reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
 
-                cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
+                        cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
 
-                
-                reject_info = {}
-                # False: Not rejected, True: rejected (removed)
-                reject_info['y_labels'] = labels_all.tolist()
-                reject_info['y_preds'] = preds_all.tolist()
-                reject_info['y_scores'] = scores_all.tolist()
-                reject_info['uncertainty'] = total_unc.tolist()
-                reject_info['Threshold'] = threshold
-                
-                reject_info['Non-rejected'] = {}
-                reject_info['Non-rejected']['y_labels'] = labels_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_scores'] = scores_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_ids'] = ids_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['Correct'] = {}
-                reject_info['Non-rejected']['Correct']['total'] = cm[0][1]
-                reject_info['Non-rejected']['Correct']['benign(FP)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
-                reject_info['Non-rejected']['Correct']['malignant(FN)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Non-rejected']['Incorrect'] = {}
-                reject_info['Non-rejected']['Incorrect']['total'] = cm[0][3]
-                reject_info['Non-rejected']['Incorrect']['benign(FP)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Non-rejected']['Incorrect']['malignant(FN)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+                        
+                        reject_info = {}
+                        # False: Not rejected, True: rejected (removed)
+                        reject_info['y_labels'] = labels_all.tolist()
+                        reject_info['y_preds'] = preds_all.tolist()
+                        reject_info['y_scores'] = scores_all.tolist()
+                        reject_info['uncertainty'] = total_unc.tolist()
+                        reject_info['Threshold'] = threshold
+                        
+                        reject_info['Non-rejected'] = {}
+                        reject_info['Non-rejected']['y_labels'] = labels_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_scores'] = scores_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_ids'] = ids_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['Correct'] = {}
+                        reject_info['Non-rejected']['Correct']['total'] = cm[0][1]
+                        reject_info['Non-rejected']['Correct']['benign(FP)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+                        reject_info['Non-rejected']['Correct']['malignant(FN)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Non-rejected']['Incorrect'] = {}
+                        reject_info['Non-rejected']['Incorrect']['total'] = cm[0][3]
+                        reject_info['Non-rejected']['Incorrect']['benign(FP)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Non-rejected']['Incorrect']['malignant(FN)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
 
-                reject_info['Rejected'] = {}
-                reject_info['Rejected']['y_labels'] = labels_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_preds'] = preds_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_scores'] = scores_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_ids'] = ids_all[cm[1] == True].tolist()
-                reject_info['Rejected']['Correct'] = {}
-                reject_info['Rejected']['Correct']['total'] = cm[0][0]
-                reject_info['Rejected']['Correct']['benign'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                reject_info['Rejected']['Correct']['malignant'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect'] = {}
-                reject_info['Rejected']['Incorrect']['total'] = cm[0][2]
-                reject_info['Rejected']['Incorrect']['benign(FP)_before'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1))) + \
-                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect']['benign(FP)_after'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect']['malignant(FN)_before'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0))) + \
-                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                reject_info['Rejected']['Incorrect']['malignant(FN)_after'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                
-                reject_info['Non-rejected_accuracy'] = reject_output[0][0]
-                reject_info['Classification_quality'] = reject_output[0][1]
-                reject_info['Rejection_quality'] = reject_output[0][2]
+                        reject_info['Rejected'] = {}
+                        reject_info['Rejected']['y_labels'] = labels_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_preds'] = preds_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_scores'] = scores_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_ids'] = ids_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['Correct'] = {}
+                        reject_info['Rejected']['Correct']['total'] = cm[0][0]
+                        reject_info['Rejected']['Correct']['benign'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        reject_info['Rejected']['Correct']['malignant'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect'] = {}
+                        reject_info['Rejected']['Incorrect']['total'] = cm[0][2]
+                        reject_info['Rejected']['Incorrect']['benign(FP)_before'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1))) + \
+                                int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect']['benign(FP)_after'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect']['malignant(FN)_before'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0))) + \
+                                int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        reject_info['Rejected']['Incorrect']['malignant(FN)_after'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        
+                        reject_info['Non-rejected_accuracy'] = reject_output[0][0]
+                        reject_info['Classification_quality'] = reject_output[0][1]
+                        reject_info['Rejection_quality'] = reject_output[0][2]
 
-                prob_pos = scores_all[cm[1] == False][:, 1]
-            
-                # Brier Score
-                b_score = brier_score_loss(reject_info['Non-rejected']['y_labels'], prob_pos)
-                # print("Brier Score :",b_score)
-                # ECE
-                ece = mel.Model.expected_calibration_error(reject_info['Non-rejected']['y_scores'], reject_info['Non-rejected']['y_labels'], M=10)
+                        prob_pos = scores_all[cm[1] == False][:, 1]
+                    
+                        # Brier Score
+                        b_score = brier_score_loss(reject_info['Non-rejected']['y_labels'], prob_pos)
+                        # print("Brier Score :",b_score)
+                        # ECE
+                        ece = mel.Model.expected_calibration_error(reject_info['Non-rejected']['y_scores'], reject_info['Non-rejected']['y_labels'], M=10)
 
-                reject_info['brier_score'] = b_score
-                reject_info['ece'] = ece
-                
-                # Relative threshold
-                threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
-                threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold'), bbox_inches='tight')
-                # Absolute threshold
-                # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
+                        reject_info['brier_score'] = b_score
+                        reject_info['ece'] = ece
+                        
+                        # Relative threshold
+                        threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
+                        threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold_test'), bbox_inches='tight')
+                        # Absolute threshold
+                        # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
 
-                common_binary_label = {
-                        0.0: 'benign',
-                }
+                        common_binary_label = {
+                                0.0: 'benign',
+                        }
 
-                mal_prob = [x[1] for x in reject_info['Non-rejected']['y_scores']]
-                if (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 2):
-                    test_report = classification_report(reject_info['Non-rejected']['y_labels'], reject_info['Non-rejected']['y_preds'],
-                    target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+                        mal_prob = [x[1] for x in reject_info['Non-rejected']['y_scores']]
+                        if (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 2):
+                            test_report = classification_report(reject_info['Non-rejected']['y_labels'], reject_info['Non-rejected']['y_preds'],
+                            target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
-                    reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
-                    reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
-                    reject_info['Non-rejected']['sensitivity'] = test_report['malignant']['recall']
-                    reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
-                    reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
-                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
+                            reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
+                            reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
+                            reject_info['Non-rejected']['sensitivity'] = test_report['malignant']['recall']
+                            reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
+                            reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                            reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
-                elif (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 1):
-                    test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
-                    target_names=common_binary_label.values(), output_dict = True)
+                        elif (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 1):
+                            test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
+                            target_names=common_binary_label.values(), output_dict = True)
 
-                    reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
-                    reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
-                    reject_info['Non-rejected']['sensitivity'] = '-'
-                    reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
-                    reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
-                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
+                            reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
+                            reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
+                            reject_info['Non-rejected']['sensitivity'] = '-'
+                            reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
+                            reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                            reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
-                # final_uncertainty.append(reject_info)
+                        final_uncertainty[db] = reject_info
 
-                final_uncertainty[db] = reject_info
+                    elif phase == 'Val':
+                        # uncertainty_plot.title(db, fontsize=16, color="black", fontweight="bold")
+                        if db == '_7_point_criteria':
+                            db = '7_point_criteria'
+                        elif db == 'KaggleMB':
+                            db = 'Kaggle'
+                        uncertainty_plot.suptitle(f'{db}', fontsize=15, y=0.95, ha='center')
+                        uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty_val'), bbox_inches='tight')
+                        threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
+                        threshold_plt.suptitle(f'{db}', fontsize=15, y=0.95, ha='center')
+                        # threshold_plt.tick_params(axis='x', labelsize=14)
+                        # threshold_plt.supxlabel('Relative threshold', fontsize=14)
+                        threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold_val'), bbox_inches='tight')
+
+                    # final_uncertainty.append(reject_info)
+
+                    
 
 
             # Dump Json
