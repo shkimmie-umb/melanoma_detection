@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 from torchvision.transforms import v2
 import torchvision
+from collections import Counter
 
 import gc
 
@@ -255,52 +256,6 @@ class Model:
             ]),
         }
 
-        paths = {
-            'ISIC2020': os.path.join(db_path, '..', mel.DatasetType.ISIC2020.name, 'ISIC_2020_Test_Input'),
-        }
-
-        datafolders = {
-            'ISIC2020': {
-                'Test': mel.ImageDataset(root_dir=paths['ISIC2020'], transform=data_transform['Test'])
-            },
-        }
-
-        dataloader = {
-            'ISIC2020': {
-                'Test': torch.utils.data.DataLoader(datafolders['ISIC2020']['Test'], batch_size=32,
-                                                            shuffle=False, pin_memory=True,
-                                                            num_workers=4, prefetch_factor=2)
-            },
-            
-        }
-
-        model.to(device)
-        
-        with torch.no_grad():
-            for data in tqdm(dataloader['ISIC2020']['Test']):
-                
-
-                images, filenames = data
-                images = images.to(device)
-                
-                
-                outputs = model(images) #file_name
-                smx = nn.Softmax(dim=1)
-                smx_output = smx(outputs.data)
-                # preds = torch.argmax(outputs.data, 1)
-                preds = torch.argmax(smx_output, 1)
-                
-                all_ids.extend(filenames)
-                all_preds.extend(preds.cpu().tolist())
-                all_scores.extend(smx_output.cpu().tolist())
-
-                assert len(all_preds) == len(all_ids) and len(all_preds) == len(all_scores) 
-
-
-        import csv
-        # field names
-        fields = ['image_name', 'target']
-        
         # name of csv file
         csv_path = os.path.join(pathlib.Path(model_path).parent, 'leaderboard')
         full_filename = pathlib.Path(model_path).stem
@@ -308,9 +263,59 @@ class Model:
         if not os.path.exists(csv_path):
             os.makedirs(csv_path)
         csv_filename = f'{full_filename}_leaderboard.csv'
-        
-        
+
+
         if os.path.exists(os.path.join(csv_path, csv_filename)) is False:
+
+            paths = {
+                'ISIC2020': os.path.join(db_path, '..', mel.DatasetType.ISIC2020.name, 'ISIC_2020_Test_Input'),
+            }
+
+            datafolders = {
+                'ISIC2020': {
+                    'Test': mel.ImageDataset(root_dir=paths['ISIC2020'], transform=data_transform['Test'])
+                },
+            }
+
+            dataloader = {
+                'ISIC2020': {
+                    'Test': torch.utils.data.DataLoader(datafolders['ISIC2020']['Test'], batch_size=32,
+                                                                shuffle=False, pin_memory=True,
+                                                                num_workers=4, prefetch_factor=2)
+                },
+                
+            }
+
+            model.to(device)
+        
+            with torch.no_grad():
+                for data in tqdm(dataloader['ISIC2020']['Test']):
+                    
+
+                    images, filenames = data
+                    images = images.to(device)
+                    
+                    
+                    outputs = model(images) #file_name
+                    smx = nn.Softmax(dim=1)
+                    smx_output = smx(outputs.data)
+                    # preds = torch.argmax(outputs.data, 1)
+                    preds = torch.argmax(smx_output, 1)
+                    
+                    all_ids.extend(filenames)
+                    all_preds.extend(preds.cpu().tolist())
+                    all_scores.extend(smx_output.cpu().tolist())
+
+                    assert len(all_preds) == len(all_ids) and len(all_preds) == len(all_scores) 
+
+
+            import csv
+            # field names
+            fields = ['image_name', 'target']
+            
+        
+        
+        
             with open(os.path.join(csv_path, csv_filename), 'w') as csvfile:
                 # creating a csv writer object
                 csvwriter = csv.writer(csvfile)
@@ -572,6 +577,116 @@ class Model:
         performance.save(f'{snapshot_path}/performance_pytorch.xlsx')
 
         print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
+
+    @staticmethod
+    def extract_positives_per_sample(snapshot_path):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics.json', recursive=True)]))
+        jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
+
+
+        
+        test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
+        # test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria']
+        samples = {}
+        
+            
+
+        for idx, j in tqdm(enumerate(jsonfiles)):
+            fi = open(j)
+            jfile = json.load(fi)
+            
+            
+            for db in test_sets:
+                samples.setdefault(db, {})
+                
+                samples[db].setdefault('y_ids', {})
+                samples[db].setdefault('y_pred', jfile[db]['Test']['y_pred'])
+
+                samples[db].setdefault('total_miss', [])
+
+                assert len(jfile[db]['Test']['y_pred']) == len(jfile[db]['Test']['y_ids'])
+                assert len(jfile[db]['Test']['y_pred']) == len(jfile[db]['Test']['y_labels'])
+                
+                for i, id in enumerate(jfile[db]['Test']['y_ids']):
+                    # Kaggle DB has duplicate filenames in benign/malignant folders, so id_label is created
+                    id_label = f"{id}_gt{jfile[db]['Test']['y_labels'][i]}"
+                    samples[db]['y_ids'].setdefault(id_label, {})
+                    # samples[db]['y_ids'][id].setdefault('y_pred_cor_cnt', 0)
+                    # samples[db]['y_ids'][id].setdefault('y_pred_wrg_cnt', 0)
+                    samples[db]['y_ids'][id_label].setdefault('classifiers_cor', {})
+                    samples[db]['y_ids'][id_label].setdefault('classifiers_wrg', {})
+                    # samples[db]['y_ids'].setdefault('y_pred', {})
+                    samples[db]['y_ids'][id_label]['y_label'] = jfile[db]['Test']['y_labels'][i]
+                    samples[db]['y_ids'][id_label]['y_pred'] = jfile[db]['Test']['y_pred'][i]
+
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('count', 0)
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('count', 0)
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('classifiers', [])
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('classifiers', [])
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('statistics', {})
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('statistics', {})
+                    
+
+                    # if jfile[db]['Test']['y_pred'][i] == jfile[db]['Test']['y_labels'][i]:
+                    #     samples[db]['y_ids'][id]['classifiers_cor']['count'] += 1
+                    #     samples[db]['y_ids'][id]['classifiers_cor'].append(jfile['classifier'])
+                    # elif jfile[db]['Test']['y_pred'][i] != jfile[db]['Test']['y_labels'][i]:
+                    #     samples[db]['y_ids'][id]['classifiers_wrg']['count'] += 1
+                    #     samples[db]['y_ids'][id]['classifiers_wrg'].append(jfile['classifier'])
+                    #     if(samples[db]['y_ids'][id]['classifiers_wrg']['count'] == len(jsonfiles)):
+                    #         samples[db]['total_miss'].append(id)
+                    if samples[db]['y_ids'][id_label]['y_label'] == samples[db]['y_ids'][id_label]['y_pred']:
+                        samples[db]['y_ids'][id_label]['classifiers_cor']['count'] += 1
+                        samples[db]['y_ids'][id_label]['classifiers_cor']['classifiers'].append(jfile['classifier'])
+                    elif samples[db]['y_ids'][id_label]['y_label'] != samples[db]['y_ids'][id_label]['y_pred']:
+                        samples[db]['y_ids'][id_label]['classifiers_wrg']['count'] += 1
+                        samples[db]['y_ids'][id_label]['classifiers_wrg']['classifiers'].append(jfile['classifier'])
+                        if(samples[db]['y_ids'][id_label]['classifiers_wrg']['count'] == len(jsonfiles)):
+                            samples[db]['total_miss'].append(id_label)
+                    else:
+                        raise AssertionError("Unexpected error")
+
+            # samples[db]['y_ids'][id]['classifiers_cor']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_cor']['classifiers']))
+            # samples[db]['y_ids'][id]['classifiers_wrg']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_wrg']['classifiers']))
+
+        for db in test_sets:
+            for id in samples[db]['y_ids']:
+                assert len(jsonfiles) == \
+                    (samples[db]['y_ids'][id]['classifiers_cor']['count'] + samples[db]['y_ids'][id]['classifiers_wrg']['count'])
+                assert mel.CommonData().dbNumImgs[mel.DatasetType[db]]['testimages'] == len(samples[db]['y_ids'])
+
+                samples[db]['y_ids'][id]['classifiers_cor']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_cor']['classifiers']))
+                samples[db]['y_ids'][id]['classifiers_wrg']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_wrg']['classifiers']))
+
+
+
+        s = openpyxl.Workbook()
+        samples_ws = s.active
+        samples_ws.title = 'ISIC2017'
+        s.create_sheet('ISIC2018')
+        s.create_sheet('KaggleMB')
+        s.create_sheet('7pointcriteria')
+
+
+        cols = ['filename', 'actual label', 'pred_cor_cnt', 'pred_wrg_cnt', 'classifiers_cor', 'classifiers_wrg']
+
+        ws = {}
+        for t in test_sets:
+            if t == '_7_point_criteria':
+                ws[t] = s['7pointcriteria']
+            else:
+                ws[t] = s[t]
+            ws[t].append(cols)
+            for id in samples[t]['y_ids']:
+                ws[t].append([id, samples[t]['y_ids'][id]['y_label'], samples[t]['y_ids'][id]['classifiers_cor']['count'], samples[t]['y_ids'][id]['classifiers_wrg']['count'], str(samples[t]['y_ids'][id]['classifiers_cor']['statistics']), str(samples[t]['y_ids'][id]['classifiers_wrg']['statistics'])])
+
+            
+        s.save(f'{snapshot_path}/benchmarks_analysis.xlsx')
+
+        print(f'{snapshot_path}/benchmarks_analysis.xlsx' + ' generated')
+
+
+        print('stop')
 
     @staticmethod
     def extract_reject_performances(snapshot_path):
@@ -934,7 +1049,7 @@ class Model:
 
 
         
-        test_sets = ['HAM10000', 'ISIC2016', 'ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
+        test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
         ensemble = {}
         
             
@@ -946,26 +1061,26 @@ class Model:
             if idx == 0:
                 for db in test_sets:
                     ensemble[db] = {}
-                    ensemble[db]['y_labels'] = jfile[db]['y_labels']
+                    ensemble[db]['y_labels'] = jfile[db]['Test']['y_labels']
             ensemble[idx] = {}
-            ensemble[idx]['HAM10000'] = {}
-            ensemble[idx]['HAM10000']['y_pred'] = jfile['HAM10000']['y_pred']
-            ensemble[idx]['HAM10000']['y_scores'] = jfile['HAM10000']['y_scores']
-            ensemble[idx]['ISIC2016'] = {}
-            ensemble[idx]['ISIC2016']['y_pred'] = jfile['ISIC2016']['y_pred']
-            ensemble[idx]['ISIC2016']['y_scores'] = jfile['ISIC2016']['y_scores']
+            # ensemble[idx]['HAM10000'] = {}
+            # ensemble[idx]['HAM10000']['y_pred'] = jfile['HAM10000']['y_pred']
+            # ensemble[idx]['HAM10000']['y_scores'] = jfile['HAM10000']['y_scores']
+            # ensemble[idx]['ISIC2016'] = {}
+            # ensemble[idx]['ISIC2016']['y_pred'] = jfile['ISIC2016']['y_pred']
+            # ensemble[idx]['ISIC2016']['y_scores'] = jfile['ISIC2016']['y_scores']
             ensemble[idx]['ISIC2017'] = {}
-            ensemble[idx]['ISIC2017']['y_pred'] = jfile['ISIC2017']['y_pred']
-            ensemble[idx]['ISIC2017']['y_scores'] = jfile['ISIC2017']['y_scores']
+            ensemble[idx]['ISIC2017']['y_pred'] = jfile['ISIC2017']['Test']['y_pred']
+            ensemble[idx]['ISIC2017']['y_scores'] = jfile['ISIC2017']['Test']['y_scores']
             ensemble[idx]['ISIC2018'] = {}
-            ensemble[idx]['ISIC2018']['y_pred'] = jfile['ISIC2018']['y_pred']
-            ensemble[idx]['ISIC2018']['y_scores'] = jfile['ISIC2018']['y_scores']
+            ensemble[idx]['ISIC2018']['y_pred'] = jfile['ISIC2018']['Test']['y_pred']
+            ensemble[idx]['ISIC2018']['y_scores'] = jfile['ISIC2018']['Test']['y_scores']
             ensemble[idx]['_7_point_criteria'] = {}
-            ensemble[idx]['_7_point_criteria']['y_pred'] = jfile['_7_point_criteria']['y_pred']
-            ensemble[idx]['_7_point_criteria']['y_scores'] = jfile['_7_point_criteria']['y_scores']
+            ensemble[idx]['_7_point_criteria']['y_pred'] = jfile['_7_point_criteria']['Test']['y_pred']
+            ensemble[idx]['_7_point_criteria']['y_scores'] = jfile['_7_point_criteria']['Test']['y_scores']
             ensemble[idx]['KaggleMB'] = {}
-            ensemble[idx]['KaggleMB']['y_pred'] = jfile['KaggleMB']['y_pred']
-            ensemble[idx]['KaggleMB']['y_scores'] = jfile['KaggleMB']['y_scores']
+            ensemble[idx]['KaggleMB']['y_pred'] = jfile['KaggleMB']['Test']['y_pred']
+            ensemble[idx]['KaggleMB']['y_scores'] = jfile['KaggleMB']['Test']['y_scores']
             
 
         # ensemble['hard'] = {}
@@ -976,37 +1091,37 @@ class Model:
             ensemble[db]['probs'] = [0] * len(ensemble[0][db]['y_scores'])
 
         for idx in range(len(ensemble) - len(test_sets)):
-            y_pred_HAM10000 = ensemble[idx]['HAM10000']['y_pred']
-            y_pred_ISIC2016 = ensemble[idx]['ISIC2016']['y_pred']
+            # y_pred_HAM10000 = ensemble[idx]['HAM10000']['y_pred']
+            # y_pred_ISIC2016 = ensemble[idx]['ISIC2016']['y_pred']
             y_pred_ISIC2017 = ensemble[idx]['ISIC2017']['y_pred']
             y_pred_ISIC2018 = ensemble[idx]['ISIC2018']['y_pred']
             y_pred_KaggleMB = ensemble[idx]['KaggleMB']['y_pred']
             y_pred_7criteria = ensemble[idx]['_7_point_criteria']['y_pred']
             
-            y_score_HAM10000 = ensemble[idx]['HAM10000']['y_scores']
-            y_score_ISIC2016 = ensemble[idx]['ISIC2016']['y_scores']
+            # y_score_HAM10000 = ensemble[idx]['HAM10000']['y_scores']
+            # y_score_ISIC2016 = ensemble[idx]['ISIC2016']['y_scores']
             y_score_ISIC2017 = ensemble[idx]['ISIC2017']['y_scores']
             y_score_ISIC2018 = ensemble[idx]['ISIC2018']['y_scores']
             y_score_KaggleMB = ensemble[idx]['KaggleMB']['y_scores']
             y_score_7criteria = ensemble[idx]['_7_point_criteria']['y_scores']
 
-            ensemble['HAM10000']['counts'] = [count + pred for count, pred in zip(ensemble['HAM10000']['counts'], y_pred_HAM10000)]
-            ensemble['ISIC2016']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2016']['counts'], y_pred_ISIC2016)]
+            # ensemble['HAM10000']['counts'] = [count + pred for count, pred in zip(ensemble['HAM10000']['counts'], y_pred_HAM10000)]
+            # ensemble['ISIC2016']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2016']['counts'], y_pred_ISIC2016)]
             ensemble['ISIC2017']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2017']['counts'], y_pred_ISIC2017)]
             ensemble['ISIC2018']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2018']['counts'], y_pred_ISIC2018)]
             ensemble['KaggleMB']['counts'] = [count + pred for count, pred in zip(ensemble['KaggleMB']['counts'], y_pred_KaggleMB)]
             ensemble['_7_point_criteria']['counts'] = [count + pred for count, pred in zip(ensemble['_7_point_criteria']['counts'], y_pred_7criteria)]
             
 
-            ensemble['HAM10000']['probs'] = [score + pred for score, pred in zip(ensemble['HAM10000']['probs'], y_score_HAM10000)]
-            ensemble['ISIC2016']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2016']['probs'], y_score_ISIC2016)]
-            ensemble['ISIC2017']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2017']['probs'], y_score_ISIC2017)]
-            ensemble['ISIC2018']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2018']['probs'], y_score_ISIC2018)]
-            ensemble['KaggleMB']['probs'] = [score + pred for score, pred in zip(ensemble['KaggleMB']['probs'], y_score_KaggleMB)]
-            ensemble['_7_point_criteria']['probs'] = [score + pred for score, pred in zip(ensemble['_7_point_criteria']['probs'], y_score_7criteria)]
+            # ensemble['HAM10000']['probs'] = [score + pred for score, pred in zip(ensemble['HAM10000']['probs'], y_score_HAM10000)]
+            # ensemble['ISIC2016']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2016']['probs'], y_score_ISIC2016)]
+            ensemble['ISIC2017']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2017']['probs'], y_score_ISIC2017[1])]
+            ensemble['ISIC2018']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2018']['probs'], y_score_ISIC2018[1])]
+            ensemble['KaggleMB']['probs'] = [score + pred for score, pred in zip(ensemble['KaggleMB']['probs'], y_score_KaggleMB[1])]
+            ensemble['_7_point_criteria']['probs'] = [score + pred for score, pred in zip(ensemble['_7_point_criteria']['probs'], y_score_7criteria[1])]
 
-        ensemble['HAM10000']['hard'] = [1 if count > len(ensemble['HAM10000']['counts']) / 2 else 0 for count in ensemble['HAM10000']['counts']]
-        ensemble['HAM10000']['soft'] = [1 if score/ len(ensemble['HAM10000']['probs']) > 0.5 else 0 for score in ensemble['HAM10000']['probs']]
+        # ensemble['HAM10000']['hard'] = [1 if count > len(ensemble['HAM10000']['counts']) / 2 else 0 for count in ensemble['HAM10000']['counts']]
+        ensemble['ISIC2017']['soft'] = [1 if score/ len(ensemble['ISIC2017']['probs']) > 0.5 else 0 for score in ensemble['ISIC2017']['probs']]
 
 
         print('stop')
