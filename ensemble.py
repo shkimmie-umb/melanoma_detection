@@ -48,8 +48,8 @@ snapshot_path = '/project/sansa/melanoma/snapshot/'
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')    
 
-mel.Model.extract_positives_per_sample(snapshot_path)
-# mel.Model.ensemble(snapshot_path)
+# mel.Model.extract_positives_per_sample(snapshot_path)
+mel.Model.ensemble(snapshot_path)
 
 
 

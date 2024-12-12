@@ -1039,6 +1039,13 @@ class Model:
         test_pred_classes = np.argmax(test_pred,axis = 1)
 
         return test_pred, test_pred_classes
+
+    @staticmethod
+    def evaluate_model_json(all_labels, all_preds, all_scores, snapshot_path):
+        test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+        
+
+        return test_report
     
     @staticmethod
     def ensemble(snapshot_path):
@@ -1050,82 +1057,115 @@ class Model:
 
         
         test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
-        ensemble = {}
+        phases = ['Test']
         
-            
-
-        for idx, j in enumerate(jsonfiles):
-            fi = open(j)
-            jfile = json.load(fi)
-            
-            if idx == 0:
-                for db in test_sets:
-                    ensemble[db] = {}
-                    ensemble[db]['y_labels'] = jfile[db]['Test']['y_labels']
-            ensemble[idx] = {}
-            # ensemble[idx]['HAM10000'] = {}
-            # ensemble[idx]['HAM10000']['y_pred'] = jfile['HAM10000']['y_pred']
-            # ensemble[idx]['HAM10000']['y_scores'] = jfile['HAM10000']['y_scores']
-            # ensemble[idx]['ISIC2016'] = {}
-            # ensemble[idx]['ISIC2016']['y_pred'] = jfile['ISIC2016']['y_pred']
-            # ensemble[idx]['ISIC2016']['y_scores'] = jfile['ISIC2016']['y_scores']
-            ensemble[idx]['ISIC2017'] = {}
-            ensemble[idx]['ISIC2017']['y_pred'] = jfile['ISIC2017']['Test']['y_pred']
-            ensemble[idx]['ISIC2017']['y_scores'] = jfile['ISIC2017']['Test']['y_scores']
-            ensemble[idx]['ISIC2018'] = {}
-            ensemble[idx]['ISIC2018']['y_pred'] = jfile['ISIC2018']['Test']['y_pred']
-            ensemble[idx]['ISIC2018']['y_scores'] = jfile['ISIC2018']['Test']['y_scores']
-            ensemble[idx]['_7_point_criteria'] = {}
-            ensemble[idx]['_7_point_criteria']['y_pred'] = jfile['_7_point_criteria']['Test']['y_pred']
-            ensemble[idx]['_7_point_criteria']['y_scores'] = jfile['_7_point_criteria']['Test']['y_scores']
-            ensemble[idx]['KaggleMB'] = {}
-            ensemble[idx]['KaggleMB']['y_pred'] = jfile['KaggleMB']['Test']['y_pred']
-            ensemble[idx]['KaggleMB']['y_scores'] = jfile['KaggleMB']['Test']['y_scores']
-            
-
-        # ensemble['hard'] = {}
-        # ensemble['soft'] = {}
+        ensemble = {}
         for db in test_sets:
-            ensemble[db]['counts'] = [0] * len(ensemble[0][db]['y_pred'])
-            # ensemble[db]['probs'] = [0] * len(ensemble[0][db]['y_scores'])
-            ensemble[db]['probs'] = [0] * len(ensemble[0][db]['y_scores'])
-
-        for idx in range(len(ensemble) - len(test_sets)):
-            # y_pred_HAM10000 = ensemble[idx]['HAM10000']['y_pred']
-            # y_pred_ISIC2016 = ensemble[idx]['ISIC2016']['y_pred']
-            y_pred_ISIC2017 = ensemble[idx]['ISIC2017']['y_pred']
-            y_pred_ISIC2018 = ensemble[idx]['ISIC2018']['y_pred']
-            y_pred_KaggleMB = ensemble[idx]['KaggleMB']['y_pred']
-            y_pred_7criteria = ensemble[idx]['_7_point_criteria']['y_pred']
             
-            # y_score_HAM10000 = ensemble[idx]['HAM10000']['y_scores']
-            # y_score_ISIC2016 = ensemble[idx]['ISIC2016']['y_scores']
-            y_score_ISIC2017 = ensemble[idx]['ISIC2017']['y_scores']
-            y_score_ISIC2018 = ensemble[idx]['ISIC2018']['y_scores']
-            y_score_KaggleMB = ensemble[idx]['KaggleMB']['y_scores']
-            y_score_7criteria = ensemble[idx]['_7_point_criteria']['y_scores']
+            ensemble.setdefault(db, {})
+            for phase in phases: # for phase in ['Val', 'Test']:
+                ensemble[db].setdefault(phase, {})
+                for idx, j in enumerate(jsonfiles):
+                    fi = open(j)
+                    jfile = json.load(fi)
+                    ensemble[db][phase].setdefault('y_labels', jfile[db][phase]['y_labels'])
+                    ensemble[db][phase].setdefault('combinations', {})
+                    ensemble[db][phase]['combinations'].setdefault(idx, {})
+                    ensemble[db][phase]['combinations'][idx].setdefault('combination', jsonnames[idx])
+                    ensemble[db][phase]['combinations'][idx].setdefault('y_pred', jfile[db][phase]['y_pred'])
+                    ensemble[db][phase]['combinations'][idx].setdefault('y_scores', jfile[db][phase]['y_scores'])
+                # Initialization
+                ensemble[db][phase].setdefault('counts', [0] * len(ensemble[db][phase]['combinations'][0]['y_pred']))
+                ensemble[db][phase].setdefault('probs', [0] * len(ensemble[db][phase]['combinations'][0]['y_scores']))
 
-            # ensemble['HAM10000']['counts'] = [count + pred for count, pred in zip(ensemble['HAM10000']['counts'], y_pred_HAM10000)]
-            # ensemble['ISIC2016']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2016']['counts'], y_pred_ISIC2016)]
-            ensemble['ISIC2017']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2017']['counts'], y_pred_ISIC2017)]
-            ensemble['ISIC2018']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2018']['counts'], y_pred_ISIC2018)]
-            ensemble['KaggleMB']['counts'] = [count + pred for count, pred in zip(ensemble['KaggleMB']['counts'], y_pred_KaggleMB)]
-            ensemble['_7_point_criteria']['counts'] = [count + pred for count, pred in zip(ensemble['_7_point_criteria']['counts'], y_pred_7criteria)]
+        
+        test_report = {}
+        performance = {}
+        for db in test_sets:
+            for phase in phases:
+                for comb in ensemble[db][phase]['combinations']:
+                    y_label = ensemble[db][phase]['y_labels']
+                    y_pred = ensemble[db][phase]['combinations'][comb]['y_pred']
+                    y_scores = ensemble[db][phase]['combinations'][comb]['y_scores']
+                    
+                    ensemble[db][phase]['counts'] = [
+                        count + (1 if pred == 1 else 0)
+                        for count, pred in zip(
+                            ensemble[db][phase]['counts'], y_pred
+                        )
+                    ]
+                    # ensemble[db]['probs'] = [score + pred for score, pred in zip(ensemble[db]['probs'], y_scores[db][1])]
+                    ensemble[db][phase]['probs'] = [
+                        score + prob[1]/len(ensemble[db][phase]['combinations'])
+                        for score, prob in zip(ensemble[db][phase]['probs'], y_scores)
+                    ]
             
+                ensemble[db][phase].setdefault('hard_voting', {})
+                ensemble[db][phase].setdefault('soft_voting', {})
+                for idx, (count, prob) in enumerate(zip(ensemble[db][phase]['counts'], ensemble[db][phase]['probs'])):
+                    if count > len(ensemble[db][phase]['counts']) / 2:  # Hard-voting condition
+                        ensemble[db][phase]['hard_voting'][idx] = 1
+                    else:
+                        ensemble[db][phase]['hard_voting'][idx] = 0
 
-            # ensemble['HAM10000']['probs'] = [score + pred for score, pred in zip(ensemble['HAM10000']['probs'], y_score_HAM10000)]
-            # ensemble['ISIC2016']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2016']['probs'], y_score_ISIC2016)]
-            ensemble['ISIC2017']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2017']['probs'], y_score_ISIC2017[1])]
-            ensemble['ISIC2018']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2018']['probs'], y_score_ISIC2018[1])]
-            ensemble['KaggleMB']['probs'] = [score + pred for score, pred in zip(ensemble['KaggleMB']['probs'], y_score_KaggleMB[1])]
-            ensemble['_7_point_criteria']['probs'] = [score + pred for score, pred in zip(ensemble['_7_point_criteria']['probs'], y_score_7criteria[1])]
+                    if prob > 0.5:  # Soft-voting condition
+                        ensemble[db][phase]['soft_voting'][idx] = 1
+                    else:
+                        ensemble[db][phase]['soft_voting'][idx] = 0
+                
+                
+                test_report.setdefault(db, {})
+                test_report[db].setdefault(phase, {})
+                
+                mal_prob = [x[1] for x in y_scores]
+                print(f"(Hard voting)Testing Ensemble on {db}")
+                test_report[db][phase]['hard_voting'] = classification_report(y_label, list(ensemble[db][phase]['hard_voting'].values()), target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+                # test_report[phase]['hard_voting'] = mel.Model.evaluate_model_json(y_label, y_pred, list(ensemble[db][phase]['hard_voting'].values()))
+                print(f"(Soft voting)Testing Ensemble on {db}")
+                # test_report[phase]['soft_voting'] = mel.Model.evaluate_model_json(y_label, y_pred, list(ensemble[db][phase]['soft_voting'].values()))
+                test_report[db][phase]['soft_voting'] = classification_report(y_label, list(ensemble[db][phase]['soft_voting'].values()), target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
-        # ensemble['HAM10000']['hard'] = [1 if count > len(ensemble['HAM10000']['counts']) / 2 else 0 for count in ensemble['HAM10000']['counts']]
-        ensemble['ISIC2017']['soft'] = [1 if score/ len(ensemble['ISIC2017']['probs']) > 0.5 else 0 for score in ensemble['ISIC2017']['probs']]
+                performance.setdefault(db, {})
+                performance[db].setdefault(phase, {})
+                performance[db][phase].setdefault('hard_voting', {})
+                performance[db][phase].setdefault('soft_voting', {})
+                performance[db][phase]['hard_voting'] = {
+                    
+                    
+                    'y_labels': y_label,
+                    'y_pred': list(ensemble[db][phase]['hard_voting'].values()),
+                    # 'y_scores': y_scores,
+                    # 'y_ids': all_ids['Test'],
+                    'accuracy': test_report[db][phase]['hard_voting']['accuracy'],
+                    'precision': test_report[db][phase]['hard_voting']['macro avg']['precision'],
+                    'sensitivity': test_report[db][phase]['hard_voting']['malignant']['recall'],
+                    'specificity': test_report[db][phase]['hard_voting']['benign']['recall'],
+                    'f1-score': test_report[db][phase]['hard_voting']['macro avg']['f1-score'],
+                    # 'auc-roc': roc_auc_score(all_labels['Test'], mal_prob),
+                    # 'brier_score': b_score_test,
+                    # 'ece': ece_test,
+                    
+                }
 
-
-        print('stop')
-
+                performance[db][phase]['soft_voting'] = {
+                    
+                    
+                    'y_labels': y_label,
+                    'y_pred': list(ensemble[db][phase]['soft_voting'].values()),
+                    # 'y_scores': y_scores,
+                    # 'y_ids': all_ids['Test'],
+                    'accuracy': test_report[db][phase]['soft_voting']['accuracy'],
+                    'precision': test_report[db][phase]['soft_voting']['macro avg']['precision'],
+                    'sensitivity': test_report[db][phase]['soft_voting']['malignant']['recall'],
+                    'specificity': test_report[db][phase]['soft_voting']['benign']['recall'],
+                    'f1-score': test_report[db][phase]['soft_voting']['macro avg']['f1-score'],
+                    # 'auc-roc': roc_auc_score(all_labels['Test'], mal_prob),
+                    # 'brier_score': b_score_test,
+                    # 'ece': ece_test,
+                    
+                }
+        
+        print()
 
 
     @staticmethod
