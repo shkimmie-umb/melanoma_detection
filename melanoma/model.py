@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 from torchvision.transforms import v2
 import torchvision
+from collections import Counter
 
 import gc
 
@@ -255,52 +256,6 @@ class Model:
             ]),
         }
 
-        paths = {
-            'ISIC2020': os.path.join(db_path, '..', mel.DatasetType.ISIC2020.name, 'ISIC_2020_Test_Input'),
-        }
-
-        datafolders = {
-            'ISIC2020': {
-                'Test': mel.ImageDataset(root_dir=paths['ISIC2020'], transform=data_transform['Test'])
-            },
-        }
-
-        dataloader = {
-            'ISIC2020': {
-                'Test': torch.utils.data.DataLoader(datafolders['ISIC2020']['Test'], batch_size=32,
-                                                            shuffle=False, pin_memory=True,
-                                                            num_workers=4, prefetch_factor=2)
-            },
-            
-        }
-
-        model.to(device)
-        
-        with torch.no_grad():
-            for data in tqdm(dataloader['ISIC2020']['Test']):
-                
-
-                images, filenames = data
-                images = images.to(device)
-                
-                
-                outputs = model(images) #file_name
-                smx = nn.Softmax(dim=1)
-                smx_output = smx(outputs.data)
-                # preds = torch.argmax(outputs.data, 1)
-                preds = torch.argmax(smx_output, 1)
-                
-                all_ids.extend(filenames)
-                all_preds.extend(preds.cpu().tolist())
-                all_scores.extend(smx_output.cpu().tolist())
-
-                assert len(all_preds) == len(all_ids) and len(all_preds) == len(all_scores) 
-
-
-        import csv
-        # field names
-        fields = ['image_name', 'target']
-        
         # name of csv file
         csv_path = os.path.join(pathlib.Path(model_path).parent, 'leaderboard')
         full_filename = pathlib.Path(model_path).stem
@@ -308,9 +263,59 @@ class Model:
         if not os.path.exists(csv_path):
             os.makedirs(csv_path)
         csv_filename = f'{full_filename}_leaderboard.csv'
-        
-        
+
+
         if os.path.exists(os.path.join(csv_path, csv_filename)) is False:
+
+            paths = {
+                'ISIC2020': os.path.join(db_path, '..', mel.DatasetType.ISIC2020.name, 'ISIC_2020_Test_Input'),
+            }
+
+            datafolders = {
+                'ISIC2020': {
+                    'Test': mel.ImageDataset(root_dir=paths['ISIC2020'], transform=data_transform['Test'])
+                },
+            }
+
+            dataloader = {
+                'ISIC2020': {
+                    'Test': torch.utils.data.DataLoader(datafolders['ISIC2020']['Test'], batch_size=32,
+                                                                shuffle=False, pin_memory=True,
+                                                                num_workers=4, prefetch_factor=2)
+                },
+                
+            }
+
+            model.to(device)
+        
+            with torch.no_grad():
+                for data in tqdm(dataloader['ISIC2020']['Test']):
+                    
+
+                    images, filenames = data
+                    images = images.to(device)
+                    
+                    
+                    outputs = model(images) #file_name
+                    smx = nn.Softmax(dim=1)
+                    smx_output = smx(outputs.data)
+                    # preds = torch.argmax(outputs.data, 1)
+                    preds = torch.argmax(smx_output, 1)
+                    
+                    all_ids.extend(filenames)
+                    all_preds.extend(preds.cpu().tolist())
+                    all_scores.extend(smx_output.cpu().tolist())
+
+                    assert len(all_preds) == len(all_ids) and len(all_preds) == len(all_scores) 
+
+
+            import csv
+            # field names
+            fields = ['image_name', 'target']
+            
+        
+        
+        
             with open(os.path.join(csv_path, csv_filename), 'w') as csvfile:
                 # creating a csv writer object
                 csvwriter = csv.writer(csvfile)
@@ -574,6 +579,116 @@ class Model:
         print(f'{snapshot_path}/performance_pytorch.xlsx' + ' generated')
 
     @staticmethod
+    def extract_positives_per_sample(snapshot_path):
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics.json', recursive=True)]))
+        jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
+
+
+        
+        test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
+        # test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria']
+        samples = {}
+        
+            
+
+        for idx, j in tqdm(enumerate(jsonfiles)):
+            fi = open(j)
+            jfile = json.load(fi)
+            
+            
+            for db in test_sets:
+                samples.setdefault(db, {})
+                
+                samples[db].setdefault('y_ids', {})
+                samples[db].setdefault('y_pred', jfile[db]['Test']['y_pred'])
+
+                samples[db].setdefault('total_miss', [])
+
+                assert len(jfile[db]['Test']['y_pred']) == len(jfile[db]['Test']['y_ids'])
+                assert len(jfile[db]['Test']['y_pred']) == len(jfile[db]['Test']['y_labels'])
+                
+                for i, id in enumerate(jfile[db]['Test']['y_ids']):
+                    # Kaggle DB has duplicate filenames in benign/malignant folders, so id_label is created
+                    id_label = f"{id}_gt{jfile[db]['Test']['y_labels'][i]}"
+                    samples[db]['y_ids'].setdefault(id_label, {})
+                    # samples[db]['y_ids'][id].setdefault('y_pred_cor_cnt', 0)
+                    # samples[db]['y_ids'][id].setdefault('y_pred_wrg_cnt', 0)
+                    samples[db]['y_ids'][id_label].setdefault('classifiers_cor', {})
+                    samples[db]['y_ids'][id_label].setdefault('classifiers_wrg', {})
+                    # samples[db]['y_ids'].setdefault('y_pred', {})
+                    samples[db]['y_ids'][id_label]['y_label'] = jfile[db]['Test']['y_labels'][i]
+                    samples[db]['y_ids'][id_label]['y_pred'] = jfile[db]['Test']['y_pred'][i]
+
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('count', 0)
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('count', 0)
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('classifiers', [])
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('classifiers', [])
+                    samples[db]['y_ids'][id_label]['classifiers_cor'].setdefault('statistics', {})
+                    samples[db]['y_ids'][id_label]['classifiers_wrg'].setdefault('statistics', {})
+                    
+
+                    # if jfile[db]['Test']['y_pred'][i] == jfile[db]['Test']['y_labels'][i]:
+                    #     samples[db]['y_ids'][id]['classifiers_cor']['count'] += 1
+                    #     samples[db]['y_ids'][id]['classifiers_cor'].append(jfile['classifier'])
+                    # elif jfile[db]['Test']['y_pred'][i] != jfile[db]['Test']['y_labels'][i]:
+                    #     samples[db]['y_ids'][id]['classifiers_wrg']['count'] += 1
+                    #     samples[db]['y_ids'][id]['classifiers_wrg'].append(jfile['classifier'])
+                    #     if(samples[db]['y_ids'][id]['classifiers_wrg']['count'] == len(jsonfiles)):
+                    #         samples[db]['total_miss'].append(id)
+                    if samples[db]['y_ids'][id_label]['y_label'] == samples[db]['y_ids'][id_label]['y_pred']:
+                        samples[db]['y_ids'][id_label]['classifiers_cor']['count'] += 1
+                        samples[db]['y_ids'][id_label]['classifiers_cor']['classifiers'].append(jfile['classifier'])
+                    elif samples[db]['y_ids'][id_label]['y_label'] != samples[db]['y_ids'][id_label]['y_pred']:
+                        samples[db]['y_ids'][id_label]['classifiers_wrg']['count'] += 1
+                        samples[db]['y_ids'][id_label]['classifiers_wrg']['classifiers'].append(jfile['classifier'])
+                        if(samples[db]['y_ids'][id_label]['classifiers_wrg']['count'] == len(jsonfiles)):
+                            samples[db]['total_miss'].append(id_label)
+                    else:
+                        raise AssertionError("Unexpected error")
+
+            # samples[db]['y_ids'][id]['classifiers_cor']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_cor']['classifiers']))
+            # samples[db]['y_ids'][id]['classifiers_wrg']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_wrg']['classifiers']))
+
+        for db in test_sets:
+            for id in samples[db]['y_ids']:
+                assert len(jsonfiles) == \
+                    (samples[db]['y_ids'][id]['classifiers_cor']['count'] + samples[db]['y_ids'][id]['classifiers_wrg']['count'])
+                assert mel.CommonData().dbNumImgs[mel.DatasetType[db]]['testimages'] == len(samples[db]['y_ids'])
+
+                samples[db]['y_ids'][id]['classifiers_cor']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_cor']['classifiers']))
+                samples[db]['y_ids'][id]['classifiers_wrg']['statistics'] = dict(Counter(samples[db]['y_ids'][id]['classifiers_wrg']['classifiers']))
+
+
+
+        s = openpyxl.Workbook()
+        samples_ws = s.active
+        samples_ws.title = 'ISIC2017'
+        s.create_sheet('ISIC2018')
+        s.create_sheet('KaggleMB')
+        s.create_sheet('7pointcriteria')
+
+
+        cols = ['filename', 'actual label', 'pred_cor_cnt', 'pred_wrg_cnt', 'classifiers_cor', 'classifiers_wrg']
+
+        ws = {}
+        for t in test_sets:
+            if t == '_7_point_criteria':
+                ws[t] = s['7pointcriteria']
+            else:
+                ws[t] = s[t]
+            ws[t].append(cols)
+            for id in samples[t]['y_ids']:
+                ws[t].append([id, samples[t]['y_ids'][id]['y_label'], samples[t]['y_ids'][id]['classifiers_cor']['count'], samples[t]['y_ids'][id]['classifiers_wrg']['count'], str(samples[t]['y_ids'][id]['classifiers_cor']['statistics']), str(samples[t]['y_ids'][id]['classifiers_wrg']['statistics'])])
+
+            
+        s.save(f'{snapshot_path}/benchmarks_analysis.xlsx')
+
+        print(f'{snapshot_path}/benchmarks_analysis.xlsx' + ' generated')
+
+
+        print('stop')
+
+    @staticmethod
     def extract_reject_performances(snapshot_path):
         jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics_reject.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
@@ -596,7 +711,7 @@ class Model:
         performance.create_sheet('7pointcriteria')
 
 
-        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Brier score', 'ECE']
+        cols = ['Network', 'DB Comb', 'Precision', 'Specificity', 'Sensitivity', 'F-1 score', 'Accuracy', 'AUC-ROC', 'Threshold', 'Brier score', 'ECE']
 
         # HAM10000_ws = performance['HAM10000']
         # HAM10000_ws.append(cols)
@@ -633,6 +748,7 @@ class Model:
             p['ISIC2017']['Non-rejected']['f1-score'], 
             p['ISIC2017']['Non-rejected']['accuracy'],
             p['ISIC2017']['Non-rejected']['auc-roc'],
+            p['ISIC2017']['Threshold'],
             p['ISIC2017']['brier_score'],
             p['ISIC2017']['ece']])
 
@@ -646,6 +762,7 @@ class Model:
             p['ISIC2018']['Non-rejected']['f1-score'], 
             p['ISIC2018']['Non-rejected']['accuracy'],
             p['ISIC2018']['Non-rejected']['auc-roc'],
+            p['ISIC2018']['Threshold'],
             p['ISIC2018']['brier_score'],
             p['ISIC2018']['ece']])
 
@@ -660,6 +777,7 @@ class Model:
             p['KaggleMB']['Non-rejected']['f1-score'], 
             p['KaggleMB']['Non-rejected']['accuracy'],
             p['KaggleMB']['Non-rejected']['auc-roc'],
+            p['KaggleMB']['Threshold'],
             p['KaggleMB']['brier_score'],
             p['KaggleMB']['ece']])
 
@@ -673,6 +791,7 @@ class Model:
             p['_7_point_criteria']['Non-rejected']['f1-score'], 
             p['_7_point_criteria']['Non-rejected']['accuracy'],
             p['_7_point_criteria']['Non-rejected']['auc-roc'],
+            p['_7_point_criteria']['Threshold'],
             p['_7_point_criteria']['brier_score'],
             p['_7_point_criteria']['ece']])
             
@@ -718,7 +837,7 @@ class Model:
         
 
     def reject_uncertainties(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet152/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
         jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
 
@@ -746,134 +865,154 @@ class Model:
             
             final_uncertainty['dataset'] = used_DB_list
             final_uncertainty['classifier'] = classifier_name
-            for db in ('ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
-                print(f"Rejecting {db} database from {jsonnames[idx]}")
-                scores_all = np.array(jfile[db]['Test']['y_scores'])
-                labels_all = np.array(jfile[db]['Test']['y_labels'])
-                preds_all = np.array(jfile[db]['Test']['y_pred'])
-                ids_all = np.array(jfile[db]['Test']['y_ids'])
+            for phase in ['Val', 'Test']:
+                for db in ('ISIC2017', 'ISIC2018', 'KaggleMB', '_7_point_criteria'):
+                    print(f"Rejecting {db} database from {jsonnames[idx]}")
+                    
+                    scores_all = np.array(jfile[db][phase]['y_scores'])
+                    labels_all = np.array(jfile[db][phase]['y_labels'])
+                    
 
-                # Instantiate Rejector
-                rej = ClassificationRejector(labels_all, scores_all)
-                # Get entropy (Uncertainty Total (Entropy))
-                # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
-                total_unc = rej.uncertainty(unc_type="TU")
-                all_unc = rej.uncertainty(unc_type=None)
-                # Plotting uncertainty per test sample
-                uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
-                
-                # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
-                uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty'), bbox_inches='tight')
-                # rej.plot_uncertainty(unc_type=None)
-                # implement single rejection point
-                threshold = mel.Model.findOptimalThreshold(jfile[db])
-                
-                reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
+                    # Instantiate Rejector
+                    rej = ClassificationRejector(labels_all, scores_all)
+                    # Get entropy (Uncertainty Total (Entropy))
+                    # aleatoric - mean of TU (entropy), epistemic: TU - aleatoric
+                    total_unc = rej.uncertainty(unc_type="TU")
+                    all_unc = rej.uncertainty(unc_type=None)
+                    # Plotting uncertainty per test sample
+                    uncertainty_plot = rej.plot_uncertainty(unc_type="TU")
+                    
+                    # uncertainty_plot.suptitle(f'Testset: {db} \nTrainset: {DBnames} \nClassifier: {classifier_name}', fontsize=10, y=1.1, ha='left')
+                    if phase == 'Test':
+                        preds_all = np.array(jfile[db][phase]['y_pred'])
+                        ids_all = np.array(jfile[db][phase]['y_ids'])
+                        uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty_test'), bbox_inches='tight')
+                        # rej.plot_uncertainty(unc_type=None)
+                        # implement single rejection point
+                        threshold = mel.Model.findOptimalThreshold(jfile[db])
+                        
+                        reject_output = rej.reject(threshold=threshold, unc_type="TU", relative=True, show=True)
 
-                cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
+                        cm = reject_cm(correct=rej.correct, unc_ary=total_unc, threshold= threshold,relative= True, show=False)
 
-                
-                reject_info = {}
-                # False: Not rejected, True: rejected (removed)
-                reject_info['y_labels'] = labels_all.tolist()
-                reject_info['y_preds'] = preds_all.tolist()
-                reject_info['y_scores'] = scores_all.tolist()
-                reject_info['uncertainty'] = total_unc.tolist()
-                reject_info['Threshold'] = threshold
-                
-                reject_info['Non-rejected'] = {}
-                reject_info['Non-rejected']['y_labels'] = labels_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_scores'] = scores_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['y_ids'] = ids_all[cm[1] == False].tolist()
-                reject_info['Non-rejected']['Correct'] = {}
-                reject_info['Non-rejected']['Correct']['total'] = cm[0][1]
-                reject_info['Non-rejected']['Correct']['benign(FP)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
-                reject_info['Non-rejected']['Correct']['malignant(FN)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Non-rejected']['Incorrect'] = {}
-                reject_info['Non-rejected']['Incorrect']['total'] = cm[0][3]
-                reject_info['Non-rejected']['Incorrect']['benign(FP)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Non-rejected']['Incorrect']['malignant(FN)'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+                        
+                        reject_info = {}
+                        # False: Not rejected, True: rejected (removed)
+                        reject_info['y_labels'] = labels_all.tolist()
+                        reject_info['y_preds'] = preds_all.tolist()
+                        reject_info['y_scores'] = scores_all.tolist()
+                        reject_info['uncertainty'] = total_unc.tolist()
+                        reject_info['Threshold'] = threshold
+                        
+                        reject_info['Non-rejected'] = {}
+                        reject_info['Non-rejected']['y_labels'] = labels_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_preds'] = preds_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_scores'] = scores_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['y_ids'] = ids_all[cm[1] == False].tolist()
+                        reject_info['Non-rejected']['Correct'] = {}
+                        reject_info['Non-rejected']['Correct']['total'] = cm[0][1]
+                        reject_info['Non-rejected']['Correct']['benign(FP)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
+                        reject_info['Non-rejected']['Correct']['malignant(FN)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Non-rejected']['Incorrect'] = {}
+                        reject_info['Non-rejected']['Incorrect']['total'] = cm[0][3]
+                        reject_info['Non-rejected']['Incorrect']['benign(FP)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Non-rejected']['Incorrect']['malignant(FN)'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0)))
 
-                reject_info['Rejected'] = {}
-                reject_info['Rejected']['y_labels'] = labels_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_preds'] = preds_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_scores'] = scores_all[cm[1] == True].tolist()
-                reject_info['Rejected']['y_ids'] = ids_all[cm[1] == True].tolist()
-                reject_info['Rejected']['Correct'] = {}
-                reject_info['Rejected']['Correct']['total'] = cm[0][0]
-                reject_info['Rejected']['Correct']['benign'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                reject_info['Rejected']['Correct']['malignant'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect'] = {}
-                reject_info['Rejected']['Incorrect']['total'] = cm[0][2]
-                reject_info['Rejected']['Incorrect']['benign(FP)_before'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1))) + \
-                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect']['benign(FP)_after'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
-                reject_info['Rejected']['Incorrect']['malignant(FN)_before'] = \
-                    int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0))) + \
-                        int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                reject_info['Rejected']['Incorrect']['malignant(FN)_after'] = \
-                    int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
-                
-                reject_info['Non-rejected_accuracy'] = reject_output[0][0]
-                reject_info['Classification_quality'] = reject_output[0][1]
-                reject_info['Rejection_quality'] = reject_output[0][2]
+                        reject_info['Rejected'] = {}
+                        reject_info['Rejected']['y_labels'] = labels_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_preds'] = preds_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_scores'] = scores_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['y_ids'] = ids_all[cm[1] == True].tolist()
+                        reject_info['Rejected']['Correct'] = {}
+                        reject_info['Rejected']['Correct']['total'] = cm[0][0]
+                        reject_info['Rejected']['Correct']['benign'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        reject_info['Rejected']['Correct']['malignant'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect'] = {}
+                        reject_info['Rejected']['Incorrect']['total'] = cm[0][2]
+                        reject_info['Rejected']['Incorrect']['benign(FP)_before'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1))) + \
+                                int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 0) & (np.array(reject_info['Rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect']['benign(FP)_after'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 0) & (np.array(reject_info['Non-rejected']['y_preds']) == 1)))
+                        reject_info['Rejected']['Incorrect']['malignant(FN)_before'] = \
+                            int(np.sum((np.array(reject_info['Non-rejected']['y_labels']) == 1) & (np.array(reject_info['Non-rejected']['y_preds']) == 0))) + \
+                                int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        reject_info['Rejected']['Incorrect']['malignant(FN)_after'] = \
+                            int(np.sum((np.array(reject_info['Rejected']['y_labels']) == 1) & (np.array(reject_info['Rejected']['y_preds']) == 0)))
+                        
+                        reject_info['Non-rejected_accuracy'] = reject_output[0][0]
+                        reject_info['Classification_quality'] = reject_output[0][1]
+                        reject_info['Rejection_quality'] = reject_output[0][2]
 
-                prob_pos = scores_all[cm[1] == False][:, 1]
-            
-                # Brier Score
-                b_score = brier_score_loss(reject_info['Non-rejected']['y_labels'], prob_pos)
-                # print("Brier Score :",b_score)
-                # ECE
-                ece = mel.Model.expected_calibration_error(reject_info['Non-rejected']['y_scores'], reject_info['Non-rejected']['y_labels'], M=10)
+                        prob_pos = scores_all[cm[1] == False][:, 1]
+                    
+                        # Brier Score
+                        b_score = brier_score_loss(reject_info['Non-rejected']['y_labels'], prob_pos)
+                        # print("Brier Score :",b_score)
+                        # ECE
+                        ece = mel.Model.expected_calibration_error(reject_info['Non-rejected']['y_scores'], reject_info['Non-rejected']['y_labels'], M=10)
 
-                reject_info['brier_score'] = b_score
-                reject_info['ece'] = ece
-                
-                # Relative threshold
-                threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
-                threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold'), bbox_inches='tight')
-                # Absolute threshold
-                # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
+                        reject_info['brier_score'] = b_score
+                        reject_info['ece'] = ece
+                        
+                        # Relative threshold
+                        threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
+                        threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold_test'), bbox_inches='tight')
+                        # Absolute threshold
+                        # rej.plot_reject(unc_type="TU", metric="NRA", relative=False)
 
-                common_binary_label = {
-                        0.0: 'benign',
-                }
+                        common_binary_label = {
+                                0.0: 'benign',
+                        }
 
-                mal_prob = [x[1] for x in reject_info['Non-rejected']['y_scores']]
-                if (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 2):
-                    test_report = classification_report(reject_info['Non-rejected']['y_labels'], reject_info['Non-rejected']['y_preds'],
-                    target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+                        mal_prob = [x[1] for x in reject_info['Non-rejected']['y_scores']]
+                        if (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 2):
+                            test_report = classification_report(reject_info['Non-rejected']['y_labels'], reject_info['Non-rejected']['y_preds'],
+                            target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
-                    reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
-                    reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
-                    reject_info['Non-rejected']['sensitivity'] = test_report['malignant']['recall']
-                    reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
-                    reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
-                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
+                            reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
+                            reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
+                            reject_info['Non-rejected']['sensitivity'] = test_report['malignant']['recall']
+                            reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
+                            reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                            reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
-                elif (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 1):
-                    test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
-                    target_names=common_binary_label.values(), output_dict = True)
+                        elif (len(np.unique(reject_info['Non-rejected']['y_labels'])) == 1):
+                            test_report = classification_report(reject_info['Non-rejected_y_labels'], reject_info['Non-rejected_y_preds'],
+                            target_names=common_binary_label.values(), output_dict = True)
 
-                    reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
-                    reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
-                    reject_info['Non-rejected']['sensitivity'] = '-'
-                    reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
-                    reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
-                    reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
+                            reject_info['Non-rejected']['accuracy'] = test_report['accuracy']
+                            reject_info['Non-rejected']['precision'] = test_report['macro avg']['precision']
+                            reject_info['Non-rejected']['sensitivity'] = '-'
+                            reject_info['Non-rejected']['specificity'] = test_report['benign']['recall']
+                            reject_info['Non-rejected']['f1-score'] = test_report['macro avg']['f1-score']
+                            reject_info['Non-rejected']['auc-roc'] = roc_auc_score(reject_info['Non-rejected']['y_labels'], mal_prob)
 
-                # final_uncertainty.append(reject_info)
+                        final_uncertainty[db] = reject_info
 
-                final_uncertainty[db] = reject_info
+                    elif phase == 'Val':
+                        # uncertainty_plot.title(db, fontsize=16, color="black", fontweight="bold")
+                        if db == '_7_point_criteria':
+                            db = '7_point_criteria'
+                        elif db == 'KaggleMB':
+                            db = 'Kaggle'
+                        uncertainty_plot.suptitle(f'{db}', fontsize=15, y=0.95, ha='center')
+                        uncertainty_plot.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_uncertainty_val'), bbox_inches='tight')
+                        threshold_plt = rej.plot_reject(unc_type="TU", metric="NRA")
+                        threshold_plt.suptitle(f'{db}', fontsize=15, y=0.95, ha='center')
+                        # threshold_plt.tick_params(axis='x', labelsize=14)
+                        # threshold_plt.supxlabel('Relative threshold', fontsize=14)
+                        threshold_plt.savefig(os.path.join(jsonpaths[idx], 'reject_plots', DBnames+'_'+classifier_name+'_'+db+'_threshold_val'), bbox_inches='tight')
+
+                    # final_uncertainty.append(reject_info)
+
+                    
 
 
             # Dump Json
@@ -900,6 +1039,13 @@ class Model:
         test_pred_classes = np.argmax(test_pred,axis = 1)
 
         return test_pred, test_pred_classes
+
+    @staticmethod
+    def evaluate_model_json(all_labels, all_preds, all_scores, snapshot_path):
+        test_report = classification_report(all_labels, all_preds, target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+        
+
+        return test_report
     
     @staticmethod
     def ensemble(snapshot_path):
@@ -910,83 +1056,116 @@ class Model:
 
 
         
-        test_sets = ['HAM10000', 'ISIC2016', 'ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
-        ensemble = {}
+        test_sets = ['ISIC2017', 'ISIC2018', '_7_point_criteria', 'KaggleMB']
+        phases = ['Test']
         
-            
-
-        for idx, j in enumerate(jsonfiles):
-            fi = open(j)
-            jfile = json.load(fi)
-            
-            if idx == 0:
-                for db in test_sets:
-                    ensemble[db] = {}
-                    ensemble[db]['y_labels'] = jfile[db]['y_labels']
-            ensemble[idx] = {}
-            ensemble[idx]['HAM10000'] = {}
-            ensemble[idx]['HAM10000']['y_pred'] = jfile['HAM10000']['y_pred']
-            ensemble[idx]['HAM10000']['y_scores'] = jfile['HAM10000']['y_scores']
-            ensemble[idx]['ISIC2016'] = {}
-            ensemble[idx]['ISIC2016']['y_pred'] = jfile['ISIC2016']['y_pred']
-            ensemble[idx]['ISIC2016']['y_scores'] = jfile['ISIC2016']['y_scores']
-            ensemble[idx]['ISIC2017'] = {}
-            ensemble[idx]['ISIC2017']['y_pred'] = jfile['ISIC2017']['y_pred']
-            ensemble[idx]['ISIC2017']['y_scores'] = jfile['ISIC2017']['y_scores']
-            ensemble[idx]['ISIC2018'] = {}
-            ensemble[idx]['ISIC2018']['y_pred'] = jfile['ISIC2018']['y_pred']
-            ensemble[idx]['ISIC2018']['y_scores'] = jfile['ISIC2018']['y_scores']
-            ensemble[idx]['_7_point_criteria'] = {}
-            ensemble[idx]['_7_point_criteria']['y_pred'] = jfile['_7_point_criteria']['y_pred']
-            ensemble[idx]['_7_point_criteria']['y_scores'] = jfile['_7_point_criteria']['y_scores']
-            ensemble[idx]['KaggleMB'] = {}
-            ensemble[idx]['KaggleMB']['y_pred'] = jfile['KaggleMB']['y_pred']
-            ensemble[idx]['KaggleMB']['y_scores'] = jfile['KaggleMB']['y_scores']
-            
-
-        # ensemble['hard'] = {}
-        # ensemble['soft'] = {}
+        ensemble = {}
         for db in test_sets:
-            ensemble[db]['counts'] = [0] * len(ensemble[0][db]['y_pred'])
-            # ensemble[db]['probs'] = [0] * len(ensemble[0][db]['y_scores'])
-            ensemble[db]['probs'] = [0] * len(ensemble[0][db]['y_scores'])
-
-        for idx in range(len(ensemble) - len(test_sets)):
-            y_pred_HAM10000 = ensemble[idx]['HAM10000']['y_pred']
-            y_pred_ISIC2016 = ensemble[idx]['ISIC2016']['y_pred']
-            y_pred_ISIC2017 = ensemble[idx]['ISIC2017']['y_pred']
-            y_pred_ISIC2018 = ensemble[idx]['ISIC2018']['y_pred']
-            y_pred_KaggleMB = ensemble[idx]['KaggleMB']['y_pred']
-            y_pred_7criteria = ensemble[idx]['_7_point_criteria']['y_pred']
             
-            y_score_HAM10000 = ensemble[idx]['HAM10000']['y_scores']
-            y_score_ISIC2016 = ensemble[idx]['ISIC2016']['y_scores']
-            y_score_ISIC2017 = ensemble[idx]['ISIC2017']['y_scores']
-            y_score_ISIC2018 = ensemble[idx]['ISIC2018']['y_scores']
-            y_score_KaggleMB = ensemble[idx]['KaggleMB']['y_scores']
-            y_score_7criteria = ensemble[idx]['_7_point_criteria']['y_scores']
+            ensemble.setdefault(db, {})
+            for phase in phases: # for phase in ['Val', 'Test']:
+                ensemble[db].setdefault(phase, {})
+                for idx, j in enumerate(jsonfiles):
+                    fi = open(j)
+                    jfile = json.load(fi)
+                    ensemble[db][phase].setdefault('y_labels', jfile[db][phase]['y_labels'])
+                    ensemble[db][phase].setdefault('combinations', {})
+                    ensemble[db][phase]['combinations'].setdefault(idx, {})
+                    ensemble[db][phase]['combinations'][idx].setdefault('combination', jsonnames[idx])
+                    ensemble[db][phase]['combinations'][idx].setdefault('y_pred', jfile[db][phase]['y_pred'])
+                    ensemble[db][phase]['combinations'][idx].setdefault('y_scores', jfile[db][phase]['y_scores'])
+                # Initialization
+                ensemble[db][phase].setdefault('counts', [0] * len(ensemble[db][phase]['combinations'][0]['y_pred']))
+                ensemble[db][phase].setdefault('probs', [0] * len(ensemble[db][phase]['combinations'][0]['y_scores']))
 
-            ensemble['HAM10000']['counts'] = [count + pred for count, pred in zip(ensemble['HAM10000']['counts'], y_pred_HAM10000)]
-            ensemble['ISIC2016']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2016']['counts'], y_pred_ISIC2016)]
-            ensemble['ISIC2017']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2017']['counts'], y_pred_ISIC2017)]
-            ensemble['ISIC2018']['counts'] = [count + pred for count, pred in zip(ensemble['ISIC2018']['counts'], y_pred_ISIC2018)]
-            ensemble['KaggleMB']['counts'] = [count + pred for count, pred in zip(ensemble['KaggleMB']['counts'], y_pred_KaggleMB)]
-            ensemble['_7_point_criteria']['counts'] = [count + pred for count, pred in zip(ensemble['_7_point_criteria']['counts'], y_pred_7criteria)]
+        
+        test_report = {}
+        performance = {}
+        for db in test_sets:
+            for phase in phases:
+                for comb in ensemble[db][phase]['combinations']:
+                    y_label = ensemble[db][phase]['y_labels']
+                    y_pred = ensemble[db][phase]['combinations'][comb]['y_pred']
+                    y_scores = ensemble[db][phase]['combinations'][comb]['y_scores']
+                    
+                    ensemble[db][phase]['counts'] = [
+                        count + (1 if pred == 1 else 0)
+                        for count, pred in zip(
+                            ensemble[db][phase]['counts'], y_pred
+                        )
+                    ]
+                    # ensemble[db]['probs'] = [score + pred for score, pred in zip(ensemble[db]['probs'], y_scores[db][1])]
+                    ensemble[db][phase]['probs'] = [
+                        score + prob[1]/len(ensemble[db][phase]['combinations'])
+                        for score, prob in zip(ensemble[db][phase]['probs'], y_scores)
+                    ]
             
+                ensemble[db][phase].setdefault('hard_voting', {})
+                ensemble[db][phase].setdefault('soft_voting', {})
+                for idx, (count, prob) in enumerate(zip(ensemble[db][phase]['counts'], ensemble[db][phase]['probs'])):
+                    if count > len(ensemble[db][phase]['counts']) / 2:  # Hard-voting condition
+                        ensemble[db][phase]['hard_voting'][idx] = 1
+                    else:
+                        ensemble[db][phase]['hard_voting'][idx] = 0
 
-            ensemble['HAM10000']['probs'] = [score + pred for score, pred in zip(ensemble['HAM10000']['probs'], y_score_HAM10000)]
-            ensemble['ISIC2016']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2016']['probs'], y_score_ISIC2016)]
-            ensemble['ISIC2017']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2017']['probs'], y_score_ISIC2017)]
-            ensemble['ISIC2018']['probs'] = [score + pred for score, pred in zip(ensemble['ISIC2018']['probs'], y_score_ISIC2018)]
-            ensemble['KaggleMB']['probs'] = [score + pred for score, pred in zip(ensemble['KaggleMB']['probs'], y_score_KaggleMB)]
-            ensemble['_7_point_criteria']['probs'] = [score + pred for score, pred in zip(ensemble['_7_point_criteria']['probs'], y_score_7criteria)]
+                    if prob > 0.5:  # Soft-voting condition
+                        ensemble[db][phase]['soft_voting'][idx] = 1
+                    else:
+                        ensemble[db][phase]['soft_voting'][idx] = 0
+                
+                
+                test_report.setdefault(db, {})
+                test_report[db].setdefault(phase, {})
+                
+                mal_prob = [x[1] for x in y_scores]
+                print(f"(Hard voting)Testing Ensemble on {db}")
+                test_report[db][phase]['hard_voting'] = classification_report(y_label, list(ensemble[db][phase]['hard_voting'].values()), target_names=mel.Parser.common_binary_label.values(), output_dict = True)
+                # test_report[phase]['hard_voting'] = mel.Model.evaluate_model_json(y_label, y_pred, list(ensemble[db][phase]['hard_voting'].values()))
+                print(f"(Soft voting)Testing Ensemble on {db}")
+                # test_report[phase]['soft_voting'] = mel.Model.evaluate_model_json(y_label, y_pred, list(ensemble[db][phase]['soft_voting'].values()))
+                test_report[db][phase]['soft_voting'] = classification_report(y_label, list(ensemble[db][phase]['soft_voting'].values()), target_names=mel.Parser.common_binary_label.values(), output_dict = True)
 
-        ensemble['HAM10000']['hard'] = [1 if count > len(ensemble['HAM10000']['counts']) / 2 else 0 for count in ensemble['HAM10000']['counts']]
-        ensemble['HAM10000']['soft'] = [1 if score/ len(ensemble['HAM10000']['probs']) > 0.5 else 0 for score in ensemble['HAM10000']['probs']]
+                performance.setdefault(db, {})
+                performance[db].setdefault(phase, {})
+                performance[db][phase].setdefault('hard_voting', {})
+                performance[db][phase].setdefault('soft_voting', {})
+                performance[db][phase]['hard_voting'] = {
+                    
+                    
+                    'y_labels': y_label,
+                    'y_pred': list(ensemble[db][phase]['hard_voting'].values()),
+                    # 'y_scores': y_scores,
+                    # 'y_ids': all_ids['Test'],
+                    'accuracy': test_report[db][phase]['hard_voting']['accuracy'],
+                    'precision': test_report[db][phase]['hard_voting']['macro avg']['precision'],
+                    'sensitivity': test_report[db][phase]['hard_voting']['malignant']['recall'],
+                    'specificity': test_report[db][phase]['hard_voting']['benign']['recall'],
+                    'f1-score': test_report[db][phase]['hard_voting']['macro avg']['f1-score'],
+                    # 'auc-roc': roc_auc_score(all_labels['Test'], mal_prob),
+                    # 'brier_score': b_score_test,
+                    # 'ece': ece_test,
+                    
+                }
 
-
-        print('stop')
-
+                performance[db][phase]['soft_voting'] = {
+                    
+                    
+                    'y_labels': y_label,
+                    'y_pred': list(ensemble[db][phase]['soft_voting'].values()),
+                    # 'y_scores': y_scores,
+                    # 'y_ids': all_ids['Test'],
+                    'accuracy': test_report[db][phase]['soft_voting']['accuracy'],
+                    'precision': test_report[db][phase]['soft_voting']['macro avg']['precision'],
+                    'sensitivity': test_report[db][phase]['soft_voting']['malignant']['recall'],
+                    'specificity': test_report[db][phase]['soft_voting']['benign']['recall'],
+                    'f1-score': test_report[db][phase]['soft_voting']['macro avg']['f1-score'],
+                    # 'auc-roc': roc_auc_score(all_labels['Test'], mal_prob),
+                    # 'brier_score': b_score_test,
+                    # 'ece': ece_test,
+                    
+                }
+        
+        print()
 
 
     @staticmethod
