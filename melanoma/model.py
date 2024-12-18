@@ -688,6 +688,8 @@ class Model:
 
         print('stop')
 
+        return samples[t]['y_ids'][id]['classifiers_cor']['statistics']
+
     @staticmethod
     def extract_reject_performances(snapshot_path):
         jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_metrics_reject.json', recursive=True)]))
@@ -1074,11 +1076,16 @@ class Model:
                     ensemble[db][phase]['combinations'][idx].setdefault('combination', jsonnames[idx])
                     ensemble[db][phase]['combinations'][idx].setdefault('y_pred', jfile[db][phase]['y_pred'])
                     ensemble[db][phase]['combinations'][idx].setdefault('y_scores', jfile[db][phase]['y_scores'])
+                    ensemble[db][phase]['combinations'][idx].setdefault('classifier', jfile['classifier'])
                 # Initialization
                 ensemble[db][phase].setdefault('counts', [0] * len(ensemble[db][phase]['combinations'][0]['y_pred']))
                 ensemble[db][phase].setdefault('probs', [0] * len(ensemble[db][phase]['combinations'][0]['y_scores']))
+                ensemble[db][phase].setdefault('probs_weighted', [0] * len(ensemble[db][phase]['combinations'][0]['y_scores']))
 
         
+        statistics = mel.Model.extract_positives_per_sample(snapshot_path)
+        total_models = sum(statistics.values())
+        model_weights = {model_name: count / total_models for model_name, count in statistics.items()}
         test_report = {}
         performance = {}
         for db in test_sets:
@@ -1087,6 +1094,7 @@ class Model:
                     y_label = ensemble[db][phase]['y_labels']
                     y_pred = ensemble[db][phase]['combinations'][comb]['y_pred']
                     y_scores = ensemble[db][phase]['combinations'][comb]['y_scores']
+                    classifier = ensemble[db][phase]['combinations'][comb]['classifier'] # network name
                     
                     ensemble[db][phase]['counts'] = [
                         count + (1 if pred == 1 else 0)
@@ -1099,6 +1107,28 @@ class Model:
                         score + prob[1]/len(ensemble[db][phase]['combinations'])
                         for score, prob in zip(ensemble[db][phase]['probs'], y_scores)
                     ]
+
+                    ensemble[db][phase]['probs_weighted'] = [
+                        score + (prob[1]/len(ensemble[db][phase]['combinations']))*model_weights[classifier]
+                        for score, prob in zip(ensemble[db][phase]['probs_weighted'], y_scores)
+                    ]
+
+                    # ensemble[db][phase]['probs_weighted']= [
+                    #     score + (model_weights[model_name] * prob[1]) 
+                    #     for score, prob, model_name in zip(
+                    #         ensemble[db][phase]['probs'], 
+                    #         y_scores, 
+                    #         ensemble[db][phase]['combinations']['classifier']
+                    #     )
+                    # ]
+                    # for idx, prob in enumerate(y_scores):
+                    #     classifier_name = ensemble[db][phase]['combinations'][idx]['classifier']
+                    #     weight = model_weights[classifier_name]  # Get the weight for the current classifier
+                    #     ensemble[db][phase]['probs_weighted'] = [
+                    #         score + (weight * p)
+                    #         for score, p in zip(ensemble[db][phase]['probs'], prob[1])  # Apply weights to prob[1]
+                        # ]
+                    
             
                 ensemble[db][phase].setdefault('hard_voting', {})
                 ensemble[db][phase].setdefault('soft_voting', {})
