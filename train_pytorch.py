@@ -77,13 +77,13 @@ CFG = dict(
     # run_functions_eagerly = False,
         
     # DB load
-    # db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
+    db_path = os.path.join('/hpcstor6/scratch01/s/sanghyuk.kim001', 'data', 'melanomaDB'),
     # db_path = os.path.join(pathlib.Path.cwd(), 'data', 'melanomaDB'),
-    db_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'data', 'melanomaDB'),
+    # db_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'data', 'melanomaDB'),
     # save
     # snapshot_path = os.path.join(pathlib.Path.cwd(), 'snapshot', CLASSIFIER),
-    snapshot_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'snapshot', CLASSIFIER),
-    # snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
+    # snapshot_path = os.path.join('/homes/e35889/sansa/melanoma_detection', 'snapshot', CLASSIFIER),
+    snapshot_path = os.path.join('/raid/mpsych/MELANOMA/snapshot', CLASSIFIER),
     model_file_name = f'{DBname}_{CLASSIFIER}',
 			
 )

@@ -837,7 +837,7 @@ class Model:
         
 
     def reject_uncertainties(snapshot_path):
-        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/ResNet152/performance/*_*_metrics.json', recursive=True)]))
+        jsonfiles = list(itertools.chain.from_iterable([glob.glob(f'{snapshot_path}/*/performance/*_*_metrics.json', recursive=True)]))
         jsonnames = list(map(lambda x: pathlib.Path(os.path.basename(x)).stem, jsonfiles))
         jsonpaths = list(map(lambda x: pathlib.Path(os.path.dirname(x)), jsonfiles))
 
