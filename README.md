@@ -54,10 +54,7 @@
 - Folder-structured custom db: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj/view?usp=drive_link -->
 
 ## Environment
-- PyTorch 2.4.0
-<!-- - Keras - 2.5.0rc0 -->
-<!-- - Tensorflow - 2.5.0 -->
-<!-- - Augmentor - 0.2.10 -->
+- torch==2.4.0
 - matplotlib==3.9.1
 - pandas==2.2.2
 - numpy==1.26.4
