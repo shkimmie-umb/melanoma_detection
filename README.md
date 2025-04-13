@@ -29,10 +29,9 @@
 |  ISIC2016+ISIC2020 | EfficientNetB2  | 224x224 | 0.9046  | 0.9145  |
 |  ISIC2016+ISIC2018+ISIC2019+ISIC2020 | ResNet152  | 224x24 | 0.9032  | 0.8975  |
 |  ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2 | ResNet152  | 224x224 | 0.9007  | 0.9040  |
-<!-- |  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 150x150 | 0.7618  | 0.7621  | -->
 | ISIC2016+ISIC2018+ISIC2019+ISIC2020 | EfficientNetB1 | 224x224 | 0.9004 | 0.9057 |
 | ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB | ResNet101 | 224x224 | 0.8996 | 0.8868 |
-
+<!-- |  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 150x150 | 0.7618  | 0.7621  | -->
 
 #### Note
 > <sup id="privatescore">1</sup> Score on all test data. The potential winner(s) are determined solely by the leaderboard ranking on the private leaderboard. <br>
