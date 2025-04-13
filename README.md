@@ -1,12 +1,11 @@
-# Web-based Melanoma Detection
-[ArXiv link](https://arxiv.org/abs/2403.14898)
+# Melanoma Detection with Uncertainty Quantification
+[IEEE ISBI 2025 (Oral Presentation)](https://arxiv.org/pdf/2411.10322)
 <p></p>
-<img src="https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg" width="480">
+<img src="https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.png" width="480">
 <!-- ![screenshot](https://github.com/shkimmie-umb/melanoma_detection/blob/master/Thumbnail.jpeg) -->
 
-
-## Standalone Melanoma web application
-[Melanoma web application](https://mpsych.github.io/melanoma/)
+## Interactive Web Application
+[Try the melanoma detector](https://mpsych.github.io/melanoma/)
 
 ## Supported datasets
 - [HAM10000](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T)
@@ -24,31 +23,22 @@
 ## [SIIM-ISIC leaderboard results](https://www.kaggle.com/competitions/siim-isic-melanoma-classification/overview)
 | DBs | Network | Img size | Private Score <sup id="privatescore">[1](#privatescore)</sup> | Public Score <sup id="publicscore">[2](#publicscore)</sup> |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-|  ISIC'16+ISIC'17+ISIC'18+ISIC'19+MEDNODE+Kaggle | DenseNet121  | 150x150 | 0.7211  | 0.7472  |
-|  ISIC'18 | ResNet50  | 150x150 | 0.5999  | 0.6301  |
-|  ISIC'20 | ResNet50  | 150x150 | 0.7751  | 0.8126  |
-|  ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2 | ResNet152  | 150x150 | 0.8064  | 0.8073  |
-|  ISIC'19 | ResNet152  | 150x150 | 0.6769  | 0.7234  |
-|  ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2+ <br> 7pointcriteria+PAD_UFES_20+MEDNODE+Kaggle | ResNet152  | 150x150 | 0.7774  | 0.7894  |
-|  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 150x150 | 0.7618  | 0.7621  |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2 | ResNet152 | 384x384 | 0.7028 | 0.7134 |
-| ISIC'16+ISIC'17+ISIC2018+ISIC'19 | DenseNet169 | 384x384 | 0.6943 | 0.7471 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC2020+PH2+ <br> _7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB | DenseNet169 | 384x384 | 0.7963 | 0.8535 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2+ <br> MEDNODE+KaggleMB | DenseNet169 | 384x384 | 0.8028 | 0.8247 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2+ <br> PAD_UFES_20+MEDNODE | DenseNet169 | 384x384 | 0.7980 | 0.8338 |
-| ISIC'16+ISIC'17+ISIC'18+_7_point_criteria+ <br> PAD_UFES_20 | ResNet50 | 384x384 | 0.4199 | 0.4484 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2 | ResNet152 | 384x384 | 0.7028 | 0.7234 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2+ <br> _7_point_criteria+PAD_UFES_20+MEDNODE | ResNet152V2 | 384x384 | 0.8144 | 0.8284 |
-| ISIC'16+MEDNODE | Xception | 384x384 | 0.7409 | 0.7474 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20+PH2+ <br> _7_point_criteria+PAD_UFES_20+MEDNODE+KaggleMB | ResNet152V2 | 384x384 | 0.8009 | 0.8219 |
-| ISIC'16+ISIC'18+ISIC'19+ISIC'20 | DenseNet169 | 384x384 | 0.8195 | 0.8619 |
-| ISIC'16+ISIC'17+ISIC'18+ISIC'19+ISIC'20 | DenseNet169 | 384x384 | 0.7673 | 0.8267 |
+|  ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE+Kaggle | EfficientNetB1  | 224x224 | 0.9115  | 0.9063  |
+|  ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PAD_UFES_20+MEDNODE | EfficientNetB1  | 224x224 | 0.9069  | 0.9068  |
+|  ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+PAD_UFES_20+MEDNODE | DenseNet201  | 224x224 | 0.9061  | 0.9020  |
+|  ISIC2016+ISIC2020 | EfficientNetB2  | 224x224 | 0.9046  | 0.9145  |
+|  ISIC2016+ISIC2018+ISIC2019+ISIC2020 | ResNet152  | 224x24 | 0.9032  | 0.8975  |
+|  ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2 | ResNet152  | 224x224 | 0.9007  | 0.9040  |
+<!-- |  Multiple <sup id="a1">[3](#dataset)</sup> | Ensemble <sup id="a2">[4](#network)</sup>  | 150x150 | 0.7618  | 0.7621  | -->
+| ISIC2016+ISIC2018+ISIC2019+ISIC2020 | EfficientNetB1 | 224x224 | 0.9004 | 0.9057 |
+| ISIC2016+ISIC2017+ISIC2018+ISIC2019+ISIC2020+PH2+_7_point_criteria+MEDNODE+KaggleMB | ResNet101 | 224x224 | 0.8996 | 0.8868 |
+
 
 #### Note
-> <sup id="privatescore">1</sup> Score on 70% of private testsets. The potential winner(s) are determined solely by the leaderboard ranking on the private leaderboard. <br>
-> <sup id="publicscore">2</sup> Score on the public testsets for reference <br>
-> <sup id="dataset">3</sup> Averaged the models in the table, trained with multiple datasets <br>
-> <sup id="network">4</sup> Averaged the probabilities from the models in the table<br>
+> <sup id="privatescore">1</sup> Score on all test data. The potential winner(s) are determined solely by the leaderboard ranking on the private leaderboard. <br>
+> <sup id="publicscore">2</sup> Score on the public testsets for reference (30% of partial test data) <br>
+<!-- > <sup id="dataset">3</sup> Averaged the models in the table, trained with multiple datasets <br>
+> <sup id="network">4</sup> Averaged the probabilities from the models in the table<br> -->
 
 <!-- - ISIC contains the following diseases:
   - Actinic keratosis
@@ -64,15 +54,14 @@
 - Original Download link: https://challenge.isic-archive.com/data/
 - Folder-structured custom db: https://drive.google.com/file/d/1v_Nfg3QD5_TIr3Y-awIBm7lTFmVtIvQj/view?usp=drive_link -->
 
-## Environment (chimera clean env)
-- Keras - 2.5.0rc0
-- Tensorflow - 2.5.0
-- Augmentor - 0.2.10
-- matplotlib==3.2.1
-- pandas==1.2.0
-- numpy==1.19.4
-- pip install pydot
-- conda install -c anaconda graphviz
+## Environment
+- PyTorch 2.4.0
+<!-- - Keras - 2.5.0rc0 -->
+<!-- - Tensorflow - 2.5.0 -->
+<!-- - Augmentor - 0.2.10 -->
+- matplotlib==3.9.1
+- pandas==2.2.2
+- numpy==1.26.4
 
 ## Contact
 sanghyuk.kim001@umb.edu
